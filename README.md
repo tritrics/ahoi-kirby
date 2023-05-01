@@ -30,7 +30,7 @@ You need to enable the Plugin in ```/site/config/config.php```:
 'tritrics.restapi.enabled.node' => true,
 'tritrics.restapi.enabled.children' => true,
 
-# also you can optional set the slug under which the api is found (default /rest-api)
+# also you can optional set the slug under which the api is found (default is /rest-api)
 'tritrics.restapi.slug' = '/your-individual-slug',
 ```
 
@@ -51,43 +51,34 @@ As shown above in the settings section, there exist 4 methods to receive differe
 
 ### Languages
 
-Get information about the languages if Kirby is in multilang-mode.
+Get information about the languages if Kirby is in multilang-mode. (Method is not present in singlelang-mode.) Multilang-mode can be switched on in ```site/config/config.php```, see [documentation](https://getkirby.com/docs/guide/languages/introduction).
 
 ```http://my-domain.com/rest-api/languages```
 
-### Site
+### Node
 
-Get information and data from the site (as defined in ```blueprints/site.yml```).
+Get information and data from the a page or the site (as defined in ```blueprints/site.yml```).
 
-```http://my-domain.com/rest-api/site```
+```http://my-domain.com/rest-api/node[/langcode][/path/of/slugs]```
+
+- **langcode** is optional and only needed in multilang sites
+- **/path/of/slugs** is the url to the page, leave blank to get the site
 
 To get the fields-data add:
 
-```http://my-domain.com/rest-api/site?fields=all``` or
+```?fields=all``` or
 
-```http://my-domain.com/rest-api/site?fields[]=myfield&fields[]=otherfield```
+```?fields[]=myfield&fields[]=otherfield```
 
 The GET-query can also be replaced with POST-data:
 
 ```{ fields: [ myfield, otherfield ]}```
 
-In multilang-mode add the language-code:
-
-```http://my-domain.com/rest-api/site/langcode?fields=all```
-
-### Node
-
-Everything similar to site, but for a single page. The language-code is again optional. The page-slug must be added to the end:
-
-```http://my-domain.com/rest-api/node[/langcode]/the/path/to/page```
-
-Again add ```?fields=all``` request like above.
-
 ### Children
 
-Instead of returning the field-data, the **listed** child nodes from Kirby's pages section are returned (if existing in blueprint).
+Instead of returning the field-data, the **listed** child nodes from Kirby's pages section are returned (if existing in blueprint). Leave path empty to return children of the site.
 
-```http://my-domain.com/rest-api/children[/langcode]/the/path/to/page```
+```http://my-domain.com/rest-api/children[/langcode][/path/of/slugs]```
 
 Here the result can be configured by GET or POST-parameters:
 
@@ -95,6 +86,7 @@ Here the result can be configured by GET or POST-parameters:
 ?limit=10 (default) get only 10 childs
 ?page=1 (default) for pagination
 ?order=asc|desc (asc=ascending, default) the sort-order
+?fields=all|array like in node
 ```
 
 ## Images
