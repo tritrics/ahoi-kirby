@@ -1,0 +1,33 @@
+{
+  "name": "tritrics/kirby-api",
+  "description": "Kirby Rest API Plugin to use Kirby as data-backend",
+  "version": "0.1.0",
+  "type": "kirby-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michael Adams",
+      "email": "ma@tritrics.dk"
+    }
+  ],
+  "require": {
+    "getkirby/composer-installer": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tritrics\\Api\\": "lib/"
+    },
+    "files": [
+      "config.php"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "getkirby/composer-installer": true
+    },
+    "optimize-autoloader": true
+  },
+  "extra": {
+      "installer-name": "tritrics-rest-api"
+  }
+}
