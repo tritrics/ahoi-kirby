@@ -123,6 +123,8 @@ All options but the dimensions are optional.
 
 MIT
 
-## Supporting
+## Author
 
-Free to use, but I will be happy if you [buy me a coffee](https://www.buymeacoffee.com/tritrics).
+Michael Adams, Denmark
+E-Mail: [ma@tritrics.dk](mailto:ma@tritrics.dk)
+If you like this plugin, you can [buy me a coffee](https://www.buymeacoffee.com/tritrics).
