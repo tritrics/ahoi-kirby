@@ -26,7 +26,6 @@ You need to enable the Plugin in ```/site/config/config.php```:
 
 # or enable/disable each service
 'tritrics.restapi.enabled.languages' => true,
-'tritrics.restapi.enabled.site' => true,
 'tritrics.restapi.enabled.node' => true,
 'tritrics.restapi.enabled.children' => true,
 
@@ -47,7 +46,7 @@ fields:
 
 ## Methods
 
-As shown above in the settings section, there exist 4 methods to receive different information. Replace ```/rest-api``` in the following examples with your personal slug, if you have set one in ```config.php```.
+As shown above in the settings section, there exist 3 methods to receive different information. Replace ```/rest-api``` in the following examples with your personal slug, if you have set one in ```config.php```.
 
 ### Languages
 

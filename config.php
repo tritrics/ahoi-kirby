@@ -12,7 +12,6 @@ kirby()::plugin('tritrics/restapi', [
   'options' => [
     'enabled' => [
       'languages' => false,
-      'site' => false,
       'node' => false,
       'children' => false,
       'submit' => false
