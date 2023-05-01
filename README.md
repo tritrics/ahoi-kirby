@@ -37,10 +37,10 @@ Also each field, that should be published, has to be configured in the blueprint
 
 ```
 fields:
-	myfield:
-		type: text
-		label: My Field
-		api: true <--
+  myfield:
+    type: text
+    label: My Field
+    api: true <--
 		...
 ```
 
@@ -94,12 +94,12 @@ Resized images can be easily requested, which should by normally necessary when 
 
 ```
 {
-	dir: [http://domain.com/the/path/to/image/dir],
-	file: [the files basename, without extension],
-	ext: [the extension],
-	width: [the image width],
-	height: [the image height],
-	...
+  dir: [http://domain.com/the/path/to/image/dir],
+  file: [the files basename, without extension],
+  ext: [the extension],
+  width: [the image width],
+  height: [the image height],
+  ...
 }
 ```
 
