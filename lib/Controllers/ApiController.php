@@ -45,31 +45,6 @@ class ApiController
   }
 
   /**
-   * Get site's data
-   * @param mixed $lang 
-   * @return Response|array|void 
-   */
-  public function site ($lang)
-  {
-    $request = kirby()->request();
-    if ($request->method() === 'OPTIONS') {
-      return ApiService::ok();
-    }
-
-    try {
-      if ( ! ApiService::isEnabledSite()) {
-        return ApiService::disabled();
-      }
-      if (!LanguageService::isValid($lang)) {
-        return ApiService::invalidLang();
-      }
-      return NodeService::node(site(), $lang, FilterService::getFields($request));
-    } catch (Exception $e) {
-      return ApiService::fatal($e->getMessage());
-    }
-  }
-
-  /**
    * Get a single node
    * @param mixed $lang 
    * @param mixed $slug 
@@ -89,9 +64,13 @@ class ApiController
       if (!LanguageService::isValid($lang)) {
         return ApiService::invalidLang();
       }
-      $node = ApiService::findPageBySlug($lang, $slug);
-      if (!$node || $node->isDraft()) {
-        return ApiService::notFound();
+      if ($slug === null) {
+        $node = site();
+      } else {
+        $node = ApiService::findPageBySlug($lang, $slug);
+        if (!$node || $node->isDraft()) {
+          return ApiService::notFound();
+        }
       }
       return NodeService::node($node, $lang, FilterService::getFields($request));
     } catch (Exception $e) {
@@ -119,9 +98,13 @@ class ApiController
       if (!LanguageService::isValid($lang)) {
         return ApiService::badRequest();
       }
-      $node = ApiService::findPageBySlug($lang, $slug);
-      if (!$node || $node->isDraft()) {
-        return ApiService::notFound();
+      if ($slug === null) {
+        $node = site();
+      } else {
+        $node = ApiService::findPageBySlug($lang, $slug);
+        if (!$node || $node->isDraft()) {
+          return ApiService::notFound();
+        }
       }
       $params = [
         'page' => FilterService::getPage($request),

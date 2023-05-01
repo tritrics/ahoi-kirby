@@ -41,7 +41,8 @@ class FilterService
    */
   public static function getOrder ($request)
   {
-    $val = strtolower(trim($request->get('order')));
+    $val = strval($request->get('order'));
+    $val = strtolower(trim($val));
     if (is_string($val) && in_array($val, ['asc', 'desc'])) {
       return $val;
     }

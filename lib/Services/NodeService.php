@@ -82,19 +82,21 @@ class NodeService
       $offset = ($pagenum - 1) * $params['limit'];
       $children = $children->slice($offset, $params['limit']);
 
-      $head['abscount'] = $abscount;
       $head['page'] = $pagenum;
-      $head['pagecount'] = $pagecount;
-      $head['rangecount'] = $children->count();
-      $head['rangestart'] = $offset + 1;
-      $head['rangeend'] = $offset + $head['rangecount'];
-    } else {
+      $head['limit'] = $params['limit'];
       $head['abscount'] = $abscount;
+      $head['pagecount'] = $pagecount;
+      $head['rangestart'] = $offset + 1;
+      $head['rangeend'] = $offset + $children->count();
+      $head['rangecount'] = $children->count();
+    } else {
       $head['page'] = $abscount > 0 ? 1 : 0;
+      $head['limit'] = $params['limit'];
+      $head['abscount'] = $abscount;
       $head['pagecount'] = $abscount > 0 ? 1 : 0;
-      $head['rangecount'] = $abscount;
       $head['rangestart'] = $abscount > 0 ? 1 : 0;
       $head['rangeend'] = $abscount;
+      $head['rangecount'] = $abscount;
     }
 
     $res = ApiService::initResponse();

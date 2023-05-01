@@ -2,6 +2,7 @@
 
 namespace Tritrics\Api\Services;
 
+use Kirby\Cms\Language;
 use Tritrics\Api\Data\Collection;
 
 class LanguageService
@@ -41,6 +42,15 @@ class LanguageService
   }
 
   /**
+   * Multilang-site is defined in config.php: languages => true
+   * @return Language|null 
+   */
+  public static function isMultilang ()
+  {
+    return kirby()->defaultLanguage();
+  }
+
+  /**
    * checks, if given language is valid
    * return given language, default language or null on non-lang-sites
    * @param string $lang
@@ -48,6 +58,9 @@ class LanguageService
    */
   public static function isValid ($lang)
   {
+    if ($lang === null && !self::isMultilang()) {
+      return true;
+    }
     return kirby()->languages()->has($lang);
   }
 
@@ -58,6 +71,9 @@ class LanguageService
    * @return string
    */
   public static function getSlug ($code) {
+    if (!self::isMultilang()) {
+      return '';
+    }
     if (!isset(self::$slugs[$code])) {
       $language = kirby()->language($code);
       $name = $language->name();

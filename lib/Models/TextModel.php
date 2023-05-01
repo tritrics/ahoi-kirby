@@ -148,32 +148,32 @@ class TextModel extends Model
           $href = '/' . ltrim($langSlug . $href, '/');
         }
         $link->setAttribute('href', $href);
-        $link->setAttribute('data-link-intern', null);
+        $link->setAttribute('data-link-intern', '');
       }
       
       // mailto
       else if (substr($href, 0, 7) === 'mailto:') {
-        $link->setAttribute('data-link-email', null);
+        $link->setAttribute('data-link-email', '');
       }
       
       // tel
       else if (substr($href, 0, 4) === 'tel:') {
-        $link->setAttribute('data-link-tel', null);
+        $link->setAttribute('data-link-tel', '');
       }
       
       // anchor
       else if (substr($href, 0, 1) === '#') {
-        $link->setAttribute('data-link-anchor', null);
+        $link->setAttribute('data-link-anchor', '');
       }
 
       // extern links
       else if (substr($href, 0, 7) === 'http://' || substr($href, 0, 8) === 'https://') {
-        $link->setAttribute('data-link-extern', null);
+        $link->setAttribute('data-link-extern', '');
       }
       
       // intern links like /some/path or some/path
       else {
-        $link->setAttribute('data-link-intern', null);
+        $link->setAttribute('data-link-intern', '');
       }
     }
     return $dom;

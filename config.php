@@ -5,6 +5,7 @@ namespace Tritrics\Api;
 use Kirby\Exception\Exception;
 use Tritrics\Api\Controllers\ApiController;
 use Tritrics\Api\Services\ImageService;
+use Tritrics\Api\Services\LanguageService;
 use Tritrics\Api\Services\RouteService;
 
 kirby()::plugin('tritrics/restapi', [
@@ -43,11 +44,12 @@ kirby()::plugin('tritrics/restapi', [
     if ( ! $slug) {
       return [];
     }
+    $multilang = LanguageService::isMultilang();
     $routes = array();
 
     // language-based routes, only relevant if any language
     // exists in site/languages/
-    if ($kirby->defaultLanguage()) {
+    if ($multilang) {
 
       // default kirby route must be overwritten to prevent kirby
       // from redirecting to default language. This is done by
@@ -70,38 +72,74 @@ kirby()::plugin('tritrics/restapi', [
       ];
     }
 
-    // routes for plugin requests site | node | children
+    // a page
     $routes[] = [
-      'pattern' => $slug . '/site/(:any)',
+      'pattern' => $slug . ($multilang ? '/node/(:any)/(:all)' : '/node/(:all)'),
       'method' => 'GET|POST|OPTIONS',
-      'action' => function ($lang) {
+      'action' => function ($param1, $param2 = null) use ($multilang) {
         $controller = new ApiController();
-        return $controller->site($lang);
-      }
-    ];
-    $routes[] = [
-      'pattern' => $slug . '/node/(:any)/(:all)',
-      'method' => 'GET|POST|OPTIONS',
-      'action' => function ($lang, $id) {
-        $controller = new ApiController();
-        return $controller->node($lang, $id);
-      }
-    ];
-    $routes[] = [
-      'pattern' => $slug . '/children/(:any)/(:all)',
-      'method' => 'GET|POST|OPTIONS',
-      'action' => function ($lang, $id) {
-        $controller = new ApiController();
-        return $controller->children($lang, $id);
-      }
-    ];
-    $routes[] = [
-      'pattern' => $slug . '/submit/(:any)/(:any)',
-      'method' => 'POST|OPTIONS',
-        'action' => function ($lang, $action) {
-          $controller = new ApiController();
-          return $controller->submit($lang, $action);
+        if ($multilang) {
+          return $controller->node($param1, $param2);
+        } else {
+          return $controller->node(null, $param1);
         }
+      }
+    ];
+
+    // the site
+    $routes[] = [
+      'pattern' => $slug . ($multilang ? '/node/(:any)' : '/node'),
+      'method' => 'GET|POST|OPTIONS',
+      'action' => function ($param1 = null) use ($multilang) {
+        $controller = new ApiController();
+        if ($multilang) {
+          return $controller->node($param1, null);
+        } else {
+          return $controller->node(null, null);
+        }
+      }
+    ];
+
+    // children of a page
+    $routes[] = [
+      'pattern' => $slug . ($multilang ? '/children/(:any)/(:all)' : '/children/(:all)'),
+      'method' => 'GET|POST|OPTIONS',
+      'action' => function ($param1, $param2 = null) use ($multilang) {
+        $controller = new ApiController();
+        if ($multilang) {
+          return $controller->children($param1, $param2);
+        } else {
+          return $controller->children(null, $param1);
+        }
+      }
+    ];
+
+    // children of the site
+    $routes[] = [
+      'pattern' => $slug . ($multilang ? '/children/(:any)' : '/children'),
+      'method' => 'GET|POST|OPTIONS',
+      'action' => function ($param1 = null) use ($multilang) {
+        $controller = new ApiController();
+        if ($multilang) {
+          return $controller->children($param1, null);
+        } else {
+          return $controller->children(null, null);
+        }
+      }
+    ];
+
+    // post
+    $routes[] = [
+      'pattern' => $slug . ($multilang ? '/submit/(:any)/(:any)' : '/submit/(:any)'),
+      'method' => 'POST|OPTIONS',
+      'action' => function ($param1, $param2 = null) use ($multilang) {
+        $controller = new ApiController();
+        if ($multilang) {
+          return $controller->submit($param1, $param2);
+        } else {
+          return $controller->submit(null, $param1);
+        }
+      }
     ];
     return $routes;
   }

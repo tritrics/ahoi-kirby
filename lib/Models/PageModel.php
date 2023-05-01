@@ -29,7 +29,9 @@ class PageModel extends Model
     $res->add('id', $this->model->id());
     $res->add('parent', $this->getParentUri($this->lang));
     $res->add('slug',  $this->getSlug($this->lang));
-    $res->add('lang', $this->lang);
+    if ($this->lang !== null) {
+      $res->add('lang', $this->lang);
+    }
     $res->add('title', $content->title()->get());
     $res->add('status', $this->model->status());
     $res->add('sort', (int) $this->model->num());
@@ -42,7 +44,7 @@ class PageModel extends Model
     $link->add('uri', $this->getUri($this->lang));
     $link->add('title', $content->title()->get());
 
-    if ($this->add_translations) {
+    if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguageService::getAll() as $lang => $data) {
         $translation = $translations->add($lang);
