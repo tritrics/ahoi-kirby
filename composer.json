@@ -1,7 +1,6 @@
 {
   "name": "tritrics/kirby-rest-api",
   "description": "Kirby Rest API Plugin to use Kirby as data-backend",
-  "version": "0.1.1",
   "type": "kirby-plugin",
   "license": "MIT",
   "authors": [
