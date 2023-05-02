@@ -24,7 +24,7 @@ class FileModel extends Model
     $res->add('file', $pathinfo['filename']);
     $res->add('ext', $ext);
     $res->add('blueprint', $this->model->template());
-    $res->add('is-image', $this->model->type() === 'image');
+    $res->add('isimage', $this->model->type() === 'image');
     if ($this->model->type() === 'image') {
       $res->add('width', $this->model->width());
       $res->add('height', $this->model->height());
