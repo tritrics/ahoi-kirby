@@ -35,7 +35,8 @@ class LanguageService
         'default' => $language->isDefault(),
         'locale' => self::getLocale($language),
         'direction' => $language->direction(),
-        'homeslug' => $home->uri($language->code())
+        'homeslug' => $home->uri($language->code()),
+        'translations' => $language->translations()
       ]);
     }
     return $res;
