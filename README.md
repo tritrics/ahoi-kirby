@@ -127,4 +127,3 @@ MIT
 
 Michael Adams, Denmark  
 E-Mail: [ma@tritrics.dk](mailto:ma@tritrics.dk)  
-If you like this plugin, you can [buy me a coffee](https://www.buymeacoffee.com/tritrics).

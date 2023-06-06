@@ -66,12 +66,13 @@ class ApiService
   }
 
   /** */
-  public static function initResponse()
+  public static function initResponse($status = 200, $msg = 'OK')
   {
     $Request = kirby()->request();
     $res = new Collection();
-    $res->add('ok', true);
-    $res->add('status', 200);
+    $res->add('ok', $status === 200);
+    $res->add('status', $status);
+    $res->add('msg', $msg);
     $res->add('url', $Request->url()->toString());
     return $res;
   }
@@ -83,7 +84,7 @@ class ApiService
    */
   public static function ok ( $msg = 'OK' )
   {
-    return Response::json([ 'status' => 200, 'msg' => $msg ], 200);
+    return Response::json(self::initResponse(200, $msg)->get(), 200);
   }
 
   /**
@@ -102,7 +103,7 @@ class ApiService
    */
   public static function badRequest ( $msg = 'Bad Request' )
   {
-    return Response::json([ 'status' => 400, 'msg' => $msg ], 400);
+    return Response::json(self::initResponse(400, $msg)->get(), 400);
   }
 
   /**
@@ -112,7 +113,7 @@ class ApiService
    */
   public static function disabled ( $msg = 'API is disabled for this action')
   {
-    return Response::json([ 'status' => 403, 'msg' => $msg ], 403);
+    return Response::json(self::initResponse(403, $msg)->get(), 403);
   }
 
   /**
@@ -122,7 +123,7 @@ class ApiService
    */
   public static function notFound ( $msg = 'Page is not found' )
   {
-    return Response::json([ 'status' => 404, 'msg' => $msg ], 404);
+    return Response::json(self::initResponse(404, $msg)->get(), 404);
   }
 
   /**
@@ -132,7 +133,7 @@ class ApiService
    */
   public static function notAllowed ( $msg = 'Action not allowed' )
   {
-    return Response::json([ 'status' => 405, 'msg' => $msg ], 405);
+    return Response::json(self::initResponse(405, $msg)->get(), 405);
   }
 
   /**
@@ -142,7 +143,7 @@ class ApiService
    */
   public static function fatal ( $msg = 'Internal Server Error' )
   {
-    return Response::json([ 'status' => 500, 'msg' => $msg ], 500);
+    return Response::json(self::initResponse(500, $msg)->get(), 500);
   }
 
   /**
