@@ -4,13 +4,14 @@ namespace Tritrics\Api\Services;
 
 use Kirby\Cms\Response;
 use Tritrics\Api\Data\Collection;
+use Tritrics\Api\Services\LanguageService;
 
 class ApiService
 {
   /**
    * @return bool 
    */
-  public static function isEnabledLanguages ()
+  public static function isEnabledLanguages()
   {
     return self::isEnabled('languages');
   }
@@ -18,7 +19,7 @@ class ApiService
   /**
    * @return bool 
    */
-  public static function isEnabledSite ()
+  public static function isEnabledSite()
   {
     return self::isEnabled('site');
   }
@@ -26,7 +27,7 @@ class ApiService
   /**
    * @return bool 
    */
-  public static function isEnabledNode ()
+  public static function isEnabledNode()
   {
     return self::isEnabled('node');
   }
@@ -34,7 +35,7 @@ class ApiService
   /**
    * @return bool 
    */
-  public static function isEnabledChildren ()
+  public static function isEnabledChildren()
   {
     return self::isEnabled('children');
   }
@@ -42,7 +43,7 @@ class ApiService
   /**
    * @return bool 
    */
-  public static function isEnabledSubmit ()
+  public static function isEnabledSubmit()
   {
     return self::isEnabled('submit');
   }
@@ -54,9 +55,9 @@ class ApiService
    * @param mixed $slug 
    * @return mixed 
    */
-  public static function findPageBySlug ($lang, $slug)
+  public static function findPageBySlug($lang, $slug)
   {
-    if (kirby()->multilang()) {
+    if (LanguageService::isMultilang()) {
       $pages = kirby()->site()->pages();
       $keys = explode('/', trim($slug, '/'));
       return self::findPageBySlugRec($pages, $lang, $keys);
@@ -82,7 +83,7 @@ class ApiService
    * @param string $msg 
    * @return Response 
    */
-  public static function ok ( $msg = 'OK' )
+  public static function ok($msg = 'OK')
   {
     return Response::json(self::initResponse(200, $msg)->get(), 200);
   }
@@ -91,9 +92,9 @@ class ApiService
    * Shortcut for Bad Request
    * @return Response 
    */
-  public static function invalidLang ()
+  public static function invalidLang()
   {
-    return self::badRequest ('Given language is not valid');
+    return self::badRequest('Given language is not valid');
   }
 
   /**
@@ -101,7 +102,7 @@ class ApiService
    * @param string $msg 
    * @return Response 
    */
-  public static function badRequest ( $msg = 'Bad Request' )
+  public static function badRequest($msg = 'Bad Request')
   {
     return Response::json(self::initResponse(400, $msg)->get(), 400);
   }
@@ -111,7 +112,7 @@ class ApiService
    * @param string $msg 
    * @return Response 
    */
-  public static function disabled ( $msg = 'API is disabled for this action')
+  public static function disabled($msg = 'API is disabled for this action')
   {
     return Response::json(self::initResponse(403, $msg)->get(), 403);
   }
@@ -121,7 +122,7 @@ class ApiService
    * @param string $msg 
    * @return Response 
    */
-  public static function notFound ( $msg = 'Page is not found' )
+  public static function notFound($msg = 'Page is not found')
   {
     return Response::json(self::initResponse(404, $msg)->get(), 404);
   }
@@ -131,7 +132,7 @@ class ApiService
    * @param string $msg 
    * @return Response 
    */
-  public static function notAllowed ( $msg = 'Action not allowed' )
+  public static function notAllowed($msg = 'Action not allowed')
   {
     return Response::json(self::initResponse(405, $msg)->get(), 405);
   }
@@ -141,7 +142,7 @@ class ApiService
    * @param string $msg 
    * @return Response 
    */
-  public static function fatal ( $msg = 'Internal Server Error' )
+  public static function fatal($msg = 'Internal Server Error')
   {
     return Response::json(self::initResponse(500, $msg)->get(), 500);
   }
@@ -151,7 +152,7 @@ class ApiService
    * @param string $method post|get
    * @return bool 
    */
-  private static function isEnabled ($method)
+  private static function isEnabled($method)
   {
     $global = kirby()->option('tritrics.restapi.enabled', false);
     $setting = kirby()->option('tritrics.restapi.enabled.' . $method, false);
@@ -165,7 +166,7 @@ class ApiService
    * @param mixed $keys 
    * @return mixed 
    */
-  private static function findPageBySlugRec ($collection, $lang, $keys)
+  private static function findPageBySlugRec($collection, $lang, $keys)
   {
     $key = array_shift($keys);
     foreach ($collection as $page) {

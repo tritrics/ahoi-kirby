@@ -105,7 +105,7 @@ abstract class Model extends Collection
       }
     }
     if ($mixed !== null) {
-      $this->add('value', $mixed);
+      $res = $this->add('value', $mixed);
     }
   }
 

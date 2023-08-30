@@ -5,6 +5,7 @@ namespace Tritrics\Api\Models;
 use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;
 use Tritrics\Api\Services\LanguageService;
+use Tritrics\Api\Services\LinkService;
 
 
 /** */
@@ -27,7 +28,7 @@ class PageModel extends Model
 
     $res = new Collection();
     $res->add('id', $this->model->id());
-    $res->add('parent', $this->getParentUri($this->lang));
+    $res->add('parent', $this->getParentUrl($this->lang));
     $res->add('slug',  $this->getSlug($this->lang));
     if ($this->lang !== null) {
       $res->add('lang', $this->lang);
@@ -38,19 +39,12 @@ class PageModel extends Model
     $res->add('modified',  date('c', $this->model->modified()));
     $res->add('blueprint', (string) $this->model->intendedTemplate());
     $res->add('home', $this->model->isHomePage());
-
-    $link = $res->add('link');
-    $link->add('type', 'intern');
-    $link->add('uri', $this->getUri($this->lang));
-    $link->add('title', $content->title()->get());
+    $res->add('link', LinkService::getPage($this->getUrl($this->lang), $content->title()->get()));
 
     if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguageService::getAll() as $lang => $data) {
-        $translation = $translations->add($lang);
-        $translation->add('type', 'intern');
-        $translation->add('uri', $this->getUri($lang));
-        $translation->add('title', $data->node('name')->get());
+        $translations->add($lang, LinkService::getPage($this->getUrl($lang), $data->node('name')->get()));
       }
     }
     return $res;
@@ -60,14 +54,14 @@ class PageModel extends Model
   protected function getValue () {}
 
   /** */
-  private function getUri ($lang) : string
+  private function getUrl ($lang) : string
   {
     $langSlug = LanguageService::getSlug($lang);
     return '/' . ltrim($langSlug . '/' . $this->model->uri($lang), '/');
   }
 
   /** */
-  private function getParentUri ($lang) : string
+  private function getParentUrl ($lang) : string
   {
     $langSlug = LanguageService::getSlug($lang);
     $parent = $this->model->parent();

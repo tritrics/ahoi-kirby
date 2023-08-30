@@ -122,23 +122,6 @@ class Collection implements IteratorAggregate
     return $this->data[$key];
   }
 
-  //final public function addOld ($key /*, mixed */)
-  //{
-  //  if ($this->isCollection() && $this->isKey($key)) {
-  //    if (func_num_args() === 2) {
-  //      $value = func_get_arg(1);
-  //      if ($value instanceof Collection) {
-  //        $this->data[$key] = $value;
-  //      } else {
-  //        $this->data[$key] = new Collection($value);
-  //      }
-  //    } else {
-  //      $this->data[$key] = new Collection();
-  //    }
-  //    return $this->data[$key];
-  //  }
-  //}
-
   /**
    * Same like add() + set(), but for numerical index.
    * 
@@ -176,18 +159,12 @@ class Collection implements IteratorAggregate
   final public function get () : array|string|int|float|null
   {
     // $data is an array
-    // sort nodes for nicer output
     if ($this->isCollection()) {
-      $nodes = [];
       $childs = [];
       foreach ($this->data as $key => $value) {
-        if ($value->isCollection()) {
-          $childs[$key] = $value->get();
-        } else {
-          $nodes[$key] = $value->get();
-        }
+        $childs[$key] = $value->get();
       }
-      return array_merge($nodes, $childs);
+      return $childs;
     }
     
     // single node, but object

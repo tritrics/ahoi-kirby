@@ -4,6 +4,7 @@ namespace Tritrics\Api\Models;
 
 use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;
+use Tritrics\Api\Services\LinkService;
 
 /** */
 class FileModel extends Model
@@ -34,10 +35,10 @@ class FileModel extends Model
     if (!$title) {
       $title = $pathinfo['filename'];
     }
-    $link = $res->add('link');
-    $link->add('type', 'file');
-    $link->add('uri', $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '.' . $ext);
-    $link->add('title', $title);
+    $res->add('link', LinkService::getFile(
+      $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '.' . $ext,
+      $title
+    ));
     return $res;
   }
 

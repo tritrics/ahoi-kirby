@@ -3,9 +3,8 @@
 namespace Tritrics\Api\Models;
 
 use Collator;
-use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;
-use Tritrics\Api\Services\LanguageService;
+use Tritrics\Api\Services\LinkService;
 
 /** */
 class TextModel extends Model
@@ -102,80 +101,70 @@ class TextModel extends Model
     // make HTML editabel
     $dom = new \DOMDocument();
     $dom->preserveWhiteSpace = false;
-    $dom->loadHTML('<?xml encoding="UTF-8"><div>' . $buffer . '</div>', LIBXML_HTML_NOIMPLIED);
-    
-    // parse links
-    $dom = $this->parseLinks($dom);
+    $dom->loadHTML('<!DOCTYPE html><html><head></head><body>' . $buffer . '</body></html>');
+    $nodelist = $dom->getElementsByTagName('body');
+    $body = $nodelist->item(0);
 
-    // ... more to come
-
-    $html = substr($dom->saveHTML($dom->getElementsByTagName('div')->item(0)), 5, -6);
-
-    // cosmetic
-    $html = str_replace(["=\"\""], "", $html);
+    // get html as array
+    $html = $this->htmlToArray($body);
+    if (isset($html[1]) && is_array($html[1])) { // top-elem is <body> we don't need
+      $html = $html[1];
+    } else {
+      $html = [];
+    }
     return $html;
   }
 
   /**
-   * Correct intern links, add target="_blank" to extern links
+   * Credits to https://gist.github.com/yosko/6991691
+   * @param mixed $root 
+   * @return mixed 
    */
-  private function parseLinks ($dom)
+  function htmlToArray($root)
   {
-    $kirby = kirby();
-    $site = site();
-    $url = rtrim($site->url($this->lang), '/');
-    $mediaUrl = rtrim($kirby->url('media'), '/');
-    $homeSlug = $site->homePage()->uri($this->lang);
-    $langSlug = LanguageService::getSlug($this->lang);
-
-    $links = $dom->getElementsByTagName('a');
-    foreach ($links as $link){
-      $href = $link->getAttribute('href');
-
-      // media link, keep as it is
-      if (substr($href, 0, strlen($mediaUrl)) === $mediaUrl) {
-        $link->setAttribute('data-link-file', null);
-        //$link->setAttribute('target', '_blank');
-        $link->removeAttribute('download');
-      }
-
-      // intern link starting with host
-      else if (substr($href, 0, strlen($url)) === $url) {
-        $href = substr($href, strlen($url));
-        if ($href === '' . $langSlug || $href === '/' . $langSlug) {
-          $href = '/' . ltrim($langSlug . '/' . $homeSlug, '/');
-        } else {
-          $href = '/' . ltrim($langSlug . $href, '/');
+    // node with nodetype
+    if ($root->nodeType == XML_ELEMENT_NODE) {
+      $res = [ strtolower($root->nodeName) ];
+      if ($root->hasChildNodes()) {
+        $res[1] = [];
+        $children = $root->childNodes;
+        for ($i = 0; $i < $children->length; $i++) {
+          $child = $this->htmlToArray($children->item($i));
+          if (!empty($child)) {
+            $res[1][] = $child;
+          }
         }
-        $link->setAttribute('href', $href);
-        $link->setAttribute('data-link-intern', '');
-      }
-      
-      // mailto
-      else if (substr($href, 0, 7) === 'mailto:') {
-        $link->setAttribute('data-link-email', '');
-      }
-      
-      // tel
-      else if (substr($href, 0, 4) === 'tel:') {
-        $link->setAttribute('data-link-tel', '');
-      }
-      
-      // anchor
-      else if (substr($href, 0, 1) === '#') {
-        $link->setAttribute('data-link-anchor', '');
+        if (count($res[1]) === 1) {
+          $res[1] = $res[1][0];
+        }
       }
 
-      // extern links
-      else if (substr($href, 0, 7) === 'http://' || substr($href, 0, 8) === 'https://') {
-        $link->setAttribute('data-link-extern', '');
+      // add attributes as optional 3rd entry
+      if ($root->hasAttributes()) {
+        $res[2] = [];
+        foreach ($root->attributes as $attribute) {
+          $res[2][$attribute->name] = $attribute->value;
+        }
+
+        // change attributes, if it's a link
+        if ($res[0] === 'a') {
+          $res[2] = LinkService::get(
+            $this->lang,
+            $res[2]['href'],
+            (isset($res[2]['title']) ? $res[2]['title'] : null),
+            (isset($res[2]['target']) && $res[2]['target'] === '_blank')
+          );
+        }
       }
-      
-      // intern links like /some/path or some/path
-      else {
-        $link->setAttribute('data-link-intern', '');
+      return $res;
+    }
+
+    // text node
+    if ($root->nodeType == XML_TEXT_NODE || $root->nodeType == XML_CDATA_SECTION_NODE) {
+      $value = $root->nodeValue;
+      if (!empty($value)) {
+        return $value;
       }
     }
-    return $dom;
   }
 }
