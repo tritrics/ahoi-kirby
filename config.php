@@ -21,12 +21,12 @@ kirby()::plugin('tritrics/restapi', [
   ],
   'hooks' => [
     'page.create:before' => function ($page, array $input) {
-      if(RouteService::isProtectedSlug($input['slug'])) {
+      if (RouteService::isProtectedSlug($input['slug'])) {
         throw new Exception('Slug not allowed');
       }
     },
     'page.changeSlug:before' => function ($page, string $slug, ?string $languageCode = null) {
-      if(RouteService::isProtectedSlug($slug)) {
+      if (RouteService::isProtectedSlug($slug)) {
         throw new Exception('Slug not allowed');
       }
     },
@@ -40,7 +40,7 @@ kirby()::plugin('tritrics/restapi', [
   ],
   'routes' => function ($kirby) {
     $slug = RouteService::getApiSlug();
-    if ( ! $slug) {
+    if (!$slug) {
       return [];
     }
     $multilang = LanguageService::isMultilang();
@@ -71,59 +71,25 @@ kirby()::plugin('tritrics/restapi', [
       ];
     }
 
-    // a page
+    // a node
     $routes[] = [
-      'pattern' => $slug . ($multilang ? '/node/(:any)/(:all)' : '/node/(:all)'),
+      'pattern' => $slug . '/node/(:all?)',
       'method' => 'GET|POST|OPTIONS',
-      'action' => function ($param1, $param2 = null) use ($multilang) {
+      'action' => function ($path = '') use ($multilang) {
         $controller = new ApiController();
-        if ($multilang) {
-          return $controller->node($param1, $param2);
-        } else {
-          return $controller->node(null, $param1);
-        }
+        list($lang, $slug) = RouteService::parsePath($path, $multilang);
+        return $controller->node($lang, $slug);
       }
     ];
 
-    // the site
+    // children of a node
     $routes[] = [
-      'pattern' => $slug . ($multilang ? '/node/(:any)' : '/node'),
+      'pattern' => $slug . '/children/(:all?)',
       'method' => 'GET|POST|OPTIONS',
-      'action' => function ($param1 = null) use ($multilang) {
+      'action' => function ($path = '') use ($multilang) {
         $controller = new ApiController();
-        if ($multilang) {
-          return $controller->node($param1, null);
-        } else {
-          return $controller->node(null, null);
-        }
-      }
-    ];
-
-    // children of a page
-    $routes[] = [
-      'pattern' => $slug . ($multilang ? '/children/(:any)/(:all)' : '/children/(:all)'),
-      'method' => 'GET|POST|OPTIONS',
-      'action' => function ($param1, $param2 = null) use ($multilang) {
-        $controller = new ApiController();
-        if ($multilang) {
-          return $controller->children($param1, $param2);
-        } else {
-          return $controller->children(null, $param1);
-        }
-      }
-    ];
-
-    // children of the site
-    $routes[] = [
-      'pattern' => $slug . ($multilang ? '/children/(:any)' : '/children'),
-      'method' => 'GET|POST|OPTIONS',
-      'action' => function ($param1 = null) use ($multilang) {
-        $controller = new ApiController();
-        if ($multilang) {
-          return $controller->children($param1, null);
-        } else {
-          return $controller->children(null, null);
-        }
+        list($lang, $slug) = RouteService::parsePath($path, $multilang);
+        return $controller->children($lang, $slug);
       }
     ];
 

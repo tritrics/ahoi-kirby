@@ -44,11 +44,15 @@ class LanguageService
 
   /**
    * Multilang-site is defined in config.php: languages => true
+   * AND the existence of the folder site/languages (delete folder to have single-language setup)
    * @return Language|null 
    */
   public static function isMultilang ()
   {
-    return kirby()->defaultLanguage();
+    return kirby()->option('languages', false);
+
+    // not working correctly: true, even if config is false
+    // return kirby()->multilang() ? true : false;
   }
 
   /**

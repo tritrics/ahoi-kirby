@@ -46,11 +46,11 @@ class ApiController
 
   /**
    * Get a single node
-   * @param mixed $lang 
-   * @param mixed $slug 
+   * @param string|null $lang
+   * @param string|null $slug
    * @return Response|array|void 
    */
-  public function node ($lang, $slug)
+  public function node($lang, $slug)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -80,8 +80,8 @@ class ApiController
 
   /**
    * Get the children of a page, optionally filtered, limited etc.
-   * @param mixed $lang 
-   * @param mixed $slug 
+   * @param string|null $lang
+   * @param string|null $slug
    * @return Response|array 
    */
   public function children ($lang, $slug)

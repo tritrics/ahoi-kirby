@@ -2,6 +2,8 @@
 
 namespace Tritrics\Api\Services;
 
+use Tritrics\Api\Services\LanguageService;
+
 class RouteService
 {
   /**
@@ -27,5 +29,28 @@ class RouteService
     $path = strtolower(kirby()->option('tritrics.restapi.slug'));
     $slugs = explode('/', $path);
     return in_array(strtolower($slug), $slugs);
+  }
+
+  /**
+   * Parse the given path and return language and node. In a multi language
+   * installation, the first part of the path must be a valid language (which
+   * is not validated here).
+   * 
+   * single language installation:
+   * "/" -> site
+   * "/some/page" -> page
+   * 
+   * multi language installation:
+   * "/en" -> english version of site
+   * "/en/some/page" -> english version of page "/some/path"
+   * @param mixed $path 
+   * @param bool $multilang
+   * @return array 
+   */
+  public static function parsePath($path, $multilang) {
+    $parts = array_filter(explode('/', $path));
+    $lang = $multilang ? array_shift($parts) : null;
+    $slug = count($parts) > 0 ? implode('/', $parts) : null;
+    return [ $lang, $slug];
   }
 }
