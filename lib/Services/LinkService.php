@@ -56,10 +56,6 @@ class LinkService
         self::$referer['port'] = self::$backend['port'];
       }
 
-      // delete
-      self::$referer['host'] = 'localhost';
-      self::$referer['port'] = 8081;
-
       $home = self::parseUrl(site()->homePage()->uri(self::$lang));
       self::$slugs['home'] = $home['path'];
       $media = self::parseUrl(kirby()->url('media'));
@@ -97,7 +93,7 @@ class LinkService
 
     // file links
     if (self::isInternLink($parts, self::$backend)) {
-      if (isset($parts['path']) && substr($parts['path'], strlen(self::$slugs['media'])) === self::$slugs['media']) {
+      if (isset($parts['path']) && substr($parts['path'], 0, strlen(self::$slugs['media'])) === self::$slugs['media']) {
         $parts['host'] = self::$backend['host']; // make absolute links to be sure
         if (self::$backend['port']) {
           $parts['port'] = self::$backend['port'];
@@ -151,22 +147,35 @@ class LinkService
   {
     // check and correct links to home page(s)
     $parts = self::parseUrl($path);
+
+    // path is empty, set path to homepage, optional with prepending lang
     if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {
       if (self::$multilang) {
         $parts['path'] = self::$slugs['lang'] . self::$slugs['home'];
       } else {
         $parts['path'] = self::$slugs['home'];
       }
-    } else if (self::$multilang) {
-      $slugs = array_filter(explode('/', $parts['path']));
-      if (count($slugs) === 1) {
-        $lang = array_shift($slugs);
-        $allLang = LanguageService::getAll();
-        foreach($allLang as $settings) {
-          if ($settings->node('slug')->get() === $lang) {
-            $parts['path'] = '/' . $settings->node('slug')->get() . '/' . $settings->node('homeslug')->get();
-          }
+    }
+    
+    // path is not empty in a multilang installation
+    else if (self::$multilang) {
+      $slugs = array_values(array_filter(explode('/', $parts['path'])));
+      $lang = count($slugs) > 0 ? $slugs[0] : null;
+      $langSettings = null;
+      foreach (LanguageService::getAll() as $settings) {
+        if($settings->node('slug')->get() === $lang) {
+          $langSettings = $settings;
         }
+      }
+
+      // prepend current language, if path doesn't begin with a valid lang
+      if ($langSettings === null) {
+        $parts['path'] = rtrim(self::$slugs['lang'] . '/' . implode('/', $slugs), '/');
+      }
+      
+      // rewrite simple lang-path like /en to /en/home
+      else if (count($slugs) === 1) {
+        $parts['path'] = '/' . $lang . '/' . $langSettings->node('homeslug')->get();
       }
     }
     $res = [
@@ -281,7 +290,10 @@ class LinkService
       $parts['port'] = (int) $parts['port'];
     }
     if (isset($parts['path'])) {
-      $parts['path'] = '/' . trim(strtolower($parts['path']), '/');
+      $parts['path'] = trim(strtolower($parts['path']), '/');
+      if (!isset($parts['scheme']) || !in_array($parts['scheme'],['mailto', 'tel'])) {
+        $parts['path'] = '/' . $parts['path'];
+      }
     }
     if (isset($parts['fragment'])) {
       if (strpos($parts['fragment'], '?') === false) {
