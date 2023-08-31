@@ -2,8 +2,6 @@
 
 namespace Tritrics\Api\Services;
 
-use Tritrics\Api\Services\LanguageService;
-
 class RouteService
 {
   /**
