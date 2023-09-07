@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 use Collator;
 use Tritrics\Api\Data\Model;
@@ -33,8 +33,8 @@ class TextModel extends Model
    * | writer, list | inline: false          | html       | <blocks>          | html           |
    * |              |                        |            | <br>              |                |
    * |--------------|------------------------|------------|-------------------|----------------|
-   * | writer       | inline: true           | html       | <br>              | html-inline    |
-   * |              |                        |            | no wrapping block |                |
+   * | writer       | inline: true           | html       | <br>              | html           |
+   * |              | or nor breaks in text  |            |                   | without elem   |
    * -------------------------------------------------------------------------------------------
    * 
    * Textarea parsing as html is provided for older Kirby-projects, where writer-field was
@@ -62,11 +62,7 @@ class TextModel extends Model
         $this->type = 'html';
         break;
       case 'writer':
-        if ($this->blueprint->node('inline')->is(true)) {
-          $this->type = 'html-inline';
-        } else {
-          $this->type = 'html';
-        }
+        $this->type = 'html';
         break;
       default: // text, slug
         $this->type = 'text';
@@ -78,7 +74,7 @@ class TextModel extends Model
   /** */
   protected function getValue ()
   {
-    if ($this->type !== 'html' && $this->type !== 'html-inline') {
+    if ($this->type !== 'html') {
       return '' . $this->model->value();
     }
 
@@ -98,21 +94,44 @@ class TextModel extends Model
     // delete special elements
     $buffer = str_replace(["<figure>", "</figure>"], "", $buffer);
 
-    // make HTML editabel
+    // make HTML editabel and get as array
     $dom = new \DOMDocument();
     $dom->preserveWhiteSpace = false;
-    $dom->loadHTML('<!DOCTYPE html><html><head></head><body>' . $buffer . '</body></html>');
+    $dom->loadHTML('
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        </head>
+        <body>' . $buffer . '</body>
+      </html>'
+    );
     $nodelist = $dom->getElementsByTagName('body');
-    $body = $nodelist->item(0);
+    $res = $this->htmlToArray($nodelist->item(0));
+    unset($res['elem']); // body
 
-    // get html as array
-    $html = $this->htmlToArray($body);
-    if (isset($html[1]) && is_array($html[1])) { // top-elem is <body> we don't need
-      $html = $html[1];
-    } else {
-      $html = [];
+    if (isset($res['children'])) {
+      if (count($res['children']) === 1) {
+        $res = array_shift($res['children']);
+      } else {
+        $res = $res['children'];
+      }
     }
-    return $html;
+
+    /**
+     * $res can be:
+     * 
+     * 1. a simple text
+     * { text: 'the text' }
+     * 
+     * 2. a single block-element
+     * { elem: 'h1', text: 'the text' }
+     * 
+     * 3. an array with more than one of the above where every
+     *    possible sub-element is in node children
+     * [ { elem: 'h1', text: 'the text' }, { elem: 'p', children: [] }]
+     */
+    return $res;
   }
 
   /**
@@ -124,35 +143,39 @@ class TextModel extends Model
   {
     // node with nodetype
     if ($root->nodeType == XML_ELEMENT_NODE) {
-      $res = [ strtolower($root->nodeName) ];
+      $res = [ 'elem' => strtolower($root->nodeName) ];
       if ($root->hasChildNodes()) {
-        $res[1] = [];
+        $res['children'] = [];
         $children = $root->childNodes;
         for ($i = 0; $i < $children->length; $i++) {
           $child = $this->htmlToArray($children->item($i));
           if (!empty($child)) {
-            $res[1][] = $child;
+            $res['children'][] = $child;
           }
         }
-        if (count($res[1]) === 1) {
-          $res[1] = $res[1][0];
+
+        // if it's only a block-element with simple text, then remove children
+        // <h1>Headline</h1> => [ 'elem' => 'h1', 'text' => 'Headline' ]
+        if (count($res['children']) === 1 && count($res['children'][0]) === 1 && isset($res['children'][0]['text'])) {
+          $res['text'] = $res['children'][0]['text'];
+          unset($res['children']);
         }
       }
 
       // add attributes as optional 3rd entry
       if ($root->hasAttributes()) {
-        $res[2] = [];
+        $res['attr'] = [];
         foreach ($root->attributes as $attribute) {
-          $res[2][$attribute->name] = $attribute->value;
+          $res['attr'][$attribute->name] = $attribute->value;
         }
 
         // change attributes, if it's a link
-        if ($res[0] === 'a') {
-          $res[2] = LinkService::get(
+        if ($res['elem'] === 'a') {
+          $res['attr'] = LinkService::get(
             $this->lang,
-            $res[2]['href'],
-            (isset($res[2]['title']) ? $res[2]['title'] : null),
-            (isset($res[2]['target']) && $res[2]['target'] === '_blank')
+            $res['attr']['href'],
+            (isset($res['attr']['title']) ? $res['attr']['title'] : null),
+            (isset($res['attr']['target']) && $res['attr']['target'] === '_blank')
           );
         }
       }
@@ -163,7 +186,7 @@ class TextModel extends Model
     if ($root->nodeType == XML_TEXT_NODE || $root->nodeType == XML_CDATA_SECTION_NODE) {
       $value = $root->nodeValue;
       if (!empty($value)) {
-        return $value;
+        return ['text' => $value];
       }
     }
   }

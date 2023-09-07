@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 use Tritrics\Api\Data\Model;
 use Tritrics\Api\Services\GlobalService;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;

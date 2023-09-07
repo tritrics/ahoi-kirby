@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;
@@ -10,7 +10,7 @@ class BlocksModel extends Model
 {
   /** */
   private $classMap = [
-    'heading' => 'Tritrics\Api\Models\BlockHeadingModel',
+    'heading' => 'Tritrics\Api\Blocks\HeadingModel',
   ];
 
   /** */
@@ -22,7 +22,7 @@ class BlocksModel extends Model
       if (isset($this->classMap[$type])) {
         $blockClass = $this->classMap[$type];
       } else {
-        $blockClass = 'Tritrics\Api\Models\BlockDefaultModel';
+        $blockClass = 'Tritrics\Api\Blocks\DefaultModel';
       }
       $blueprint = $this->blueprint->node('blocks', $type);
       if ($blueprint->has('fields')) {

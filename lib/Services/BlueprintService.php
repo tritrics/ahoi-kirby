@@ -69,7 +69,7 @@ class BlueprintService
     if (isset($blueprint['api']) && is_array($blueprint['api'])) {
       $res->add('api', $blueprint['api']);
     }
-    $fields = self::getFields($blueprint, $add_title_field, true);
+    $fields = self::getFields($blueprint, false, $add_title_field, true);
     $res->add('fields', $fields);
     return $res;
   }
@@ -102,6 +102,21 @@ class BlueprintService
    */
   private static function extend ($nodes)
   {
+    // rewrite fieldsets of block, which can be notated like:
+    // fieldsets:
+    //   - fieldsetname
+    // where fieldsetname is the file "blocks/fieldsetname.yml"
+    if (is_array($nodes) && isset($nodes['type']) && $nodes['type'] === 'blocks') {
+      if (isset($nodes['fieldsets'])) {
+        foreach ($nodes['fieldsets'] as $key => $fieldsetname) {
+          if (is_int($key) && is_string($fieldsetname)) {
+            $nodes['fieldsets'][$fieldsetname] = 'blocks/' . $fieldsetname;
+            unset($nodes['fieldsets'][$key]);
+          }
+        }
+      }
+    }
+
     // check if node has extension, either
     // nodename: path/to/fragement -or-
     // nodename:
@@ -109,6 +124,7 @@ class BlueprintService
     $path = null;
     if (is_array($nodes) && isset($nodes['extends']) && is_string($nodes['extends'])) {
       $path = $nodes['extends'];
+      unset($nodes['extends']); // experimental
     } elseif (is_string($nodes)) {
       $path = $nodes;
     }
@@ -133,7 +149,7 @@ class BlueprintService
    * @param (array) $nodes
    * @return array
    */
-  private static function getFields ($nodes, $add_title_field = false, $toplevel = false)
+  private static function getFields ($nodes, $publish_inherited, $add_title_field = false, $toplevel = false)
   {
     $res = [];
     if ($toplevel && $add_title_field) {
@@ -155,9 +171,10 @@ class BlueprintService
         foreach($node as $fieldname => $fielddef) {
 
           // check if it is published or invalid, otherwise skip
-          if (!self::isPublished($fielddef) || !isset($fielddef['type'])) {
+          if (!self::isPublished($fielddef, $publish_inherited) || !isset($fielddef['type'])) {
             continue;
           }
+          $publish_inherited = self::getApply($fielddef, $publish_inherited);
 
           // Block - special case, fields have different structure
           if ($fielddef['type'] === 'blocks') {
@@ -174,21 +191,27 @@ class BlueprintService
                   // grouped blocks
                   if (isset($block['type']) && $block['type'] === 'group' && isset($block['fieldsets'])) {
                     foreach($block['fieldsets'] as $fieldset2 => $block2) {
-                      if (!self::isPublished($block2)) {
+                      if (!self::isPublished($block2, $publish_inherited)) {
                         continue;
                       }
-                      $res[$fieldname]['blocks'][$fieldset]['api'] = $block2['api'];
-                      $res[$fieldname]['blocks'][$fieldset2]['fields'] = self::getFields($block2);
+                      $publish_inherited = self::getApply($block2, $publish_inherited);
+                      if (isset($block2['api'])) {
+                        $res[$fieldname]['blocks'][$fieldset]['api'] = $block2['api'];
+                      }
+                      $res[$fieldname]['blocks'][$fieldset2]['fields'] = self::getFields($block2, $publish_inherited);
                     }
                   }
                   
                   // ungrouped blocks
                   else {
-                    if (!self::isPublished($block)) {
+                    if (!self::isPublished($block, $publish_inherited)) {
                       continue;
                     }
-                    $res[$fieldname]['blocks'][$fieldset]['api'] = $block['api'];
-                    $res[$fieldname]['blocks'][$fieldset]['fields'] = self::getFields($block);
+                    $publish_inherited = self::getApply($block, $publish_inherited);
+                    if (isset($block['api'])) {
+                      $res[$fieldname]['blocks'][$fieldset]['api'] = $block['api'];
+                    }
+                    $res[$fieldname]['blocks'][$fieldset]['fields'] = self::getFields($block, $publish_inherited);
                   }
                 }
               }
@@ -205,7 +228,7 @@ class BlueprintService
             $res[$fieldname] = [];
             foreach($fielddef as $property => $setting) {
               if (is_array($setting) && $property === 'fields') {
-                $res[$fieldname][$property] = self::getFields($fielddef);
+                $res[$fieldname][$property] = self::getFields($fielddef, $publish_inherited);
               } else {
                 $res[$fieldname][$property] = $setting;
               }
@@ -216,7 +239,7 @@ class BlueprintService
       
       // no fields, search deeper
       elseif (is_array($node)) {
-        $res = array_merge($res, self::getFields($node));
+        $res = array_merge($res, self::getFields($node, $publish_inherited));
       }
     }
     return $res;
@@ -233,17 +256,44 @@ class BlueprintService
    * @param mixed $def 
    * @return bool 
    */
-  private static function isPublished ($def)
+  private static function isPublished ($def, $publish_inherited)
   {
-    if (!is_array($def) || !isset($def['api'])) {
-      return false;
+    if (is_array($def) && isset($def['api'])) {
+      if (is_bool($def['api'])) {
+        return !!$def['api'];
+      } elseif (
+        is_array($def['api']) &&
+        isset($def['api']['publish']) &&
+        is_bool($def['api']['publish'])
+      ) {
+        return !!$def['api']['publish'];
+      }
     }
-    if (is_bool($def['api']) && $def['api'] === true) {
-      return true;
+    return $publish_inherited;    
+  }
+
+  private static function getApply ($def, $publish_inherited)
+  {
+    if (
+      is_array($def) &&
+      isset($def['api']) &&
+      is_array($def['api']) &&
+      isset($def['api']['apply']) &&
+      is_bool($def['api']['apply'])
+    ) {
+      return !!$def['api']['apply'];
     }
-    if (is_array($def['api']) && isset($def['api']['publish']) && $def['api']['publish'] === true) {
-      return true;
+    return $publish_inherited;
+  }
+
+  private static function log($val)
+  {
+    if ($val instanceof Collection) {
+      error_log(print_r($val->get(), true));
+    } else if (is_array($val)) {
+      error_log(print_r($val, true));
+    } else {
+      error_log($val);
     }
-    return false;
   }
 }

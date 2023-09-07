@@ -1,9 +1,10 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;
+use Tritrics\Api\Models\FileModel;
 use Tritrics\Api\Services\BlueprintService;
 
 /** */

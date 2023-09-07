@@ -1,18 +1,19 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Data\Model;
+use Tritrics\Api\Services\LinkService;
 
 /** */
-class DatetimeModel extends Model
-{  
+class EmailModel extends Model
+{
   /** */
   protected function getProperties ()
   {
     $res = new Collection();
-    $res->add('datetime', date('c', strtotime($this->getValue())));
+    $res->add('link', LinkService::getEmail($this->model->value()));
     return $res;
   }
 

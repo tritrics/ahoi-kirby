@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Fields;
 
 /** */
 class TagsModel extends MultiselectModel

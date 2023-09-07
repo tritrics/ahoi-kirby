@@ -1,18 +1,18 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\Api\Blocks;
 
 use Tritrics\Api\Data\Model;
 
 /** */
-class BlockDefaultModel extends Model
+class DefaultModel extends Model
 {
   /** */
   protected $hasChildFields = true;
 
   protected function getType ()
   {
-    return 'block-' . $this->model->type();
+    return $this->model->type();
   }
 
   /** */
