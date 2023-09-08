@@ -117,7 +117,7 @@ Explaination (everything similar to Kirby's thumb()-function):
 
 All options but the dimensions are optional.
 
-(For Vue the  [Kirby Rest Api Vue Plugin](https://github.com/tritrics/kirby-rest-api-vue-plugin/tree/develop) does this with a handy interface, also the calculation of the dimensions with preserving the ratio.)
+(For Vue the  [Kirby Rest Api Vue Plugin](https://www.npmjs.com/package/kirby-rest-api-vue-plugin) does this with a handy interface, also the calculation of the dimensions with preserving the ratio.)
 
 ## License
 

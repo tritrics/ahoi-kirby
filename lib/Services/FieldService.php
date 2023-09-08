@@ -15,7 +15,7 @@ class FieldService
    * 
    * @param (Collection) $resultObj Collection of the result data
    * @param (Fields) $allFields Kirby field object which contains the data
-   * @param (Collection) $blueprintDef the blueprint definitions of the fields
+   * @param (Collection) $blueprint the blueprint definitions of the fields
    * @param (string) $lang two char language code
    * @param (int) $level interation count of recoursive
    * @param (array) $excludeFields explicit exclude fields from result data (for special case)
@@ -24,7 +24,7 @@ class FieldService
   public static function addFields (
     Collection $resultObj,
     $allFields,
-    $blueprintDef,
+    $blueprint,
     $lang,
     string|array $fields = 'all'
   ) {
@@ -32,13 +32,13 @@ class FieldService
     $separator = kirby()->option('tritrics.restapi.field-name-separator');
 
     // loop blueprint definition
-    foreach ($blueprintDef as $key => $fieldDef) {
+    foreach ($blueprint as $key => $blueprintField) {
       if ($fields !== 'all' && ! in_array($key, $fields)) {
         continue;
       }
       $field = isset($allFields[$key]) ? $allFields[$key] : new KirbyField(null, $key, '');
-      $type = strtolower($fieldDef->node('type')->get());
-      if (self::isHiddenField($fieldDef, $allFields)) {
+      $type = strtolower($blueprintField->node('type')->get());
+      if (self::isHiddenField($blueprintField, $allFields)) {
         continue;
       }
 
@@ -46,7 +46,7 @@ class FieldService
         if ($separator) {
           $key = explode($separator, $key);
         }
-        $resultObj->add($key, ModelFactory::create($type, $field, $fieldDef, $lang));
+        $resultObj->add($key, ModelFactory::create($type, $field, $blueprintField, $lang));
       }
     }
   }

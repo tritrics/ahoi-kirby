@@ -97,24 +97,26 @@ abstract class Model extends Collection
     }
 
     $mixed = $this->getValue();
-    if ($mixed instanceof Collection && $mixed->isNumeric()) {
-      if ($this->isMultiple()) {
-        $this->add('count', $mixed->count());
-      } else {
-        $mixed = $mixed->node(0);
-      }
+
+    // add info for pages, files, users
+    if ($mixed instanceof Collection && in_array($type, ['pages', 'files', 'users'])) {
+      $this->add('multiple', $this->isMultiple());
+      $this->add('count', $mixed->count());
+      //if (!$this->isMultiple()) {
+      //  $mixed = $mixed->first();
+      //}
     }
-    if ($mixed !== null) {
-      $this->add('value', $mixed);
-    }
+    $this->add('value', ($mixed !== null) ? $mixed : '');
   }
 
   /**
-   * multiple is true on default, but null returned
+   * Because Kirby sets multiple to true on default, we check for false here.
+   * max = 1 is NOT interpreted as multiple, because the setting multiple
+   * is explicitely designed for this. 
    */
   private function isMultiple ()
   {
-    if ($this->blueprint->node('multiple') === false || $this->blueprint->node('max') === 1) {
+    if($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
       return false;
     }
     return true;

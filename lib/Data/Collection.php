@@ -151,6 +151,11 @@ class Collection implements IteratorAggregate
     }
   }
 
+  final public function first()
+  {
+    return $this->node(0);
+  }
+
   /**
    * Get value from $data
    * 
