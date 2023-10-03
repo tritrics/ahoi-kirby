@@ -15,8 +15,11 @@ class UserModel extends Model
   /** */
   protected function getProperties ()
   {
+    $meta = new Collection();
+    $meta->add('id', md5($this->model->id()));
+
     $res = new Collection();
-    $res->add('id', md5($this->model->id()));
+    $res->add('meta', $meta);
     return $res;
   }
 

@@ -7,7 +7,7 @@ use Tritrics\Api\Data\Collection;
 use Tritrics\Api\Models\PageModel;
 use Tritrics\Api\Models\SiteModel;
 use Tritrics\Api\Services\ApiService;
-use Tritrics\Api\Services\FilterService;
+use Tritrics\Api\Services\RequestService;
 use Tritrics\Api\Services\BlueprintService;
 use Tritrics\Api\Services\FieldService;
 /**
@@ -28,24 +28,25 @@ class NodeService
     $blueprint = BlueprintService::getBlueprint($node);
     $res = ApiService::initResponse();
     if ($node instanceof Site) {
-      $res->add('head', new SiteModel($node, $blueprint, $lang));
+      $body = new SiteModel($node, $blueprint, $lang);
     } else {
-      $res->add('head', new PageModel($node, $blueprint, $lang, true)); 
+      $body = new PageModel($node, $blueprint, $lang, true);
     }
 
     if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {
-      $content = new Collection();
+      $value = new Collection();
       FieldService::addFields(
-        $content,
+        $value,
         $node->content($lang)->fields(),
         $blueprint->node('fields'),
         $lang,
         $fields
       );
-      if ($content->count() > 0) {
-        $res->add('content', $content);
+      if ($value->count() > 0) {
+        $body->add('value', $value);
       }
     }
+    $res->add('body', $body);
     return $res->get();
   }
 
@@ -62,7 +63,7 @@ class NodeService
       return [];
     }
     if (is_array($params['filter'])) {
-      $children = FilterService::filterChildren($page, $params['filter'], $lang);
+      $children = RequestService::filterChildren($page, $params['filter'], $lang);
     } else {
       $children = $page->children();
     }

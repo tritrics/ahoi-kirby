@@ -3,6 +3,7 @@
 namespace Tritrics\Api\Blocks;
 
 use Tritrics\Api\Data\Model;
+use Tritrics\Api\Data\Collection;
 
 /** */
 class DefaultModel extends Model
@@ -12,7 +13,15 @@ class DefaultModel extends Model
 
   protected function getType ()
   {
-    return $this->model->type();
+    return 'block';
+  }
+
+  /** */
+  protected function getProperties()
+  {
+    $res = new Collection();
+    $res->add('block', $this->model->type());
+    return $res;
   }
 
   /** */

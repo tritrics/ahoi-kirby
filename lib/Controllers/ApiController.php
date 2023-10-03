@@ -8,7 +8,7 @@ use Tritrics\Api\Services\EmailService;
 use Tritrics\Api\Factories\ModelFactory;
 use Tritrics\Api\Services\ApiService;
 use Tritrics\Api\Services\LanguageService;
-use Tritrics\Api\Services\FilterService;
+use Tritrics\Api\Services\RequestService;
 use Tritrics\Api\Services\NodeService;
 
 class ApiController
@@ -35,6 +35,7 @@ class ApiController
     }
 
     try {
+      RequestService::getSleep($request); // Debugging
       if ( ! ApiService::isEnabledLanguages()) {
         return ApiService::disabled();
       }
@@ -58,6 +59,7 @@ class ApiController
     }
 
     try {
+      RequestService::getSleep($request); // Debugging
       if ( ! ApiService::isEnabledNode()) {
         return ApiService::disabled();
       }
@@ -72,7 +74,7 @@ class ApiController
           return ApiService::notFound();
         }
       }
-      return NodeService::node($node, $lang, FilterService::getFields($request));
+      return NodeService::node($node, $lang, RequestService::getFields($request));
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }
@@ -92,6 +94,7 @@ class ApiController
     }
 
     try {
+      RequestService::getSleep($request); // Debugging
       if ( ! ApiService::isEnabledChildren()) {
         return ApiService::disabled();
       }
@@ -107,11 +110,11 @@ class ApiController
         }
       }
       $params = [
-        'page' => FilterService::getPage($request),
-        'limit' => FilterService::getLimit($request),
-        'order' => FilterService::getOrder($request),
-        'fields' => FilterService::getFields($request),
-        'filter' => FilterService::getFilter($request),
+        'page' => RequestService::getPage($request),
+        'limit' => RequestService::getLimit($request),
+        'order' => RequestService::getOrder($request),
+        'fields' => RequestService::getFields($request),
+        'filter' => RequestService::getFilter($request),
       ];
       return NodeService::children($node, $lang, $params);
     } catch (Exception $e) {

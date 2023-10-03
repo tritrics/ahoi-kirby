@@ -4,7 +4,7 @@ namespace Tritrics\Api\Services;
 
 use Tritrics\Api\Services\BlueprintService;
 
-class FilterService
+class RequestService
 {
   /**
    * get page parameter from Request, any number > 0, default 1
@@ -147,6 +147,22 @@ class FilterService
       }
     );
     return $children;
+  }
+
+  /**
+   * Debugging-Function to stop execution for x sec
+   * Helpful to test frontend behaviour for async requests.
+   * Limited to 10 sec.
+   * @param mixed $request 
+   * @return int 
+   */
+  public static function getSleep($request)
+  {
+    $val = intval($request->get('sleep'));
+    if (is_int($val) && $val > 0 && $val <= 10) {
+      sleep($val);
+    }
+    return $val;
   }
 
   /**

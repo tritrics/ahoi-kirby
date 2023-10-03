@@ -96,17 +96,18 @@ abstract class Model extends Collection
       }
     }
 
-    $mixed = $this->getValue();
+    $entries = $this->getValue();
 
     // add info for pages, files, users
-    if ($mixed instanceof Collection && in_array($type, ['pages', 'files', 'users'])) {
-      $this->add('multiple', $this->isMultiple());
-      $this->add('count', $mixed->count());
-      //if (!$this->isMultiple()) {
-      //  $mixed = $mixed->first();
-      //}
+    if (in_array($type, ['pages', 'files', 'images', 'users'])) {
+      $meta = new Collection();
+      $meta->add('multiple', $this->isMultiple());
+      $meta->add('count', $entries instanceof Collection ? $entries->count() : 0);
+      $this->add('meta', $meta);
     }
-    $this->add('value', ($mixed !== null) ? $mixed : '');
+    if ($type !== 'page') {
+      $this->add('value', $entries);
+    }
   }
 
   /**
@@ -120,6 +121,29 @@ abstract class Model extends Collection
       return false;
     }
     return true;
+  }
+
+  /**
+   * Get the corresponding label for the selected option
+   */
+  protected function getLabel($value)
+  {
+    $options = $this->blueprint->node('options');
+    if ($options instanceof Collection && $options->count() > 0) {
+      $options = $options->get(false);
+      $type = $this->checkOpionsType($options);
+      if ($type === 'IS_STRING') {
+        return isset($options[$value]) ? $options[$value] : $value;
+      }
+      if ($type === 'IS_KEY_VALUE') {
+        foreach ($options as $entry) {
+          if ($entry['value'] == $value) {
+            return $entry['text'];
+          }
+        }
+      }
+    }
+    return '';
   }
 
   /**

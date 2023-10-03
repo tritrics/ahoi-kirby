@@ -12,6 +12,11 @@ class FileModel extends Model
   /** */
   protected $hasChildFields = true;
 
+  protected function getType()
+  {
+    return $this->model->type();
+  }
+
   /** */
   protected function getProperties ()
   {
@@ -20,17 +25,18 @@ class FileModel extends Model
     // Kirby confuses jpeg an jpg on images. ImageService only works with jpg!
     $ext = strtolower($pathinfo['extension']) === 'jpeg' ? 'jpg' : strtolower($pathinfo['extension']);
 
-    $res = new Collection();
-    $res->add('dir', $pathinfo['dirname'] . '/');
-    $res->add('file', $pathinfo['filename']);
-    $res->add('ext', $ext);
-    $res->add('blueprint', $this->model->template());
-    $res->add('isimage', $this->model->type() === 'image');
+    $meta = new Collection();
+    $meta->add('dir', $pathinfo['dirname'] . '/');
+    $meta->add('filename', $pathinfo['filename']);
+    $meta->add('ext', $ext);
+    $meta->add('blueprint', $this->model->template());
     if ($this->model->type() === 'image') {
-      $res->add('width', $this->model->width());
-      $res->add('height', $this->model->height());
+      $meta->add('width', $this->model->width());
+      $meta->add('height', $this->model->height());
     }
 
+    $res = new Collection();
+    $res->add('meta', $meta);
     $title = $this->fields->node('title', 'value')->get();
     if (!$title) {
       $title = $pathinfo['filename'];

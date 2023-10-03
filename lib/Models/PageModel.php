@@ -26,21 +26,23 @@ class PageModel extends Model
   {
     $content = $this->model->content($this->lang);
 
-    $res = new Collection();
-    $res->add('id', $this->model->id());
-    $res->add('parent', $this->getParentUrl($this->lang));
-    $res->add('slug',  $this->getSlug($this->lang));
+    $meta = new Collection();
+    $meta->add('id', $this->model->id());
+    $meta->add('parent', $this->getParentUrl($this->lang));
+    $meta->add('slug',  $this->getSlug($this->lang));
     if ($this->lang !== null) {
-      $res->add('lang', $this->lang);
+      $meta->add('lang', $this->lang);
     }
-    $res->add('title', $content->title()->get());
-    $res->add('status', $this->model->status());
-    $res->add('sort', (int) $this->model->num());
-    $res->add('modified',  date('c', $this->model->modified()));
-    $res->add('blueprint', (string) $this->model->intendedTemplate());
-    $res->add('home', $this->model->isHomePage());
-    $res->add('link', LinkService::getPage($this->getUrl($this->lang), $content->title()->get()));
+    $meta->add('title', $content->title()->get());
+    $meta->add('status', $this->model->status());
+    $meta->add('sort', (int) $this->model->num());
+    $meta->add('modified',  date('c', $this->model->modified()));
+    $meta->add('blueprint', (string) $this->model->intendedTemplate());
+    $meta->add('home', $this->model->isHomePage());
 
+    $res = new Collection();
+    $res->add('meta', $meta);
+    $res->add('link', LinkService::getPage($this->getUrl($this->lang), $content->title()->get()));
     if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguageService::getAll() as $lang => $data) {

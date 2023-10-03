@@ -18,12 +18,15 @@ class SiteModel extends Model
   /** */
   protected function getProperties ()
   {
-    $res = new Collection();
-    $res->add('host', $this->model->url($this->lang));
+    $meta = new Collection();
+    $meta->add('host', $this->model->url($this->lang));
     if ($this->lang !== null) {
-      $res->add('lang', $this->lang);
+      $meta->add('lang', $this->lang);
     }
-    $res->add('modified',  date('c', $this->model->modified()));
+    $meta->add('modified',  date('c', $this->model->modified()));
+
+    $res = new Collection();
+    $res->add('meta', $meta);
     return $res;
   }
 

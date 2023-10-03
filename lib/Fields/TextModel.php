@@ -21,9 +21,9 @@ class TextModel extends Model
    * -------------------------------------------------------------------------------------------
    * | FIELD-TYPE   | FIELD-DEF              | FORMATTING | LINEBREAKS        | API-TYPE       | 
    * |--------------|------------------------|------------|-------------------|----------------|
-   * | text, slug   |                        | ./.        | ./.               | text           |
+   * | text, slug   |                        | ./.        | ./.               | string         |
    * |--------------|------------------------|------------|-------------------|----------------|
-   * | textarea     | buttons: false         | ./.        | \n                | text-multiline |
+   * | textarea     | buttons: false         | ./.        | \n                | text           |
    * |--------------|------------------------|------------|-------------------|----------------|
    * | textarea     | buttons: true          | markdown   | \n                | markdown       |
    * |--------------|------------------------|------------|-------------------|----------------|
@@ -53,7 +53,7 @@ class TextModel extends Model
         if ($this->blueprint->node('api', 'html')->is(true)) {
           $this->type = 'html';
         } elseif ($this->blueprint->node('buttons')->is(false)) {
-          $this->type = 'text-multiline';
+          $this->type = 'text';
         } else {
           $this->type = 'markdown';
         }
@@ -65,7 +65,7 @@ class TextModel extends Model
         $this->type = 'html';
         break;
       default: // text, slug
-        $this->type = 'text';
+        $this->type = 'string';
         break;
     }
     return $this->type;
@@ -110,11 +110,11 @@ class TextModel extends Model
     $res = $this->htmlToArray($nodelist->item(0));
     unset($res['elem']); // body
 
-    if (isset($res['children'])) {
-      if (count($res['children']) === 1) {
-        $res = array_shift($res['children']);
+    if (isset($res['value'])) {
+      if (is_array($res['value']) && count($res['value']) === 1) {
+        $res = array_shift($res['value']);
       } else {
-        $res = $res['children'];
+        $res = $res['value'];
       }
     }
 
@@ -145,20 +145,18 @@ class TextModel extends Model
     if ($root->nodeType == XML_ELEMENT_NODE) {
       $res = [ 'elem' => strtolower($root->nodeName) ];
       if ($root->hasChildNodes()) {
-        $res['children'] = [];
+        $res['value'] = [];
         $children = $root->childNodes;
         for ($i = 0; $i < $children->length; $i++) {
           $child = $this->htmlToArray($children->item($i));
           if (!empty($child)) {
-            $res['children'][] = $child;
+            $res['value'][] = $child;
           }
         }
 
         // if it's only a block-element with simple text, then remove children
-        // <h1>Headline</h1> => [ 'elem' => 'h1', 'text' => 'Headline' ]
-        if (count($res['children']) === 1 && count($res['children'][0]) === 1 && isset($res['children'][0]['text'])) {
-          $res['text'] = $res['children'][0]['text'];
-          unset($res['children']);
+        if (count($res['value']) === 1 && count($res['value'][0]) === 1 && isset($res['value'][0]['value'])) {
+          $res['value'] = $res['value'][0]['value'];
         }
       }
 
@@ -186,7 +184,9 @@ class TextModel extends Model
     if ($root->nodeType == XML_TEXT_NODE || $root->nodeType == XML_CDATA_SECTION_NODE) {
       $value = $root->nodeValue;
       if (!empty($value)) {
-        return ['text' => $value];
+        return [
+          'value' => $value
+        ];
       }
     }
   }

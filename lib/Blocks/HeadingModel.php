@@ -3,12 +3,26 @@
 namespace Tritrics\Api\Blocks;
 
 use Tritrics\Api\Data\Model;
+use Tritrics\Api\Data\Collection;
 
 /** */
 class HeadingModel extends Model
 {
   /** */
   protected $hasChildFields = true;
+
+  protected function getType()
+  {
+    return 'block';
+  }
+
+  /** */
+  protected function getProperties()
+  {
+    $res = new Collection();
+    $res->add('block', 'heading');
+    return $res;
+  }
 
   /** */
   protected function getValue ()

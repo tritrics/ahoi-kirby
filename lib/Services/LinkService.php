@@ -123,13 +123,13 @@ class LinkService
    */
   public static function getExtern($href, $title = null, $blank = false)
   {
+    $url = self::parseUrl($href);
+    $host = isset($url['host']) ? $url['host'] : '';
     $res = [
-      'link' => 'extern',
+      'type' => 'extern',
       'href' => $href,
+      'title' => empty($title) ? $host : $title,
     ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
     if ($blank) {
       $res['target'] = '_blank';
     }
@@ -143,7 +143,7 @@ class LinkService
    * @param string $title 
    * @return array 
    */
-  public static function getPage($path, $title =null, $blank = false)
+  public static function getPage($path, $title = null, $blank = false)
   {
     // check and correct links to home page(s)
     $parts = self::parseUrl($path);
@@ -179,12 +179,10 @@ class LinkService
       }
     }
     $res = [
-      'link' => 'intern',
-      'href' => self::buildPath($parts)
+      'type' => 'intern',
+      'href' => self::buildPath($parts),
+      'title' => empty($title) ? $parts['host'] : $title
     ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
     if ($blank) {
       $res['target'] = '_blank';
     }
@@ -200,13 +198,12 @@ class LinkService
    */
   public static function getFile($path, $title = null, $blank = false)
   {
+    $pathinfo = pathinfo($path);
     $res = [
-      'link' => 'file',
-      'href' => $path
+      'type' => 'file',
+      'href' => $path,
+      'title' => empty($title) ? $pathinfo['filename'] : $title
     ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
     if ($blank) {
       $res['target'] = '_blank';
     }
@@ -223,12 +220,10 @@ class LinkService
   public static function getEmail($email, $title = null)
   {
     $res = [
-      'link' => 'email',
-      'href' => 'mailto:' . $email
+      'type' => 'email',
+      'href' => 'mailto:' . $email,
+      'title' => empty($title) ? $email : $title
     ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
     return $res;
   }
 
@@ -242,12 +237,10 @@ class LinkService
   public static function getTel($tel, $title = null)
   {
     $res = [
-      'link' => 'tel',
+      'type' => 'tel',
       'href' => 'tel:' . $tel,
+      'title' => empty($title) ? $tel : $title,
     ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
     return $res;
   }
 
@@ -261,12 +254,10 @@ class LinkService
   public static function getAnchor($anchor, $title = null)
   {
     $res = [
-      'link' => 'anchor',
-      'href' => '#' . $anchor
+      'type' => 'anchor',
+      'href' => '#' . $anchor,
+      'title' => empty($title) ? '' : $title
     ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
     return $res;
   }
 

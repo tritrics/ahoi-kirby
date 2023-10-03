@@ -5,7 +5,7 @@ namespace Tritrics\Api\Fields;
 use Tritrics\Api\Data\Model;
 
 /** */
-class ToggleModel extends Model
+class BooleanModel extends Model
 {
   /** */
   protected function getValue ()
