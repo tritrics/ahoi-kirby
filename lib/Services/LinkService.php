@@ -127,9 +127,11 @@ class LinkService
     $host = isset($url['host']) ? $url['host'] : '';
     $res = [
       'type' => 'extern',
-      'href' => $href,
-      'title' => empty($title) ? $host : $title,
+      'href' => $href
     ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
     if ($blank) {
       $res['target'] = '_blank';
     }
@@ -180,9 +182,11 @@ class LinkService
     }
     $res = [
       'type' => 'intern',
-      'href' => self::buildPath($parts),
-      'title' => empty($title) ? $parts['host'] : $title
+      'href' => self::buildPath($parts)
     ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
     if ($blank) {
       $res['target'] = '_blank';
     }
@@ -201,9 +205,11 @@ class LinkService
     $pathinfo = pathinfo($path);
     $res = [
       'type' => 'file',
-      'href' => $path,
-      'title' => empty($title) ? $pathinfo['filename'] : $title
+      'href' => $path
     ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
     if ($blank) {
       $res['target'] = '_blank';
     }
@@ -221,9 +227,11 @@ class LinkService
   {
     $res = [
       'type' => 'email',
-      'href' => 'mailto:' . $email,
-      'title' => empty($title) ? $email : $title
+      'href' => 'mailto:' . $email
     ];
+    if(!empty($title)) {
+      $res['title'] = $title;
+    }
     return $res;
   }
 
@@ -238,9 +246,11 @@ class LinkService
   {
     $res = [
       'type' => 'tel',
-      'href' => 'tel:' . $tel,
-      'title' => empty($title) ? $tel : $title,
+      'href' => 'tel:' . $tel
     ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
     return $res;
   }
 
@@ -255,9 +265,11 @@ class LinkService
   {
     $res = [
       'type' => 'anchor',
-      'href' => '#' . $anchor,
-      'title' => empty($title) ? '' : $title
+      'href' => '#' . $anchor
     ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
     return $res;
   }
 

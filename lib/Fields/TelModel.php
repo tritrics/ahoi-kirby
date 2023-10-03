@@ -17,7 +17,7 @@ class TelModel extends Model
     $tel = preg_replace('/[^0-9]/', '', $tel);
 
     $res = new Collection();
-    $res->add('link', LinkService::getTel($tel, $this->model->value()));
+    $res->add('link', LinkService::getTel($tel));
     return $res;
   }
 

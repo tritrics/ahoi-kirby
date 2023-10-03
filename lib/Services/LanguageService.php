@@ -29,15 +29,18 @@ class LanguageService
     $home = kirby()->site()->homePage();
     $res = new Collection();
     foreach(kirby()->languages() as $language) {
-      $res->add($language->code(), [
+      $lang = $res->add($language->code(), [
         'name' => $language->name(),
         'slug' => self::getSlug($language->code()),
         'default' => $language->isDefault(),
-        'locale' => self::getLocale($language),
+        'locale' => self::getLocale($language->code()),
         'direction' => $language->direction(),
-        'homeslug' => $home->uri($language->code()),
-        'translations' => $language->translations()
+        'homeslug' => $home->uri($language->code())
       ]);
+      $translations = $language->translations();
+      if (count($translations) > 1) {
+        $lang->add('translations', $translations);
+      }
     }
     return $res;
   }
@@ -81,7 +84,6 @@ class LanguageService
     }
     if (!isset(self::$slugs[$code])) {
       $language = kirby()->language($code);
-      $name = $language->name();
       $url = parse_url($language->url());
 
       // setting url = '/' means there is no prefix for default langauge
@@ -97,23 +99,34 @@ class LanguageService
   }
 
   /**
+   * get locale (de_DE)
+   * @param mixed $code 
+   * @return array|string 
+   */
+  public static function getLocale ($code)
+  {
+    $language = kirby()->language($code);
+    return $language->locale(LC_ALL);
+  }
+
+  /**
    * Function will fail with fatal error, if not all nodes exists in langfile (Kirby-bug)
    * @param object $language
    * @return string|array
    */
-  private static function getLocale ($language)
-  {
-    $locale = $language->locale(LC_ALL);
-    if ($locale) {
-      return $locale;
-    }
-    $locale = [];
-    $locale['LC_COLLATE'] = $language->locale(LC_COLLATE);
-    $locale['LC_CTYPE'] = $language->locale(LC_CTYPE);
-    $locale['LC_MONETARY'] = $language->locale(LC_MONETARY);
-    $locale['LC_NUMERIC'] = $language->locale(LC_NUMERIC);
-    $locale['LC_TIME'] = $language->locale(LC_TIME);
-    $locale['LC_MESSAGES'] = $language->locale(LC_MESSAGES);
-    return $locale;
-  }
+  // private static function getLocale ($language)
+  // {
+  //   $locale = $language->locale(LC_ALL);
+  //   if ($locale) {
+  //     return $locale;
+  //   }
+  //   $locale = [];
+  //   $locale['LC_COLLATE'] = $language->locale(LC_COLLATE);
+  //   $locale['LC_CTYPE'] = $language->locale(LC_CTYPE);
+  //   $locale['LC_MONETARY'] = $language->locale(LC_MONETARY);
+  //   $locale['LC_NUMERIC'] = $language->locale(LC_NUMERIC);
+  //   $locale['LC_TIME'] = $language->locale(LC_TIME);
+  //   $locale['LC_MESSAGES'] = $language->locale(LC_MESSAGES);
+  //   return $locale;
+  // }
 }

@@ -32,6 +32,7 @@ class PageModel extends Model
     $meta->add('slug',  $this->getSlug($this->lang));
     if ($this->lang !== null) {
       $meta->add('lang', $this->lang);
+      $meta->add('locale', LanguageService::getLocale($this->lang));
     }
     $meta->add('title', $content->title()->get());
     $meta->add('status', $this->model->status());
@@ -42,11 +43,16 @@ class PageModel extends Model
 
     $res = new Collection();
     $res->add('meta', $meta);
-    $res->add('link', LinkService::getPage($this->getUrl($this->lang), $content->title()->get()));
+    $res->add('link', LinkService::getPage($this->getUrl($this->lang)));
     if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguageService::getAll() as $lang => $data) {
-        $translations->add($lang, LinkService::getPage($this->getUrl($lang), $data->node('name')->get()));
+        $lang = $translations->add($lang);
+        $lang->add('type', 'url');
+        $lang->add('link', LinkService::getPage($this->getUrl($this->lang)));
+        $lang->add('value', $data->node('name')->get());
+
+        
       }
     }
     return $res;

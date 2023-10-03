@@ -13,7 +13,7 @@ class EmailModel extends Model
   protected function getProperties ()
   {
     $res = new Collection();
-    $res->add('link', LinkService::getEmail($this->model->value(),$this->model->value()));
+    $res->add('link', LinkService::getEmail($this->model->value()));
     return $res;
   }
 

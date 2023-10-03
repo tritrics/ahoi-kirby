@@ -24,12 +24,19 @@ class FileModel extends Model
 
     // Kirby confuses jpeg an jpg on images. ImageService only works with jpg!
     $ext = strtolower($pathinfo['extension']) === 'jpeg' ? 'jpg' : strtolower($pathinfo['extension']);
+    $file = $pathinfo['filename'] . '.' . $ext;
+    $title = $this->fields->node('title', 'value')->get();
+    if (!$title) {
+      $title = $file;
+    }
 
     $meta = new Collection();
     $meta->add('dir', $pathinfo['dirname'] . '/');
+    $meta->add('file', $file);
     $meta->add('filename', $pathinfo['filename']);
     $meta->add('ext', $ext);
     $meta->add('blueprint', $this->model->template());
+    $meta->add('title', $title);
     if ($this->model->type() === 'image') {
       $meta->add('width', $this->model->width());
       $meta->add('height', $this->model->height());
@@ -37,13 +44,8 @@ class FileModel extends Model
 
     $res = new Collection();
     $res->add('meta', $meta);
-    $title = $this->fields->node('title', 'value')->get();
-    if (!$title) {
-      $title = $pathinfo['filename'];
-    }
     $res->add('link', LinkService::getFile(
-      $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '.' . $ext,
-      $title
+      $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '.' . $ext
     ));
     return $res;
   }
