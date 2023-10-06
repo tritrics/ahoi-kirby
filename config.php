@@ -84,12 +84,12 @@ kirby()::plugin('tritrics/restapi', [
 
     // children of a node
     $routes[] = [
-      'pattern' => $slug . '/children/(:all?)',
+      'pattern' => $slug . '/collection/(:all?)',
       'method' => 'GET|POST|OPTIONS',
       'action' => function ($path = '') use ($multilang) {
         $controller = new ApiController();
         list($lang, $slug) = RouteService::parsePath($path, $multilang);
-        return $controller->children($lang, $slug);
+        return $controller->collection($lang, $slug);
       }
     ];
 

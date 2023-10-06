@@ -33,6 +33,7 @@ class FieldService
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
+      error_log($key);
       if ($fields !== 'all' && ! in_array($key, $fields)) {
         continue;
       }

@@ -29,7 +29,7 @@ class PageModel extends Model
     $meta = new Collection();
     $meta->add('id', $this->model->id());
     $meta->add('parent', $this->getParentUrl($this->lang));
-    $meta->add('slug',  $this->getSlug($this->lang));
+    $meta->add('slug',$this->model->slug($this->lang));
     if ($this->lang !== null) {
       $meta->add('lang', $this->lang);
       $meta->add('locale', LanguageService::getLocale($this->lang));
@@ -46,13 +46,11 @@ class PageModel extends Model
     $res->add('link', LinkService::getPage($this->getUrl($this->lang)));
     if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
-      foreach(LanguageService::getAll() as $lang => $data) {
-        $lang = $translations->add($lang);
+      foreach(LanguageService::getAll() as $code => $data) {
+        $lang = $translations->add($code);
         $lang->add('type', 'url');
-        $lang->add('link', LinkService::getPage($this->getUrl($this->lang)));
+        $lang->add('link', LinkService::getPage($this->getUrl($code)));
         $lang->add('value', $data->node('name')->get());
-
-        
       }
     }
     return $res;
@@ -65,7 +63,7 @@ class PageModel extends Model
   private function getUrl ($lang) : string
   {
     $langSlug = LanguageService::getSlug($lang);
-    return '/' . ltrim($langSlug . '/' . $this->model->uri($lang), '/');
+    return '/' . trim($langSlug . '/' . $this->model->uri($lang), '/');
   }
 
   /** */
@@ -77,11 +75,5 @@ class PageModel extends Model
       return '/' . ltrim($langSlug . '/' . $parent->uri($lang), '/');
     }
     return '/'; // or false?
-  }
-
-  /** */
-  private function getSlug ($lang)
-  {
-    return $this->model->slug($lang);
   }
 }

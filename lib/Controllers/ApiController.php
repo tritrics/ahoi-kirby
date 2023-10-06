@@ -10,6 +10,7 @@ use Tritrics\Api\Services\ApiService;
 use Tritrics\Api\Services\LanguageService;
 use Tritrics\Api\Services\RequestService;
 use Tritrics\Api\Services\NodeService;
+use Tritrics\Api\Services\CollectionService;
 
 class ApiController
 {
@@ -74,7 +75,7 @@ class ApiController
           return ApiService::notFound();
         }
       }
-      return NodeService::node($node, $lang, RequestService::getFields($request));
+      return NodeService::get($node, $lang, RequestService::getFields($request));
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }
@@ -86,7 +87,7 @@ class ApiController
    * @param string|null $slug
    * @return Response|array 
    */
-  public function children ($lang, $slug)
+  public function collection ($lang, $slug)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -116,7 +117,7 @@ class ApiController
         'fields' => RequestService::getFields($request),
         'filter' => RequestService::getFilter($request),
       ];
-      return NodeService::children($node, $lang, $params);
+      return CollectionService::get($node, $lang, $params);
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }

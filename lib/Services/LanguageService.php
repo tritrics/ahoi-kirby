@@ -12,17 +12,48 @@ class LanguageService
 
   /**
    * API method
+   * 
+   * Here a field-like strukture is returened, can be refactored by
+   * implementing a language-field.
    */
   public static function languages ()
   {
+    $languages = kirby()->languages();
+    $home = kirby()->site()->homePage();
     $res = ApiService::initResponse();
-    $content = self::getAll();
-    $res->add('content', $content);
+    $body = $res->add('body');
+    $body->add('type', 'languages');
+    $meta = $body->add('meta');
+    $meta->add('count', count($languages));
+
+    $value = $body->add('value');
+    foreach ($languages as $language) {
+      $code = trim(strtolower($language->code()));
+      $lang = new Collection();
+      $lang->add('type', 'language');
+      $meta = $lang->add('meta');
+      $meta->add('code', $code);
+      $meta->add('default', $language->isDefault());
+      $meta->add('locale', self::getLocale($code));
+      $meta->add('direction', $language->direction());
+
+      $lang->add('link', LinkService::getPage(
+        self::getUrl(self::getSlug($code), $home->uri($code))
+      ));
+
+      $terms = $language->translations();
+      if (count($terms) > 1) {
+        $lang->add('terms', $terms);
+      }
+
+      $lang->add('value', $language->name());
+      $value->add($code, $lang);
+    }
     return $res->get();
   }
 
   /**
-   * simple array with langs
+   * basic information about langauges as a multi-used helper function
    */
   public static function getAll ()
   {
@@ -37,10 +68,6 @@ class LanguageService
         'direction' => $language->direction(),
         'homeslug' => $home->uri($language->code())
       ]);
-      $translations = $language->translations();
-      if (count($translations) > 1) {
-        $lang->add('translations', $translations);
-      }
     }
     return $res;
   }
@@ -129,4 +156,9 @@ class LanguageService
   //   $locale['LC_MESSAGES'] = $language->locale(LC_MESSAGES);
   //   return $locale;
   // }
+
+  private static function getUrl($langSlug, $slug): string
+  {
+    return '/' . trim($langSlug . '/' . $slug, '/');
+  }
 }

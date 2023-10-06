@@ -40,7 +40,7 @@ class ImageService
     $blur      = intval($matches[8]) > 0 ? intval($matches[8]) : false;
     $greyscale = $matches[9] === '-bw';
     $quality   = intval($matches[11]) >= 1 && intval($matches[11]) <= 100 ? intval($matches[11]) : null;
-
+    
     $options = [
       'autoOrient' => true,
       'crop'       => $crop,
