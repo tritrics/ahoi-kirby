@@ -286,14 +286,14 @@ class BlueprintService
     return $publish_inherited;
   }
 
-  private static function log($val)
-  {
-    if ($val instanceof Collection) {
-      error_log(print_r($val->get(), true));
-    } else if (is_array($val)) {
-      error_log(print_r($val, true));
-    } else {
-      error_log($val);
-    }
-  }
+  // private static function log($val)
+  // {
+  //   if ($val instanceof Collection) {
+  //     error_log(print_r($val->get(), true));
+  //   } else if (is_array($val)) {
+  //     error_log(print_r($val, true));
+  //   } else {
+  //     error_log($val);
+  //   }
+  // }
 }
