@@ -1,14 +1,14 @@
 {
-  "name": "tritrics/kirby-rest-api",
-  "description": "Kirby Rest API Plugin to use Kirby as data-backend",
-  "type": "kirby-plugin",
-  "license": "MIT",
+  "name": "tritrics/aflever-api",
+  "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
   "authors": [
     {
       "name": "Michael Adams",
       "email": "ma@tritrics.dk"
     }
   ],
+  "license": "ISC",
+  "type": "kirby-plugin",
   "require": {
     "getkirby/composer-installer": "^1.1"
   },
@@ -27,6 +27,6 @@
     "optimize-autoloader": true
   },
   "extra": {
-      "installer-name": "tritrics-rest-api"
+      "installer-name": "aflever-api"
   }
 }
