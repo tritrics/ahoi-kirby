@@ -7,4 +7,4 @@ Early release - a detailed documentation is comming later.
 ## Author
 
 Michael Adams  
-E-Mail: [ma@tritrics.dk](mailto:ma@tritrics.dk)  
+E-Mail: [ma@tritrics.dk](mailto:ma@tritrics.dk)
