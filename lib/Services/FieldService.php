@@ -29,7 +29,7 @@ class FieldService
     string|array $fields = 'all'
   ) {
 
-    $separator = kirby()->option('tritrics.restapi.field-name-separator');
+    $separator = kirby()->option('tritrics.aflever-api.field-name-separator');
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
@@ -62,7 +62,7 @@ class FieldService
    */
   public static function factory ($type, $key, $value, $blueprint = null, $lang = null)
   {
-    $model = kirby()->option('tritrics.restapi.models.' . $type);
+    $model = kirby()->option('tritrics.aflever-api.models.' . $type);
     if ($model) {
       $kirbyField = new KirbyField(null, $key, $value);
       return new $model($kirbyField, $blueprint, $lang);

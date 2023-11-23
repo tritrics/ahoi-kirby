@@ -8,7 +8,7 @@ use Tritrics\Api\Services\ImageService;
 use Tritrics\Api\Services\LanguageService;
 use Tritrics\Api\Services\RouteService;
 
-kirby()::plugin('tritrics/restapi', [
+kirby()::plugin('tritrics/aflever-api', [
   'options' => [
     'enabled' => [
       'languages' => false,
@@ -16,7 +16,7 @@ kirby()::plugin('tritrics/restapi', [
       'children' => false,
       'submit' => false
     ],
-    'slug' => '/rest-api',
+    'slug' => '/public-api',
     'field-name-separator' => '_'
   ],
   'hooks' => [
