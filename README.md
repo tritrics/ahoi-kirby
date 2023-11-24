@@ -1,4 +1,4 @@
-# Aflever API Plugin for Kirby
+# AfleverAPI Plugin for Kirby
 
 Plugin to use Kirby as content backend for Vue.js or any other webservice.
 
