@@ -8,7 +8,7 @@ use Tritrics\Api\Services\ImageService;
 use Tritrics\Api\Services\LanguageService;
 use Tritrics\Api\Services\RouteService;
 
-kirby()::plugin('tritrics/aflever-api', [
+kirby()::plugin('tritrics/aflevere-api', [
   'options' => [
     'enabled' => [
       'languages' => false,

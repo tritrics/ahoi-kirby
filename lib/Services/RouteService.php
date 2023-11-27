@@ -10,7 +10,7 @@ class RouteService
    */
   public static function getApiSlug ()
   {
-    $slug = trim(rtrim(kirby()->option('tritrics.aflever-api.slug'), '/'));
+    $slug = trim(rtrim(kirby()->option('tritrics.aflevere-api.slug'), '/'));
     if ( !is_string($slug) || ! strlen($slug) || substr($slug, 0, 1) !== '/') {
       return null;
     }
@@ -24,7 +24,7 @@ class RouteService
    */
   public static function isProtectedSlug ($slug)
   {
-    $path = strtolower(kirby()->option('tritrics.aflever-api.slug'));
+    $path = strtolower(kirby()->option('tritrics.aflevere-api.slug'));
     $slugs = explode('/', $path);
     return in_array(strtolower($slug), $slugs);
   }

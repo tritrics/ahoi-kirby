@@ -154,8 +154,8 @@ class ApiService
    */
   private static function isEnabled($method)
   {
-    $global = kirby()->option('tritrics.aflever-api.enabled', false);
-    $setting = kirby()->option('tritrics.aflever-api.enabled.' . $method, false);
+    $global = kirby()->option('tritrics.aflevere-api.enabled', false);
+    $setting = kirby()->option('tritrics.aflevere-api.enabled.' . $method, false);
     return $global === true || $setting === true;
   }
 
