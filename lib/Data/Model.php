@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\Api\Data;
+namespace Tritrics\AflevereApi\v1\Data;
 
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Services\FieldService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Services\FieldService;
 
 /** */
 abstract class Model extends Collection

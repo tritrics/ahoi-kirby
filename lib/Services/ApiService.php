@@ -1,27 +1,103 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Response;
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Services\LanguageService;
 
 class ApiService
 {
   /**
+   * The API version
+   * @var string
+   */
+  public static $version = 'v1';
+
+  /**
+   * The plugin, under which the plugin is registered in Kirby 
+   * @var string
+   */
+  public static $pluginName = 'tritrics/aflevere-api-v1';
+
+  /**
+   * The namespace for dynamic imports in php
+   * @var string
+   */
+  public static $namespace = 'Tritrics\AflevereApi\v1';
+
+  public static function getPluginVersion()
+  {
+    return kirby()->plugin(self::$pluginName)->version();
+  }
+
+  /**
+   * Get setting from config.php
+   * example: tritrics.aflevere-api.v1.slug
+   * @param string $node 
+   * @param mixed $default 
+   * @return mixed 
+   */
+  public static function getConfig($node, $default = false)
+  {
+    return kirby()->option(str_replace('/', '.', self::$pluginName) . '.' . $node, $default);
+  }
+
+  /**
+   * Compute the base slug like /public-api/v1
+   * @return null|string 
+   */
+  public static function getApiSlug()
+  {
+    $slug = trim(trim(self::getconfig('slug', ''), '/'));
+    if (is_string($slug) && strlen($slug) > 0) {
+      $slug = '/' . $slug;
+    }
+    return $slug . '/' . self::$version;
+  }
+
+  /**
+   * Check, if a slug the backend-user enters, has a conflict with the API-Route
+   * @param mixed $slug 
    * @return bool 
    */
-  public static function isEnabledLanguages()
+  public static function isProtectedSlug($slug)
   {
-    return self::isEnabled('languages');
+    $path = strtolower(self::getconfig('slug'));
+    $slugs = explode('/', $path);
+    return in_array(strtolower($slug), $slugs);
+  }
+
+  /**
+   * Parse the given path and return language and node. In a multi language
+   * installation, the first part of the path must be a valid language (which
+   * is not validated here).
+   * 
+   * single language installation:
+   * "/" -> site
+   * "/some/page" -> page
+   * 
+   * multi language installation:
+   * "/en" -> english version of site
+   * "/en/some/page" -> english version of page "/some/path"
+   * @param mixed $path 
+   * @param bool $multilang
+   * @return array 
+   */
+  public static function parsePath($path, $multilang)
+  {
+    $parts = array_filter(explode('/', $path));
+    $lang = $multilang ? array_shift($parts) : null;
+    $slug = count($parts) > 0 ? implode('/', $parts) : null;
+    return [$lang, $slug];
   }
 
   /**
    * @return bool 
    */
-  public static function isEnabledSite()
+  public static function isEnabledInfo()
   {
-    return self::isEnabled('site');
+    return self::isEnabled('info');
   }
 
   /**
@@ -35,17 +111,17 @@ class ApiService
   /**
    * @return bool 
    */
-  public static function isEnabledChildren()
+  public static function isEnabledNodes()
   {
-    return self::isEnabled('children');
+    return self::isEnabled('nodes');
   }
 
   /**
    * @return bool 
    */
-  public static function isEnabledSubmit()
+  public static function isEnabledForm()
   {
-    return self::isEnabled('submit');
+    return self::isEnabled('form');
   }
 
   /**
@@ -154,8 +230,8 @@ class ApiService
    */
   private static function isEnabled($method)
   {
-    $global = kirby()->option('tritrics.aflevere-api.enabled', false);
-    $setting = kirby()->option('tritrics.aflevere-api.enabled.' . $method, false);
+    $global = self::getConfig('enabled', false);
+    $setting = self::getConfig('enabled.' . $method, false);
     return $global === true || $setting === true;
   }
 

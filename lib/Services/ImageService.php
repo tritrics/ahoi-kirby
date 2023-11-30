@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Filesystem\F;
 use Kirby\Http\Header;

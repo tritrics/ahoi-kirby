@@ -1,64 +1,70 @@
 <?php
 
-namespace Tritrics\Api\Factories;
+namespace Tritrics\AflevereApi\v1\Factories;
+
+use Tritrics\AflevereApi\v1\Services\ApiService;
 
 /** */
 class ModelFactory
 {
-  private static $map = [
-    'blocks'      => 'Tritrics\Api\Fields\BlocksModel',
-    'checkboxes'  => 'Tritrics\Api\Fields\OptionsModel',
-    'date'        => 'Tritrics\Api\Fields\DatetimeModel',
-    'email'       => 'Tritrics\Api\Fields\EmailModel',
-    'files'       => 'Tritrics\Api\Fields\FilesModel',
-    'hidden'      => 'Tritrics\Api\Fields\HiddenModel',
-    'list'        => 'Tritrics\Api\Fields\TextModel',
-    'multiselect' => 'Tritrics\Api\Fields\OptionsModel',
-    'number'      => 'Tritrics\Api\Fields\NumberModel',
-    'object'      => 'Tritrics\Api\Fields\ObjectModel',
-    'pages'       => 'Tritrics\Api\Fields\PagesModel',
-    'radio'       => 'Tritrics\Api\Fields\OptionModel',
-    'range'       => 'Tritrics\Api\Fields\NumberModel',
-    'select'      => 'Tritrics\Api\Fields\OptionModel',
-    'slug'        => 'Tritrics\Api\Fields\TextModel',
-    'structure'   => 'Tritrics\Api\Fields\StructureModel',
-    'tags'        => 'Tritrics\Api\Fields\OptionsModel',
-    'tel'         => 'Tritrics\Api\Fields\TelModel',
-    'text'        => 'Tritrics\Api\Fields\TextModel',
-    'textarea'    => 'Tritrics\Api\Fields\TextModel',
-    'time'        => 'Tritrics\Api\Fields\DatetimeModel',
-    'toggle'      => 'Tritrics\Api\Fields\BooleanModel',
-    'toggles'     => 'Tritrics\Api\Fields\OptionModel',
-    'url'         => 'Tritrics\Api\Fields\UrlModel',
-    'users'       => 'Tritrics\Api\Fields\UsersModel',
-    'writer'      => 'Tritrics\Api\Fields\TextModel'
+  private static $buildIn = [
+    'blocks'      => '\Fields\BlocksModel',
+    'checkboxes'  => '\Fields\OptionsModel',
+    'date'        => '\Fields\DatetimeModel',
+    'email'       => '\Fields\EmailModel',
+    'files'       => '\Fields\FilesModel',
+    'hidden'      => '\Fields\HiddenModel',
+    'list'        => '\Fields\TextModel',
+    'multiselect' => '\Fields\OptionsModel',
+    'number'      => '\Fields\NumberModel',
+    'object'      => '\Fields\ObjectModel',
+    'pages'       => '\Fields\PagesModel',
+    'radio'       => '\Fields\OptionModel',
+    'range'       => '\Fields\NumberModel',
+    'select'      => '\Fields\OptionModel',
+    'slug'        => '\Fields\TextModel',
+    'structure'   => '\Fields\StructureModel',
+    'tags'        => '\Fields\OptionsModel',
+    'tel'         => '\Fields\TelModel',
+    'text'        => '\Fields\TextModel',
+    'textarea'    => '\Fields\TextModel',
+    'time'        => '\Fields\DatetimeModel',
+    'toggle'      => '\Fields\BooleanModel',
+    'toggles'     => '\Fields\OptionModel',
+    'url'         => '\Fields\UrlModel',
+    'users'       => '\Fields\UsersModel',
+    'writer'      => '\Fields\TextModel'
   ];
+
+  private static $added = [];
 
   public static function hooks ()
   {
-    kirby()->trigger('tritrics-api.register-model');
+    kirby()->trigger('tritrics-aflevere-api-v1.register-model');
   }
 
   /** */
   public static function register ($type, $model)
   {
     if (is_string($type) && strlen($type) > 0 && class_exists($model)) {
-      self::$map[$type] = $model;
+      self::$added[$type] = $model;
     }
   }
 
   /** */
   public static function has ($type)
   {
-    return isset(self::$map[$type]);
+    return isset(self::$added[$type]) || isset(self::$buildIn[$type]);
   }
 
   public static function get ($type)
   {
-    if (self::has($type)) {
-      return self::$map[$type];
+    if (isset(self::$added[$type])) {
+      return self::$added[$type];
+    } else if (isset(self::$buildIn[$type])) {
+      return ApiService::$namespace . self::$buildIn[$type];
     }
-    return null;
+    return ApiService::$namespace . self::$buildIn['text'];
   }
 
   /** */

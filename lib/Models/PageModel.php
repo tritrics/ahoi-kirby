@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\AflevereApi\v1\Models;
 
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Services\LanguageService;
-use Tritrics\Api\Services\LinkService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LinkService;
 
 
 /** */
@@ -46,7 +46,7 @@ class PageModel extends Model
     $res->add('link', LinkService::getPage($this->getUrl($this->lang)));
     if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
-      foreach(LanguageService::getAll() as $code => $data) {
+      foreach(LanguageService::list() as $code => $data) {
         $lang = $translations->add($code);
         $lang->add('type', 'url');
         $lang->add('link', LinkService::getPage($this->getUrl($code)));

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\Api\Blocks;
+namespace Tritrics\AflevereApi\v1\Blocks;
 
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Data\Collection;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Data\Collection;
 
 /** */
 class HeadingModel extends Model

@@ -1,8 +1,8 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
-use Tritrics\Api\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguageService;
 
 class LinkService
 {
@@ -164,7 +164,7 @@ class LinkService
       $slugs = array_values(array_filter(explode('/', $parts['path'])));
       $lang = count($slugs) > 0 ? $slugs[0] : null;
       $langSettings = null;
-      foreach (LanguageService::getAll() as $settings) {
+      foreach (LanguageService::list() as $settings) {
         if($settings->node('slug')->get() === $lang) {
           $langSettings = $settings;
         }

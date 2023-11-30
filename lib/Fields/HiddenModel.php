@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\Api\Fields;
+namespace Tritrics\AflevereApi\v1\Fields;
 
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Services\GlobalService;
 
 /** */
 class HiddenModel extends Model

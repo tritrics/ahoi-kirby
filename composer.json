@@ -1,32 +1,34 @@
 {
-  "name": "tritrics/aflevere-api",
-  "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
-  "authors": [
-    {
-      "name": "Michael Adams",
-      "email": "ma@tritrics.dk"
+    "name": "tritrics\/aflevere-api",
+    "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
+    "version": "0.1.2",
+    "authors": [
+        {
+            "name": "Michael Adams",
+            "email": "ma@tritrics.dk"
+        }
+    ],
+    "license": "ISC",
+    "type": "kirby-plugin",
+    "require": {
+        "getkirby\/composer-installer": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tritrics\\AflevereApi\\v1\\": "lib\/",
+            "Tritrics\\AflevereApi\\v1\\Root\\": ".\/"
+        },
+        "files": [
+            "config.php"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "getkirby\/composer-installer": true
+        },
+        "optimize-autoloader": true
+    },
+    "extra": {
+        "installer-name": "aflevere-api"
     }
-  ],
-  "license": "ISC",
-  "type": "kirby-plugin",
-  "require": {
-    "getkirby/composer-installer": "^1.1"
-  },
-  "autoload": {
-    "psr-4": {
-      "Tritrics\\Api\\": "lib/"
-    },
-    "files": [
-      "config.php"
-    ]
-  },
-  "config": {
-    "allow-plugins": {
-      "getkirby/composer-installer": true
-    },
-    "optimize-autoloader": true
-  },
-  "extra": {
-      "installer-name": "aflevere-api"
-  }
 }

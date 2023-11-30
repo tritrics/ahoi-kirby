@@ -1,10 +1,10 @@
 <?php
 
-namespace Tritrics\Api\Fields;
+namespace Tritrics\AflevereApi\v1\Fields;
 
 use Collator;
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Services\LinkService;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Services\LinkService;
 
 /** */
 class TextModel extends Model

@@ -1,9 +1,10 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Language;
-use Tritrics\Api\Data\Collection;
+use Kirby\Exception\LogicException;
+use Tritrics\AflevereApi\v1\Data\Collection;
 
 class LanguageService
 {
@@ -11,22 +12,13 @@ class LanguageService
   private static $slugs = [];
 
   /**
-   * API method
-   * 
-   * Here a field-like strukture is returened, can be refactored by
-   * implementing a language-field.
+   * Languages for use in API response
    */
-  public static function languages ()
+  public static function get ()
   {
     $languages = kirby()->languages();
     $home = kirby()->site()->homePage();
-    $res = ApiService::initResponse();
-    $body = $res->add('body');
-    $body->add('type', 'languages');
-    $meta = $body->add('meta');
-    $meta->add('count', count($languages));
-
-    $value = $body->add('value');
+    $res = new Collection();
     foreach ($languages as $language) {
       $code = trim(strtolower($language->code()));
       $lang = new Collection();
@@ -36,26 +28,23 @@ class LanguageService
       $meta->add('default', $language->isDefault());
       $meta->add('locale', self::getLocale($code));
       $meta->add('direction', $language->direction());
-
       $lang->add('link', LinkService::getPage(
         self::getUrl(self::getSlug($code), $home->uri($code))
       ));
-
       $terms = $language->translations();
       if (count($terms) > 1) {
         $lang->add('terms', $terms);
       }
-
       $lang->add('value', $language->name());
-      $value->add($code, $lang);
+      $res->add($code, $lang);
     }
-    return $res->get();
+    return $res;
   }
 
   /**
-   * basic information about langauges as a multi-used helper function
+   * Languages for intern use
    */
-  public static function getAll ()
+  public static function list ()
   {
     $home = kirby()->site()->homePage();
     $res = new Collection();
@@ -73,16 +62,29 @@ class LanguageService
   }
 
   /**
-   * Multilang-site is defined in config.php: languages => true
-   * AND the existence of the folder site/languages (delete folder to have single-language setup)
+   * Language count, 0 if multilang = false
+   * @return int|int<0, max> 
+   * @throws LogicException 
+   */
+  public static function count()
+  {
+    if (!kirby()->option('languages', false)) {
+      return 0;
+    }
+    $languages = kirby()->languages();
+    return count($languages);
+  }
+
+  /**
+   * Multilang-site is defined in config.php: languages => true and the existance
+   * of at least one language.
    * @return Language|null 
    */
   public static function isMultilang ()
   {
-    return kirby()->option('languages', false);
-
     // not working correctly: true, even if config is false
     // return kirby()->multilang() ? true : false;
+    return self::count() > 0;
   }
 
   /**

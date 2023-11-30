@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Blueprint;
 use Kirby\Cms\Site;
@@ -8,8 +8,8 @@ use Kirby\Cms\Page;
 use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Exception\NotFoundException;
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Services\GlobalService;
 
 class BlueprintService
 {

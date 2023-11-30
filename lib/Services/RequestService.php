@@ -1,8 +1,8 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
-use Tritrics\Api\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Services\BlueprintService;
 
 class RequestService
 {

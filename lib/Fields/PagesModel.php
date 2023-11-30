@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\Api\Fields;
+namespace Tritrics\AflevereApi\v1\Fields;
 
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Models\PageModel;
-use Tritrics\Api\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Models\PageModel;
+use Tritrics\AflevereApi\v1\Services\BlueprintService;
 
 /** */
 class PagesModel extends Model

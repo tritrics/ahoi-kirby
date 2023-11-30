@@ -1,16 +1,17 @@
 <?php
 
-namespace Tritrics\Api\Controllers;
+namespace Tritrics\AflevereApi\v1\Controllers;
 
 use Kirby\Cms\Response;
 use Kirby\Exception\Exception;
-use Tritrics\Api\Services\EmailService;
-use Tritrics\Api\Factories\ModelFactory;
-use Tritrics\Api\Services\ApiService;
-use Tritrics\Api\Services\LanguageService;
-use Tritrics\Api\Services\RequestService;
-use Tritrics\Api\Services\NodeService;
-use Tritrics\Api\Services\CollectionService;
+use Tritrics\AflevereApi\v1\Services\EmailService;
+use Tritrics\AflevereApi\v1\Factories\ModelFactory;
+use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\RequestService;
+use Tritrics\AflevereApi\v1\Services\InfoService;
+use Tritrics\AflevereApi\v1\Services\NodeService;
+use Tritrics\AflevereApi\v1\Services\NodesService;
 
 class ApiController
 {
@@ -28,7 +29,7 @@ class ApiController
    * Get a list of defined languages
    * @return Response|array 
    */
-  public function languages ()
+  public function info ()
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -37,10 +38,10 @@ class ApiController
 
     try {
       RequestService::getSleep($request); // Debugging
-      if ( ! ApiService::isEnabledLanguages()) {
+      if ( ! ApiService::isEnabledInfo()) {
         return ApiService::disabled();
       }
-      return LanguageService::languages();
+      return InfoService::get();
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }
@@ -87,7 +88,7 @@ class ApiController
    * @param string|null $slug
    * @return Response|array 
    */
-  public function collection ($lang, $slug)
+  public function nodes($lang, $slug)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -96,7 +97,7 @@ class ApiController
 
     try {
       RequestService::getSleep($request); // Debugging
-      if ( ! ApiService::isEnabledChildren()) {
+      if ( ! ApiService::isEnabledNodes()) {
         return ApiService::disabled();
       }
       if (!LanguageService::isValid($lang)) {
@@ -117,7 +118,7 @@ class ApiController
         'fields' => RequestService::getFields($request),
         'filter' => RequestService::getFilter($request),
       ];
-      return CollectionService::get($node, $lang, $params);
+      return NodesService::get($node, $lang, $params);
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }
@@ -129,7 +130,7 @@ class ApiController
    * @param mixed $action 
    * @return Response
    */
-  public function submit ($lang, $action)
+  public function form($lang, $action)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -137,7 +138,7 @@ class ApiController
     }
 
     try {
-      if ( ! ApiService::isEnabledSubmit()) {
+      if ( ! ApiService::isEnabledForm()) {
         return ApiService::disabled();
       }
       $lang = trim(strtolower($lang));

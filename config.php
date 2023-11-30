@@ -1,32 +1,30 @@
 <?php
 
-namespace Tritrics\Api;
-
 use Kirby\Exception\Exception;
-use Tritrics\Api\Controllers\ApiController;
-use Tritrics\Api\Services\ImageService;
-use Tritrics\Api\Services\LanguageService;
-use Tritrics\Api\Services\RouteService;
+use Tritrics\AflevereApi\v1\Controllers\ApiController;
+use Tritrics\AflevereApi\v1\Services\ImageService;
+use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\ApiService;
 
-kirby()::plugin('tritrics/aflevere-api', [
+kirby()::plugin(ApiService::$pluginName, [
   'options' => [
     'enabled' => [
-      'languages' => false,
+      'info' => false,
       'node' => false,
-      'children' => false,
-      'submit' => false
+      'nodes' => false,
+      'form' => false // hidden, not documented so far
     ],
-    'slug' => '/public-api',
-    'field-name-separator' => '_'
+    'slug' => 'public-api',
+    'field-name-separator' => '_',
   ],
   'hooks' => [
     'page.create:before' => function ($page, array $input) {
-      if (RouteService::isProtectedSlug($input['slug'])) {
+      if (ApiService::isProtectedSlug($input['slug'])) {
         throw new Exception('Slug not allowed');
       }
     },
     'page.changeSlug:before' => function ($page, string $slug, ?string $languageCode = null) {
-      if (RouteService::isProtectedSlug($slug)) {
+      if (ApiService::isProtectedSlug($slug)) {
         throw new Exception('Slug not allowed');
       }
     },
@@ -39,7 +37,7 @@ kirby()::plugin('tritrics/aflevere-api', [
     }
   ],
   'routes' => function ($kirby) {
-    $slug = RouteService::getApiSlug();
+    $slug = ApiService::getApiSlug();
     if (!$slug) {
       return [];
     }
@@ -61,51 +59,58 @@ kirby()::plugin('tritrics/aflevere-api', [
           return $kirby->defaultLanguage()->router()->call();
         }
       ];
+    }
+
+    // expose
+    if (ApiService::isEnabledInfo()) {
       $routes[] = [
-        'pattern' => $slug . '/languages',
-        'method' => 'GET|POST|OPTIONS',
+        'pattern' => $slug . '/info',
+        'method' => 'GET',
         'action' => function () {
           $controller = new ApiController();
-          return $controller->languages();
+          return $controller->info();
         }
       ];
     }
 
     // a node
-    $routes[] = [
-      'pattern' => $slug . '/node/(:all?)',
-      'method' => 'GET|POST|OPTIONS',
-      'action' => function ($path = '') use ($multilang) {
-        $controller = new ApiController();
-        list($lang, $slug) = RouteService::parsePath($path, $multilang);
-        return $controller->node($lang, $slug);
-      }
-    ];
+    if (ApiService::isEnabledNode()) {
+      $routes[] = [
+        'pattern' => $slug . '/node/(:all?)',
+        'method' => 'GET|POST|OPTIONS',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $path) = ApiService::parsePath($resource, $multilang);
+          $controller = new ApiController();
+          return $controller->node($lang, $path);
+        }
+      ];
+    }
 
     // children of a node
-    $routes[] = [
-      'pattern' => $slug . '/collection/(:all?)',
-      'method' => 'GET|POST|OPTIONS',
-      'action' => function ($path = '') use ($multilang) {
-        $controller = new ApiController();
-        list($lang, $slug) = RouteService::parsePath($path, $multilang);
-        return $controller->collection($lang, $slug);
-      }
-    ];
-
-    // post
-    $routes[] = [
-      'pattern' => $slug . ($multilang ? '/submit/(:any)/(:any)' : '/submit/(:any)'),
-      'method' => 'POST|OPTIONS',
-      'action' => function ($param1, $param2 = null) use ($multilang) {
-        $controller = new ApiController();
-        if ($multilang) {
-          return $controller->submit($param1, $param2);
-        } else {
-          return $controller->submit(null, $param1);
+    if (ApiService::isEnabledNodes()) {
+      $routes[] = [
+        'pattern' => $slug . '/nodes/(:all?)',
+        'method' => 'GET|POST|OPTIONS',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $path) = ApiService::parsePath($resource, $multilang);
+          $controller = new ApiController();
+          return $controller->nodes($lang, $path);
         }
-      }
-    ];
+      ];
+    }
+
+    // form handling
+    if (ApiService::isEnabledForm()) {
+      $routes[] = [
+        'pattern' => $slug . '/form/(:all?)',
+        'method' => 'POST|OPTIONS',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $action) = ApiService::parsePath($resource, $multilang);
+          $controller = new ApiController();
+          return $controller->form($lang, $action);
+        }
+      ];
+    }
     return $routes;
   }
 ]);

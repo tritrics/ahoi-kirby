@@ -1,19 +1,19 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Site;
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Models\PageModel;
-use Tritrics\Api\Services\ApiService;
-use Tritrics\Api\Services\RequestService;
-use Tritrics\Api\Services\BlueprintService;
-use Tritrics\Api\Services\FieldService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Models\PageModel;
+use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Services\RequestService;
+use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Services\FieldService;
 
 /**
  * 
  */
-class CollectionService
+class NodesService
 {
   /**
    * Main method for action api/collection/[id]
@@ -75,7 +75,7 @@ class CollectionService
 
     $res = ApiService::initResponse();
     $body = $res->add('body');
-    $body->add('type', 'collection');
+    $body->add('type', 'nodes');
     $body->add('meta', $meta);
     $body->add('value', self::getChildren($children, $lang, ['listed'], $params['fields']));
     return $res->get();

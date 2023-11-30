@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\Api\Fields;
+namespace Tritrics\AflevereApi\v1\Fields;
 
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Data\Model;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Data\Model;
 
 /** */
 class ObjectModel extends Model

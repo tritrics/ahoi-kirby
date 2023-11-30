@@ -1,10 +1,10 @@
 <?php
 
-namespace Tritrics\Api\Models;
+namespace Tritrics\AflevereApi\v1\Models;
 
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Services\LinkService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Services\LinkService;
 
 /** */
 class FileModel extends Model

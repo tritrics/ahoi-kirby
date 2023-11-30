@@ -1,15 +1,15 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Site;
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Models\PageModel;
-use Tritrics\Api\Models\SiteModel;
-use Tritrics\Api\Services\ApiService;
-use Tritrics\Api\Services\RequestService;
-use Tritrics\Api\Services\BlueprintService;
-use Tritrics\Api\Services\FieldService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Models\PageModel;
+use Tritrics\AflevereApi\v1\Models\SiteModel;
+use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Services\RequestService;
+use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Services\FieldService;
 /**
  * 
  */

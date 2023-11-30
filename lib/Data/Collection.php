@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Api\Data;
+namespace Tritrics\AflevereApi\v1\Data;
 
 use ArrayIterator;
 use Exception;

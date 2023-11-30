@@ -1,10 +1,11 @@
 <?php
 
-namespace Tritrics\Api\Services;
+namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Field as KirbyField;
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Factories\ModelFactory;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Factories\ModelFactory;
+use Tritrics\AflevereApi\v1\Services\ApiService;
 
 /** */
 class FieldService
@@ -29,7 +30,7 @@ class FieldService
     string|array $fields = 'all'
   ) {
 
-    $separator = kirby()->option('tritrics.aflevere-api.field-name-separator');
+    $separator = ApiService::getconfig('field-name-separator', '');
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
@@ -62,7 +63,7 @@ class FieldService
    */
   public static function factory ($type, $key, $value, $blueprint = null, $lang = null)
   {
-    $model = kirby()->option('tritrics.aflevere-api.models.' . $type);
+    $model = ApiService::getconfig('models.' . $type);
     if ($model) {
       $kirbyField = new KirbyField(null, $key, $value);
       return new $model($kirbyField, $blueprint, $lang);

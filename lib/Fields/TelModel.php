@@ -1,10 +1,10 @@
 <?php
 
-namespace Tritrics\Api\Fields;
+namespace Tritrics\AflevereApi\v1\Fields;
 
-use Tritrics\Api\Data\Collection;
-use Tritrics\Api\Data\Model;
-use Tritrics\Api\Services\LinkService;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Services\LinkService;
 
 /** */
 class TelModel extends Model
