@@ -135,7 +135,8 @@ class LanguageService
   public static function getLocale ($code)
   {
     $language = kirby()->language($code);
-    return $language->locale(LC_ALL);
+    $php_locale = $language->locale(LC_ALL);
+    return str_replace('_', '-', $php_locale);
   }
 
   /**

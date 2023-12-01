@@ -37,7 +37,6 @@ class ApiController
     }
 
     try {
-      RequestService::getSleep($request); // Debugging
       if ( ! ApiService::isEnabledInfo()) {
         return ApiService::disabled();
       }

@@ -32,7 +32,7 @@ class ApiService
   }
 
   /**
-   * Get setting from config.php
+   * Get setting from plugins config.php
    * example: tritrics.aflevere-api.v1.slug
    * @param string $node 
    * @param mixed $default 

@@ -159,7 +159,7 @@ class RequestService
   public static function getSleep($request)
   {
     $val = intval($request->get('sleep'));
-    if (is_int($val) && $val > 0 && $val <= 10) {
+    if (kirby()->option('debug', false) && is_int($val) && $val > 0 && $val <= 10) {
       sleep($val);
     }
     return $val;
