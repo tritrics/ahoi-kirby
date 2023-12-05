@@ -9,7 +9,7 @@ use Tritrics\AflevereApi\v1\Services\LinkService;
 
 
 /** */
-class PageModel extends Model
+class NodeModel extends Model
 {
   /** */
   private $add_translations;
