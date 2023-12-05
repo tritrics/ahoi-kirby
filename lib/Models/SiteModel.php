@@ -34,6 +34,14 @@ class SiteModel extends Model
     $meta->add('modified',  date('c', $this->model->modified()));
     $meta->add('blueprint', 'site');
 
+    if ($this->blueprint->has('api', 'meta')) {
+      foreach ($this->blueprint->node('api', 'meta')->get() as $key => $value) {
+        if (!$meta->has($key)) {
+          $meta->add($key, $value);
+        }
+      }
+    }
+
     $page = $this->model->homePage();
     $res->add('home', LinkService::getPage($this->getUrl($page, $this->lang)));
     return $res;

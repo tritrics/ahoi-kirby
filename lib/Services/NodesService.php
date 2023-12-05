@@ -27,6 +27,7 @@ class NodesService
     if (empty($node)) {
       return [];
     }
+    $blueprint = BlueprintService::getBlueprint($node);
     if (is_array($params['filter'])) {
       $children = RequestService::filterChildren($node, $params['filter'], $lang);
     } else {
@@ -38,7 +39,11 @@ class NodesService
       $children = $children->flip();
     }
 
-    $meta = new Collection();
+    $res = ApiService::initResponse();
+    $body = $res->add('body');
+    $body->add('type', 'nodes');
+    $meta = $body->add('meta');
+
     if ($node instanceof Site) {
       $meta->add('parent', 'site');
       $meta->add('host', $node->url($lang));
@@ -73,10 +78,14 @@ class NodesService
       $meta->add('rangecount', $abscount);
     }
 
-    $res = ApiService::initResponse();
-    $body = $res->add('body');
-    $body->add('type', 'nodes');
-    $body->add('meta', $meta);
+    if ($blueprint->has('api', 'meta')) {
+      foreach($blueprint->node('api', 'meta')->get() as $key => $value) {
+        if (!$meta->has($key)) {
+          $meta->add($key, $value);
+        }
+      }
+    }
+
     $body->add('value', self::getChildren($children, $lang, ['listed'], $params['fields']));
     return $res->get();
   }
@@ -99,8 +108,8 @@ class NodesService
       $blueprint = BlueprintService::getBlueprint($child);
       $node = new NodeModel($child, $blueprint, $lang, false);
 
-      // deactivate "all" here, because this might cause huge data-load
-      if (is_array($fields) && count($fields) > 0) {
+      // don't deactivate "all" here, because it's required for one-pager
+      if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {
         $value = new Collection();
         FieldService::addFields(
           $value,

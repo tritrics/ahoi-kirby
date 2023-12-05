@@ -26,7 +26,9 @@ class NodeModel extends Model
   {
     $content = $this->model->content($this->lang);
 
-    $meta = new Collection();
+    $res = new Collection();
+
+    $meta = $res->add('meta');
     $meta->add('id', $this->model->id());
     $meta->add('parent', $this->getParentUrl($this->lang));
     $meta->add('slug',$this->model->slug($this->lang));
@@ -41,9 +43,16 @@ class NodeModel extends Model
     $meta->add('blueprint', (string) $this->model->intendedTemplate());
     $meta->add('home', $this->model->isHomePage());
 
-    $res = new Collection();
-    $res->add('meta', $meta);
+    if ($this->blueprint->has('api', 'meta')) {
+      foreach ($this->blueprint->node('api', 'meta')->get() as $key => $value) {
+        if (!$meta->has($key)) {
+          $meta->add($key, $value);
+        }
+      }
+    }
+
     $res->add('link', LinkService::getPage($this->getUrl($this->lang)));
+
     if ($this->add_translations && LanguageService::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguageService::list() as $code => $data) {
