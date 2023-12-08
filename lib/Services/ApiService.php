@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Response;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
 class ApiService
 {
@@ -103,6 +103,14 @@ class ApiService
   /**
    * @return bool 
    */
+  public static function isEnabledLanguage()
+  {
+    return self::isEnabled('language');
+  }
+
+  /**
+   * @return bool 
+   */
   public static function isEnabledNode()
   {
     return self::isEnabled('node');
@@ -133,7 +141,7 @@ class ApiService
    */
   public static function findPageBySlug($lang, $slug)
   {
-    if (LanguageService::isMultilang()) {
+    if (LanguagesService::isMultilang()) {
       $pages = kirby()->site()->pages();
       $keys = explode('/', trim($slug, '/'));
       return self::findPageBySlugRec($pages, $lang, $keys);

@@ -2,7 +2,7 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
-use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
 class LinkService
 {
@@ -41,7 +41,7 @@ class LinkService
   {
     if (self::$lang !== $lang) { // do only once
       self::$lang = $lang;
-      self::$multilang = LanguageService::isMultilang();
+      self::$multilang = LanguagesService::isMultilang();
       
       $backend = self::parseUrl(site()->url(self::$lang));
       self::$backend['host'] = $backend['host'];
@@ -60,7 +60,7 @@ class LinkService
       self::$slugs['home'] = $home['path'];
       $media = self::parseUrl(kirby()->url('media'));
       self::$slugs['media'] = $media['path'];
-      self::$slugs['lang'] = '/' . LanguageService::getSlug(self::$lang);
+      self::$slugs['lang'] = '/' . LanguagesService::getSlug(self::$lang);
     }
   }
 
@@ -164,7 +164,7 @@ class LinkService
       $slugs = array_values(array_filter(explode('/', $parts['path'])));
       $lang = count($slugs) > 0 ? $slugs[0] : null;
       $langSettings = null;
-      foreach (LanguageService::list() as $settings) {
+      foreach (LanguagesService::list() as $settings) {
         if($settings->node('slug')->get() === $lang) {
           $langSettings = $settings;
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Fields;
+namespace Tritrics\AflevereApi\v1\Models;
 
 use Collator;
 use Tritrics\AflevereApi\v1\Data\Model;

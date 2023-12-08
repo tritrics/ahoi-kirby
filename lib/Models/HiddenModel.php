@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Fields;
+namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\GlobalService;

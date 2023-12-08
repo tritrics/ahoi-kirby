@@ -1,8 +1,7 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Fields;
+namespace Tritrics\AflevereApi\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 
 /** */
@@ -12,7 +11,7 @@ class ObjectModel extends Model
   protected $hasChildFields = true;
 
   /** */
-  protected function getValue () : Collection
+  protected function getValue ()
   {
     return $this->fields;
   }

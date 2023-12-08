@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Fields;
+namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
@@ -11,11 +11,12 @@ class BlocksModel extends Model
 {
   /** */
   private $classMap = [
+    'default' => '\Blocks\DefaultModel',
     'heading' => '\Blocks\HeadingModel',
   ];
 
   /** */
-  protected function getValue () : Collection
+  protected function getValue ()
   {
     $res = new Collection();
     foreach ($this->model->toBlocks() as $block) {
@@ -23,7 +24,7 @@ class BlocksModel extends Model
       if (isset($this->classMap[$type])) {
         $blockClass = ApiService::$namespace . $this->classMap[$type];
       } else {
-        $blockClass = ApiService::$namespace . '\Blocks\DefaultModel';
+        $blockClass = ApiService::$namespace . $this->classMap['default'];
       }
       $blueprint = $this->blueprint->node('blocks', $type);
       if ($blueprint->has('fields')) {

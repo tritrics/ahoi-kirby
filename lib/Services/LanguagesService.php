@@ -2,43 +2,21 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
-use Kirby\Cms\Language;
-use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Models\LanguageModel;
 
-class LanguageService
+class LanguagesService
 {
   /** */
   private static $slugs = [];
 
-  /**
-   * Languages for use in API response
-   */
-  public static function get ()
+  public static function get($lang)
   {
-    $languages = kirby()->languages();
-    $home = kirby()->site()->homePage();
-    $res = new Collection();
-    foreach ($languages as $language) {
-      $code = trim(strtolower($language->code()));
-      $lang = new Collection();
-      $lang->add('type', 'language');
-      $meta = $lang->add('meta');
-      $meta->add('code', $code);
-      $meta->add('default', $language->isDefault());
-      $meta->add('locale', self::getLocale($code));
-      $meta->add('direction', $language->direction());
-      $lang->add('link', LinkService::getPage(
-        self::getUrl(self::getSlug($code), $home->uri($code))
-      ));
-      $terms = $language->translations();
-      if (count($terms) > 1) {
-        $lang->add('terms', $terms);
-      }
-      $lang->add('value', $language->name());
-      $res->add($code, $lang);
-    }
-    return $res;
+    $language = self::getLanguage($lang);
+    $res = ApiService::initResponse();
+    $body = $res->add('body', new LanguageModel($language, null, null, true));
+    return $res->get();
   }
 
   /**
@@ -48,8 +26,8 @@ class LanguageService
   {
     $home = kirby()->site()->homePage();
     $res = new Collection();
-    foreach(kirby()->languages() as $language) {
-      $lang = $res->add($language->code(), [
+    foreach(self::getLanguages() as $language) {
+      $res->add($language->code(), [
         'name' => $language->name(),
         'slug' => self::getSlug($language->code()),
         'default' => $language->isDefault(),
@@ -62,43 +40,68 @@ class LanguageService
   }
 
   /**
+   * Multilang-site is defined in config.php: languages => true and the existance
+   * of at least one language.
+   * @return Language|null 
+   */
+  public static function isMultilang()
+  {
+    // not working correctly: true, even if config is false
+    // return kirby()->multilang() ? true : false;
+    return kirby()->option('languages', false);
+  }
+
+  /**
+   * all languages
+   */
+  public static function getLanguages ()
+  {
+    return kirby()->languages();
+  }
+
+  /**
+   * a single language
+   */
+  public static function getLanguage($code)
+  {
+    if (!self::isMultilang() || !self::isValid($code)) {
+      return null;
+    }
+    return kirby()->language($code);
+  }
+
+  /**
+   * the default language
+   */
+  public static function getDefault()
+  {
+    if (!self::isMultilang()) {
+      return null;
+    }
+    return self::getLanguages()->default();
+  }
+
+  /**
    * Language count, 0 if multilang = false
    * @return int|int<0, max> 
    * @throws LogicException 
    */
   public static function count()
   {
-    if (!kirby()->option('languages', false)) {
+    if (!self::isMultilang()) {
       return 0;
     }
-    $languages = kirby()->languages();
-    return count($languages);
+    return self::getLanguages()->count();
   }
 
   /**
-   * Multilang-site is defined in config.php: languages => true and the existance
-   * of at least one language.
-   * @return Language|null 
-   */
-  public static function isMultilang ()
-  {
-    // not working correctly: true, even if config is false
-    // return kirby()->multilang() ? true : false;
-    return self::count() > 0;
-  }
-
-  /**
-   * checks, if given language is valid
-   * return given language, default language or null on non-lang-sites
-   * @param string $lang
-   * @return string|null
    */
   public static function isValid ($lang)
   {
-    if ($lang === null && !self::isMultilang()) {
-      return true;
+    if (!self::isMultilang()) {
+      return true; // why??
     }
-    return kirby()->languages()->has($lang);
+    return self::getLanguages()->has($lang);
   }
 
   /**
@@ -112,7 +115,7 @@ class LanguageService
       return '';
     }
     if (!isset(self::$slugs[$code])) {
-      $language = kirby()->language($code);
+      $language = self::getLanguage($code);
       $url = parse_url($language->url());
 
       // setting url = '/' means there is no prefix for default langauge
@@ -134,7 +137,10 @@ class LanguageService
    */
   public static function getLocale ($code)
   {
-    $language = kirby()->language($code);
+    if (!self::isMultilang()) {
+      return '';
+    }
+    $language = self::getLanguage($code);
     $php_locale = $language->locale(LC_ALL);
     return str_replace('_', '-', $php_locale);
   }
@@ -160,7 +166,7 @@ class LanguageService
   //   return $locale;
   // }
 
-  private static function getUrl($langSlug, $slug): string
+  public static function getUrl($langSlug, $slug): string
   {
     return '/' . trim($langSlug . '/' . $slug, '/');
   }

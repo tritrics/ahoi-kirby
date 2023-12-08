@@ -3,7 +3,7 @@
 use Kirby\Exception\Exception;
 use Tritrics\AflevereApi\v1\Controllers\ApiController;
 use Tritrics\AflevereApi\v1\Services\ImageService;
-use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 
 kirby()::plugin(ApiService::$pluginName, [
@@ -41,7 +41,7 @@ kirby()::plugin(ApiService::$pluginName, [
     if (!$slug) {
       return [];
     }
-    $multilang = LanguageService::isMultilang();
+    $multilang = LanguagesService::isMultilang();
     $routes = array();
 
     // language-based routes, only relevant if any language
@@ -69,6 +69,18 @@ kirby()::plugin(ApiService::$pluginName, [
         'action' => function () {
           $controller = new ApiController();
           return $controller->info();
+        }
+      ];
+    }
+
+    // a language
+    if (ApiService::isEnabledNode()) {
+      $routes[] = [
+        'pattern' => $slug . '/language/(:any)',
+        'method' => 'GET',
+        'action' => function ($resource = '') use ($multilang) {
+          $controller = new ApiController();
+          return $controller->language($resource);
         }
       ];
     }

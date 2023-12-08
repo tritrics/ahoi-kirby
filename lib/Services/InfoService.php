@@ -3,31 +3,25 @@
 namespace Tritrics\AflevereApi\v1\Services;
 
 use Tritrics\AflevereApi\v1\Services\ApiService;
-use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Tritrics\AflevereApi\v1\Models\LanguagesModel;
 
 class InfoService
 {
   public static function get()
   {
     $expose = kirby()->option('debug', false);
-    $isMultilang = LanguageService::isMultilang();
+    $isMultilang = LanguagesService::isMultilang();
 
     $res = ApiService::initResponse();
     $body = $res->add('body');
+
+    // Type
     $body->add('type', 'info');
 
-    // meta
+    // Meta
     $meta = $body->add('meta');
     $meta->add('multilang', $isMultilang);
-
-    // add languages
-    $value = $body->add('value');
-    if ($isMultilang) {
-      $meta->add('languages', LanguageService::count());
-      $languages = $value->add('languages');
-      $languages->add('type', 'languages');
-      $languages->add('value', LanguageService::get());
-    }
     if ($expose) {
       $meta->add('api', ApiService::$version);
       $meta->add('plugin', ApiService::getPluginVersion());
@@ -35,20 +29,36 @@ class InfoService
       $meta->add('php', phpversion());
       $meta->add('slug', ApiService::getconfig('slug', ''));
       $meta->add('field-name-separator',  ApiService::getconfig('field-name-separator', ''));
+    }
+
+    // Interface
+    if ($expose) {
+      $interface = $body->add('interface');
       $Request = kirby()->request();
       $url = substr($Request->url()->toString(), 0, -5); // the easy way
       if (ApiService::isEnabledInfo()) {
-        $meta->add('info', $url . '/info',);
+        $interface->add('info', $url . '/info',);
+      }
+      if (ApiService::isEnabledLanguage()) {
+        $interface->add('language', $url . '/language',);
       }
       if (ApiService::isEnabledNode()) {
-        $meta->add('node', $url . '/node');
+        $interface->add('node', $url . '/node');
       }
       if (ApiService::isEnabledNodes()) {
-        $meta->add('nodes', $url . '/nodes');
+        $interface->add('nodes', $url . '/nodes');
       }
       if (ApiService::isEnabledForm()) {
-        $meta->add('form', $url . '/form');
+        $interface->add('form', $url . '/form');
       }
+    }
+
+    // value
+    // add languages
+    if ($isMultilang) {
+      $value = $body->add('value');
+      $languages = new LanguagesModel(LanguagesService::getLanguages());
+      $value->add('languages', $languages);
     }
     return $res->get();
   }

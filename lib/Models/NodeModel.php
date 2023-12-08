@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\LinkService;
 
 
@@ -12,12 +12,12 @@ use Tritrics\AflevereApi\v1\Services\LinkService;
 class NodeModel extends Model
 {
   /** */
-  private $add_translations;
+  private $add_details;
 
   /** */
-  public function __construct ($model, $blueprint, $lang, $add_translations = false)
+  public function __construct ($model, $blueprint, $lang, $add_details = false)
   {
-    $this->add_translations = $add_translations;
+    $this->add_details = $add_details;
     parent::__construct($model, $blueprint, $lang);
   }
   
@@ -34,7 +34,7 @@ class NodeModel extends Model
     $meta->add('slug',$this->model->slug($this->lang));
     if ($this->lang !== null) {
       $meta->add('lang', $this->lang);
-      $meta->add('locale', LanguageService::getLocale($this->lang));
+      $meta->add('locale', LanguagesService::getLocale($this->lang));
     }
     $meta->add('title', $content->title()->get());
     $meta->add('status', $this->model->status());
@@ -53,9 +53,9 @@ class NodeModel extends Model
 
     $res->add('link', LinkService::getPage($this->getUrl($this->lang)));
 
-    if ($this->add_translations && LanguageService::isMultilang()) {
+    if ($this->add_details && LanguagesService::isMultilang()) {
       $translations = $res->add('translations');
-      foreach(LanguageService::list() as $code => $data) {
+      foreach(LanguagesService::list() as $code => $data) {
         $lang = $translations->add($code);
         $lang->add('type', 'url');
         $lang->add('link', LinkService::getPage($this->getUrl($code)));
@@ -71,14 +71,14 @@ class NodeModel extends Model
   /** */
   private function getUrl ($lang) : string
   {
-    $langSlug = LanguageService::getSlug($lang);
+    $langSlug = LanguagesService::getSlug($lang);
     return '/' . trim($langSlug . '/' . $this->model->uri($lang), '/');
   }
 
   /** */
   private function getParentUrl ($lang) : string
   {
-    $langSlug = LanguageService::getSlug($lang);
+    $langSlug = LanguagesService::getSlug($lang);
     $parent = $this->model->parent();
     if ($parent) {
       return '/' . ltrim($langSlug . '/' . $parent->uri($lang), '/');

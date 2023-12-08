@@ -7,7 +7,7 @@ use Kirby\Exception\Exception;
 use Tritrics\AflevereApi\v1\Services\EmailService;
 use Tritrics\AflevereApi\v1\Factories\ModelFactory;
 use Tritrics\AflevereApi\v1\Services\ApiService;
-use Tritrics\AflevereApi\v1\Services\LanguageService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\RequestService;
 use Tritrics\AflevereApi\v1\Services\InfoService;
 use Tritrics\AflevereApi\v1\Services\NodeService;
@@ -47,6 +47,28 @@ class ApiController
   }
 
   /**
+   * Get a single language
+   * @param string|null $lang
+   * @param string|null $slug
+   * @return Response|array|void 
+   */
+  public function language($lang)
+  {
+    $request = kirby()->request();
+    try {
+      if (!ApiService::isEnabledLanguage()) {
+        return ApiService::disabled();
+      }
+      if (!LanguagesService::isValid($lang)) {
+        return ApiService::invalidLang();
+      }
+      return LanguagesService::get($lang);
+    } catch (Exception $e) {
+      return ApiService::fatal($e->getMessage());
+    }
+  }
+
+  /**
    * Get a single node
    * @param string|null $lang
    * @param string|null $slug
@@ -64,7 +86,7 @@ class ApiController
       if ( ! ApiService::isEnabledNode()) {
         return ApiService::disabled();
       }
-      if (!LanguageService::isValid($lang)) {
+      if (!LanguagesService::isValid($lang)) {
         return ApiService::invalidLang();
       }
       if ($slug === null) {
@@ -99,7 +121,7 @@ class ApiController
       if ( ! ApiService::isEnabledNodes()) {
         return ApiService::disabled();
       }
-      if (!LanguageService::isValid($lang)) {
+      if (!LanguagesService::isValid($lang)) {
         return ApiService::badRequest();
       }
       if ($slug === null) {

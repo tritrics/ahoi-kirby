@@ -36,7 +36,7 @@ abstract class Model extends Collection
    * @param Collection $blueprint
    * @param string $lang
    */
-  public function __construct ($model, $blueprint, $lang)
+  public function __construct ($model, $blueprint = null, $lang = null)
   {
     $this->model = $model;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
@@ -79,6 +79,7 @@ abstract class Model extends Collection
    */
   private function setModelData ()
   {
+    // compute type
     if (method_exists($this, 'getType')) {
       $type = $this->getType();
     } else {
@@ -89,6 +90,7 @@ abstract class Model extends Collection
     }
     $this->add('type', $type);
 
+    // properties, any kind of nodes
     if (method_exists($this, 'getProperties')) {
       $add = $this->getProperties();
       if ($add instanceof Collection) {
@@ -96,31 +98,10 @@ abstract class Model extends Collection
       }
     }
 
-    $entries = $this->getValue();
-
-    // add info for pages, files, users
-    if (in_array($type, ['pages', 'files', 'images', 'users'])) {
-      $meta = new Collection();
-      $meta->add('multiple', $this->isMultiple());
-      $meta->add('count', $entries instanceof Collection ? $entries->count() : 0);
-      $this->add('meta', $meta);
-    }
+    // value
     if ($type !== 'page') {
-      $this->add('value', $entries);
+      $this->add('value', $this->getValue());
     }
-  }
-
-  /**
-   * Because Kirby sets multiple to true on default, we check for false here.
-   * max = 1 is NOT interpreted as multiple, because the setting multiple
-   * is explicitely designed for this. 
-   */
-  private function isMultiple ()
-  {
-    if($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -177,5 +158,18 @@ abstract class Model extends Collection
         return 'IS_STRING';
       }
     }
+  }
+
+  /**
+   * Because Kirby sets multiple to true on default, we check for false here.
+   * max = 1 is NOT interpreted as multiple, because the setting multiple
+   * is explicitely designed for this. 
+   */
+  protected function isMultiple()
+  {
+    if ($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
+      return false;
+    }
+    return true;
   }
 }
