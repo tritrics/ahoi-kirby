@@ -1,7 +1,7 @@
 {
     "name": "tritrics\/aflevere-api",
     "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "authors": [
         {
             "name": "Michael Adams",
