@@ -4,11 +4,11 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Models\NodeModel;
+use Tritrics\AflevereApi\v1\Models\PageModel;
 use Tritrics\AflevereApi\v1\Services\BlueprintService;
 
 /** */
-class NodesModel extends Model
+class PagesModel extends Model
 {
   protected function getProperties()
   {
@@ -28,7 +28,7 @@ class NodesModel extends Model
         continue;
       }
       $blueprint = BlueprintService::getBlueprint($page);
-      $model = new NodeModel($page, $blueprint, $this->lang);
+      $model = new PageModel($page, $blueprint, $this->lang);
       $res->push($model);
     }
     return $res;

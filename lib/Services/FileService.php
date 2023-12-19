@@ -6,8 +6,18 @@ use Kirby\Filesystem\F;
 use Kirby\Http\Header;
 use Kirby\Cms\Media;
 
-class ImageService
+class FileService
 {
+  public static function getPathinfo($path)
+  {
+    // Kirby confuses jpeg an jpg on images. FileService only works with jpg!
+    $pathinfo = pathinfo($path);
+    $pathinfo['extension'] = strtolower($pathinfo['extension']) === 'jpeg' ? 'jpg' : strtolower($pathinfo['extension']);
+    $pathinfo['file'] = $pathinfo['filename'] . '.' . $pathinfo['extension'];
+    $pathinfo['path'] = $pathinfo['dirname'] . '/' . $pathinfo['file'];
+    return $pathinfo;
+  }
+
   /**
    * Options given by filename:
    *
@@ -20,7 +30,7 @@ class ImageService
    * 
    * filename[-(width)x(height)][-crop-(option)][-blur(integer)][-bw][-q(integer)].extension
    */
-  public static function get ($path, $arguments, $pattern, $options = [])
+  public static function getImage ($path, $arguments, $pattern, $options = [])
   {
     $pathinfo = pathinfo($path);
     $filename = $pathinfo['basename'];

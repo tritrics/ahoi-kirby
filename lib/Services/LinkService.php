@@ -71,7 +71,7 @@ class LinkService
    * @param string $title
    * @return array 
    */
-  public static function get($lang, $href, $title = null, $target = false)
+  public static function getInline($lang, $href, $title = null, $target = false)
   {
     // working with splitted url
     self::init($lang);
@@ -111,7 +111,7 @@ class LinkService
     }
 
     // all other links
-    return self::getExtern(self::buildUrl($parts), $title, $target);
+    return self::getUrl(self::buildUrl($parts), $title, $target);
   }
 
   /**
@@ -121,12 +121,12 @@ class LinkService
    * @param string $title 
    * @return array 
    */
-  public static function getExtern($href, $title = null, $blank = false)
+  public static function getUrl($href, $title = null, $blank = false)
   {
     $url = self::parseUrl($href);
     $host = isset($url['host']) ? $url['host'] : '';
     $res = [
-      'type' => 'extern',
+      'type' => 'url',
       'href' => $href
     ];
     if (!empty($title)) {
@@ -181,7 +181,7 @@ class LinkService
       }
     }
     $res = [
-      'type' => 'intern',
+      'type' => 'page',
       'href' => self::buildPath($parts)
     ];
     if (!empty($title)) {
@@ -202,7 +202,6 @@ class LinkService
    */
   public static function getFile($path, $title = null, $blank = false)
   {
-    $pathinfo = pathinfo($path);
     $res = [
       'type' => 'file',
       'href' => $path
@@ -244,6 +243,8 @@ class LinkService
    */
   public static function getTel($tel, $title = null)
   {
+    $tel = preg_replace('/^[+]{1,}/', '00', $tel);
+    $tel = preg_replace('/[^0-9]/', '', $tel);
     $res = [
       'type' => 'tel',
       'href' => 'tel:' . $tel
@@ -263,9 +264,30 @@ class LinkService
    */
   public static function getAnchor($anchor, $title = null)
   {
+    if (!str_starts_with($anchor, '#')) {
+      $anchor = '#' . $anchor;
+    }
     $res = [
       'type' => 'anchor',
-      'href' => '#' . $anchor
+      'href' => $anchor
+    ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
+    return $res;
+  }
+
+  /**
+   * get custom
+   * @param string $lang
+   * @param string $title 
+   * @return array
+   */
+  public static function getCustom($link, $title = null)
+  {
+    $res = [
+      'type' => 'custom',
+      'href' => $link
     ];
     if (!empty($title)) {
       $res['title'] = $title;

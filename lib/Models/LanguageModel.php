@@ -35,10 +35,7 @@ class LanguageModel extends Model
       $meta->add('direction', $this->model->direction());
     }
     $res->add('link', LinkService::getPage(
-      LanguagesService::getUrl(
-        LanguagesService::getSlug($code),
-        $home->uri($code)
-      )
+      LanguagesService::getUrl($code, $home->uri($code))
     ));
     if ($this->add_details) {
       $res->add('terms', $this->model->translations());

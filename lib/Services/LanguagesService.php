@@ -166,8 +166,8 @@ class LanguagesService
   //   return $locale;
   // }
 
-  public static function getUrl($langSlug, $slug): string
+  public static function getUrl($code, $slug): string
   {
-    return '/' . trim($langSlug . '/' . $slug, '/');
+    return '/' . trim(self::getSlug($code) . '/' . $slug, '/');
   }
 }

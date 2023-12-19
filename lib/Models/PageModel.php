@@ -9,7 +9,7 @@ use Tritrics\AflevereApi\v1\Services\LinkService;
 
 
 /** */
-class NodeModel extends Model
+class PageModel extends Model
 {
   /** */
   private $add_details;
@@ -51,14 +51,18 @@ class NodeModel extends Model
       }
     }
 
-    $res->add('link', LinkService::getPage($this->getUrl($this->lang)));
+    $res->add('link', LinkService::getPage(
+      LanguagesService::getUrl($this->lang, $this->model->uri($this->lang))
+    ));
 
     if ($this->add_details && LanguagesService::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguagesService::list() as $code => $data) {
         $lang = $translations->add($code);
         $lang->add('type', 'url');
-        $lang->add('link', LinkService::getPage($this->getUrl($code)));
+        $lang->add('link', LinkService::getPage(
+          LanguagesService::getUrl($code, $this->model->uri($code))
+        ));
         $lang->add('value', $data->node('name')->get());
       }
     }
@@ -67,13 +71,6 @@ class NodeModel extends Model
 
   /** */
   protected function getValue () {}
-
-  /** */
-  private function getUrl ($lang) : string
-  {
-    $langSlug = LanguagesService::getSlug($lang);
-    return '/' . trim($langSlug . '/' . $this->model->uri($lang), '/');
-  }
 
   /** */
   private function getParentUrl ($lang) : string

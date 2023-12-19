@@ -83,7 +83,7 @@ class ApiController
 
     try {
       RequestService::getSleep($request); // Debugging
-      if ( ! ApiService::isEnabledNode()) {
+      if ( ! ApiService::isEnabledPage()) {
         return ApiService::disabled();
       }
       if (!LanguagesService::isValid($lang)) {
@@ -118,7 +118,7 @@ class ApiController
 
     try {
       RequestService::getSleep($request); // Debugging
-      if ( ! ApiService::isEnabledNodes()) {
+      if ( ! ApiService::isEnabledPages()) {
         return ApiService::disabled();
       }
       if (!LanguagesService::isValid($lang)) {

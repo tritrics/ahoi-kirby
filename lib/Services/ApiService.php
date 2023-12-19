@@ -111,17 +111,17 @@ class ApiService
   /**
    * @return bool 
    */
-  public static function isEnabledNode()
+  public static function isEnabledPage()
   {
-    return self::isEnabled('node');
+    return self::isEnabled('page');
   }
 
   /**
    * @return bool 
    */
-  public static function isEnabledNodes()
+  public static function isEnabledPages()
   {
-    return self::isEnabled('nodes');
+    return self::isEnabled('pages');
   }
 
   /**

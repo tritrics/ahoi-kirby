@@ -12,12 +12,8 @@ class TelModel extends Model
   /** */
   protected function getProperties ()
   {
-    $tel = $this->model->value();
-    $tel = preg_replace('/^[+]{1,}/', '00', $tel);
-    $tel = preg_replace('/[^0-9]/', '', $tel);
-
     $res = new Collection();
-    $res->add('link', LinkService::getTel($tel));
+    $res->add('link', LinkService::getTel($this->model->value()));
     return $res;
   }
 

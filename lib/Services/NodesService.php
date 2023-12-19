@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Site;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Models\NodeModel;
+use Tritrics\AflevereApi\v1\Models\PageModel;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Services\RequestService;
 use Tritrics\AflevereApi\v1\Services\BlueprintService;
@@ -106,7 +106,7 @@ class NodesService
       }
 
       $blueprint = BlueprintService::getBlueprint($child);
-      $node = new NodeModel($child, $blueprint, $lang, false);
+      $node = new PageModel($child, $blueprint, $lang, false);
 
       // don't deactivate "all" here, because it's required for one-pager
       if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {

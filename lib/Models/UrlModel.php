@@ -13,7 +13,7 @@ class UrlModel extends Model
   protected function getProperties ()
   {
     $res = new Collection();
-    $res->add('link', LinkService::getExtern($this->model->value()));
+    $res->add('link', LinkService::getUrl($this->model->value()));
     return $res;
   }
 

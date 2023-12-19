@@ -5,12 +5,19 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Services\FileService;
 
 /** */
 class FileModel extends Model
 {
   /** */
   protected $hasChildFields = true;
+
+  /** */
+  public function __construct($model, $blueprint, $lang)
+  {
+    parent::__construct($model, $blueprint, $lang);
+  }
 
   protected function getType()
   {
@@ -20,21 +27,18 @@ class FileModel extends Model
   /** */
   protected function getProperties ()
   {
-    $pathinfo = pathinfo($this->model->url());
+    $pathinfo = FileService::getPathinfo($this->model->url());
 
-    // Kirby confuses jpeg an jpg on images. ImageService only works with jpg!
-    $ext = strtolower($pathinfo['extension']) === 'jpeg' ? 'jpg' : strtolower($pathinfo['extension']);
-    $file = $pathinfo['filename'] . '.' . $ext;
     $title = $this->fields->node('title', 'value')->get();
     if (!$title) {
-      $title = $file;
+      $title = $pathinfo['file'];
     }
 
     $meta = new Collection();
     $meta->add('dir', $pathinfo['dirname'] . '/');
-    $meta->add('file', $file);
+    $meta->add('file', $pathinfo['file']);
     $meta->add('filename', $pathinfo['filename']);
-    $meta->add('ext', $ext);
+    $meta->add('ext', $pathinfo['extension']);
     $meta->add('blueprint', $this->model->template());
     $meta->add('title', $title);
     if ($this->model->type() === 'image') {
@@ -44,9 +48,7 @@ class FileModel extends Model
 
     $res = new Collection();
     $res->add('meta', $meta);
-    $res->add('link', LinkService::getFile(
-      $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '.' . $ext
-    ));
+    $res->add('link', LinkService::getFile($pathinfo['path']));
     return $res;
   }
 

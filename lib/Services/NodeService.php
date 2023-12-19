@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Site;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Models\NodeModel;
+use Tritrics\AflevereApi\v1\Models\PageModel;
 use Tritrics\AflevereApi\v1\Models\SiteModel;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Services\BlueprintService;
@@ -29,7 +29,7 @@ class NodeService
     if ($node instanceof Site) {
       $body = new SiteModel($node, $blueprint, $lang);
     } else {
-      $body = new NodeModel($node, $blueprint, $lang, true);
+      $body = new PageModel($node, $blueprint, $lang, true);
     }
 
     if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {

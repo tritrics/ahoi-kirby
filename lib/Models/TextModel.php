@@ -169,7 +169,7 @@ class TextModel extends Model
 
         // change attributes, if it's a link
         if ($res['elem'] === 'a') {
-          $res['attr'] = LinkService::get(
+          $res['attr'] = LinkService::getInline(
             $this->lang,
             $res['attr']['href'],
             (isset($res['attr']['title']) ? $res['attr']['title'] : null),

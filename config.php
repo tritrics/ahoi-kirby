@@ -2,7 +2,7 @@
 
 use Kirby\Exception\Exception;
 use Tritrics\AflevereApi\v1\Controllers\ApiController;
-use Tritrics\AflevereApi\v1\Services\ImageService;
+use Tritrics\AflevereApi\v1\Services\FileService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 
@@ -10,8 +10,8 @@ kirby()::plugin(ApiService::$pluginName, [
   'options' => [
     'enabled' => [
       'info' => false,
-      'node' => false,
-      'nodes' => false,
+      'page' => false,
+      'pages' => false,
       'form' => false // hidden, not documented so far
     ],
     'slug' => 'public-api',
@@ -31,7 +31,7 @@ kirby()::plugin(ApiService::$pluginName, [
     'route:after' => function ($route, $path, $method, $result) {
       $attributes = $route->attributes();
       if (isset($attributes['env']) && $attributes['env'] === 'media' && empty($result)) {
-        ImageService::get($path, $route->arguments(), $route->pattern());
+        FileService::getImage($path, $route->arguments(), $route->pattern());
       }
       return;
     }
@@ -74,7 +74,7 @@ kirby()::plugin(ApiService::$pluginName, [
     }
 
     // a language
-    if (ApiService::isEnabledNode()) {
+    if (ApiService::isEnabledLanguage()) {
       $routes[] = [
         'pattern' => $slug . '/language/(:any)',
         'method' => 'GET',
@@ -86,9 +86,9 @@ kirby()::plugin(ApiService::$pluginName, [
     }
 
     // a node
-    if (ApiService::isEnabledNode()) {
+    if (ApiService::isEnabledPage()) {
       $routes[] = [
-        'pattern' => $slug . '/node/(:all?)',
+        'pattern' => $slug . '/page/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = ApiService::parsePath($resource, $multilang);
@@ -99,9 +99,9 @@ kirby()::plugin(ApiService::$pluginName, [
     }
 
     // children of a node
-    if (ApiService::isEnabledNodes()) {
+    if (ApiService::isEnabledPages()) {
       $routes[] = [
-        'pattern' => $slug . '/nodes/(:all?)',
+        'pattern' => $slug . '/pages/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = ApiService::parsePath($resource, $multilang);

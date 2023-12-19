@@ -10,15 +10,19 @@ class ModelFactory
   private static $buildIn = [
     'blocks'      => '\Models\BlocksModel',
     'checkboxes'  => '\Models\OptionsModel',
+    'color'       => '\Models\ColorModel',
     'date'        => '\Models\DatetimeModel',
     'email'       => '\Models\EmailModel',
+    'file'        => '\Models\FileModel',
     'files'       => '\Models\FilesModel',
     'hidden'      => '\Models\HiddenModel',
     'list'        => '\Models\TextModel',
+    'link'        => '\Models\LinkModel',
     'multiselect' => '\Models\OptionsModel',
     'number'      => '\Models\NumberModel',
     'object'      => '\Models\ObjectModel',
-    'pages'       => '\Models\NodesModel',
+    'page'        => '\Models\PageModel',
+    'pages'       => '\Models\PagesModel',
     'radio'       => '\Models\OptionModel',
     'range'       => '\Models\NumberModel',
     'select'      => '\Models\OptionModel',
@@ -33,7 +37,7 @@ class ModelFactory
     'toggles'     => '\Models\OptionModel',
     'url'         => '\Models\UrlModel',
     'users'       => '\Models\UsersModel',
-    'writer'      => '\Models\TextModel'
+    'writer'      => '\Models\TextModel',
   ];
 
   private static $added = [];
@@ -54,23 +58,24 @@ class ModelFactory
   /** */
   public static function has ($type)
   {
-    return isset(self::$added[$type]) || isset(self::$buildIn[$type]);
-  }
-
-  public static function get ($type)
-  {
-    if (isset(self::$added[$type])) {
-      return self::$added[$type];
-    } else if (isset(self::$buildIn[$type])) {
-      return ApiService::$namespace . self::$buildIn[$type];
-    }
-    return ApiService::$namespace . self::$buildIn['text'];
+    return $type === 'link' || isset(self::$added[$type]) || isset(self::$buildIn[$type]);
   }
 
   /** */
   public static function create ($type, $field, $fieldDef, $lang)
   {
-    $class = self::get($type);
+    $class = self::getModel($type, $field);
     return new $class($field, $fieldDef, $lang);
+  }
+
+  private static function getModel($type, $field)
+  {
+    if (isset(self::$added[$type])) {
+      return self::$added[$type];
+    }
+    if (isset(self::$buildIn[$type])) {
+      return ApiService::$namespace . self::$buildIn[$type];
+    }
+    return ApiService::$namespace . self::$buildIn['text'];
   }
 }

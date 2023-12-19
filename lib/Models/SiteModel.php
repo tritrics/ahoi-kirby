@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Models\NodeModel;
+use Tritrics\AflevereApi\v1\Models\PageModel;
 use Tritrics\AflevereApi\v1\Services\LinkService;
 
 
@@ -21,8 +21,6 @@ class SiteModel extends Model
   /** */
   protected function getProperties ()
   {
-    $content = $this->model->content($this->lang);
-
     $res = new Collection();
     $meta = $res->add('meta');
     $meta->add('host', $this->model->url($this->lang));
@@ -30,6 +28,7 @@ class SiteModel extends Model
       $meta->add('lang', $this->lang);
       $meta->add('locale', LanguagesService::getLocale($this->lang));
     }
+    $meta->add('title', $this->model->title()->get());
     $meta->add('modified',  date('c', $this->model->modified()));
     $meta->add('blueprint', 'site');
 
@@ -42,18 +41,13 @@ class SiteModel extends Model
     }
 
     $page = $this->model->homePage();
-    $res->add('home', LinkService::getPage($this->getUrl($page, $this->lang)));
+    $res->add('home', LinkService::getPage(
+      LanguagesService::getUrl($this->lang, $page->uri($this->lang))
+    ));
     return $res;
   }
 
   /** */
   protected function getValue () {
-  }
-
-  /** */
-  private function getUrl($page, $lang): string
-  {
-    $langSlug = LanguagesService::getSlug($lang);
-    return '/' . trim($langSlug . '/' . $page->uri($lang), '/');
   }
 }

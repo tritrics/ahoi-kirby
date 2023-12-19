@@ -42,11 +42,11 @@ class InfoService
       if (ApiService::isEnabledLanguage()) {
         $interface->add('language', $url . '/language',);
       }
-      if (ApiService::isEnabledNode()) {
-        $interface->add('node', $url . '/node');
+      if (ApiService::isEnabledPage()) {
+        $interface->add('page', $url . '/page');
       }
-      if (ApiService::isEnabledNodes()) {
-        $interface->add('nodes', $url . '/nodes');
+      if (ApiService::isEnabledPages()) {
+        $interface->add('pages', $url . '/pages');
       }
       if (ApiService::isEnabledForm()) {
         $interface->add('form', $url . '/form');
