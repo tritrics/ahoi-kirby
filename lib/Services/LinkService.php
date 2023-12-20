@@ -80,7 +80,7 @@ class LinkService
     if (str_starts_with($href, '/@/page/')) {
       $uuid = str_replace('/@/page/', 'page://', $href);
       $page = kirby()->page($uuid);
-      if ($page) {
+      if ($page->exists()) {
         $href = $page->url();
       } else {
         return;
@@ -88,7 +88,7 @@ class LinkService
     } else if (str_starts_with($href, '/@/file/')) {
       $uuid = str_replace('/@/file/', 'file://', $href);
       $file = kirby()->file($uuid);
-      if ($file) {
+      if ($file->exists()) {
         $href = $file->url();
       } else {
         return;
