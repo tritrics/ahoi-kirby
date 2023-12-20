@@ -73,8 +73,29 @@ class LinkService
    */
   public static function getInline($lang, $href, $title = null, $target = false)
   {
-    // working with splitted url
     self::init($lang);
+
+    // rewrite intern page and file links, which start with
+    // /@/page and /@/file
+    if (str_starts_with($href, '/@/page/')) {
+      $uuid = str_replace('/@/page/', 'page://', $href);
+      $page = kirby()->page($uuid);
+      if ($page) {
+        $href = $page->url();
+      } else {
+        return;
+      }
+    } else if (str_starts_with($href, '/@/file/')) {
+      $uuid = str_replace('/@/file/', 'file://', $href);
+      $file = kirby()->file($uuid);
+      if ($file) {
+        $href = $file->url();
+      } else {
+        return;
+      }
+    }
+
+    // working with splitted url
     $parts = self::parseUrl($href);
 
     // email and tel
@@ -106,7 +127,7 @@ class LinkService
 
     // intern links
     // use buildPath() -> make intern
-    if (self::isInternLink($parts, self::$referer)) {
+    if (self::isInternLink($parts, self::$referer) || self::isInternLink($parts, self::$backend)) {
       return self::getPage(self::buildPath($parts), $title, $target);   
     }
 
