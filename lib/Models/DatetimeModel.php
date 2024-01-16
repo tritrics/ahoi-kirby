@@ -5,10 +5,23 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 
-/** */
+/**
+ * Model for Kirby's fields: date, time
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class DatetimeModel extends Model
 {
-  /** */
+  /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   * 
+   * @return string 
+   */
   protected function getType()
   {
     if ($this->blueprint->node('type')->get() === 'time') {
@@ -20,7 +33,12 @@ class DatetimeModel extends Model
     }
   }
 
-  /** */
+  /**
+   * Get additional field data (besides type and value)
+   * Method called by setModelData()
+   * 
+   * @return Collection 
+   */
   protected function getProperties ()
   {
     $time = strtotime($this->getValue());
@@ -42,7 +60,12 @@ class DatetimeModel extends Model
     return $res;
   }
 
-  /** */
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * @return string
+   */
   protected function getValue ()
   {
     return $this->model->value();

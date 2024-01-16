@@ -7,7 +7,15 @@ use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Factories\ModelFactory;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 
-/** */
+/**
+ * Reads all Kirby fields of a blueprint and translates it to collection of models.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class FieldService
 {
   /**
@@ -39,7 +47,7 @@ class FieldService
       }
       $field = isset($allFields[$key]) ? $allFields[$key] : new KirbyField(null, $key, '');
       $type = strtolower($blueprintField->node('type')->get());
-      if (self::isHiddenField($blueprintField, $allFields)) {
+      if (self::isConditionalField($blueprintField, $allFields)) {
         continue;
       }
 
@@ -53,13 +61,14 @@ class FieldService
   }
 
   /**
-   * Creates a Kirby Field out of given values
-   * @param (string) $type, can be any of Field-Classes of $models
-   * @param (string) $key, the field name
-   * @param (mixed) $value, the field value
-   * @param (Collection) $blueprint, the field definition, can be null
-   * @param (string) $lang
-   * @return object
+   * Creates a Kirby Field out of given values.
+   * 
+   * @param string $type can be any of Field-Classes of $models
+   * @param string $key the field name
+   * @param mixed $value the field value
+   * @param Collection $blueprint the field definition, can be null
+   * @param string $lang the 2-digit language code
+   * @return object|void 
    */
   public static function factory ($type, $key, $value, $blueprint = null, $lang = null)
   {
@@ -75,11 +84,12 @@ class FieldService
    * Do not expose hidden fields, because they may contain data, which
    * is not intended by the user to be published. Also empty fields
    * pollute the result set.
-   * @param (Collection) $blueprint
-   * @param (array) $fields
-   * @return bool
+   * 
+   * @param Collection $blueprint 
+   * @param array $fields 
+   * @return bool 
    */
-  private static function isHiddenField($blueprint, $fields)
+  private static function isConditionalField($blueprint, $fields)
   {
     if ($blueprint->has('when')) {
       $conditions = $blueprint->node('when')->get();

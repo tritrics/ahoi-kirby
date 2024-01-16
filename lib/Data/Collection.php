@@ -6,17 +6,26 @@ use ArrayIterator;
 use Exception;
 use IteratorAggregate;
 
+/**
+ * Handles array-like data and wraps it with handy functions.
+ *
+ * @package   AflevereAPI Data
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class Collection implements IteratorAggregate
 {
   /**
-   * @var {array}
+   * The wrapped data
+   * 
+   * @var array
    */
   protected $data = [];
 
   /**
-   * optionally give initial data
-   * 
-   * @param mixed
+   * @param mixed optionally give initial data
    */
   public function __construct ()
   {
@@ -27,21 +36,28 @@ class Collection implements IteratorAggregate
 
   /**
    * Delegate function calls to $data.
-   * No checks, so a fatal error will be thrown, if $data is not an object.
+   * 
+   * @param mixed $method 
+   * @param mixed $args 
+   * @return mixed 
    */
   final public function __call ($method, $args)
   {
     return call_user_func_array([$this->data, $method], $args);
   }
 
-  /** */
+  /**
+   * Make this class an iterator class.
+   * 
+   * @return ArrayIterator 
+   */
   final public function getIterator() : ArrayIterator
   {
     return new ArrayIterator($this->data);
   }
 
   /**
-   * find a (sub-)node with given key(s)
+   * Find a (sub-)node with given key(s).
    * 
    * @param array $keys
    * @return Collection
@@ -184,7 +200,7 @@ class Collection implements IteratorAggregate
   }
 
   /**
-   * Check if a key in $data exists
+   * Check if a key in $data exists.
    * 
    * @param string|integer $key
    * @return bool
@@ -195,7 +211,10 @@ class Collection implements IteratorAggregate
   }
 
   /**
-   * @param string|integer $key
+   * Unset/delete a subnode of $data.
+   * 
+   * @param mixed $key 
+   * @return void
    */
   final public function unset ($key)
   {
@@ -204,7 +223,12 @@ class Collection implements IteratorAggregate
     }
   }
 
-  /** */
+  /**
+   * Compare $data with a given value.
+   * 
+   * @param mixed $compare 
+   * @return bool 
+   */
   final public function is ($compare)
   {
     if (!$this->isCollection()) {
@@ -213,7 +237,11 @@ class Collection implements IteratorAggregate
     return false;
   }
 
-  /** */
+  /**
+   * Return the keys of $data.
+   * 
+   * @return int[]|string[]|null 
+   */
   final public function keys ()
   {
     $data = $this->get();
@@ -223,7 +251,11 @@ class Collection implements IteratorAggregate
     return null;
   }
 
-  /** */
+  /**
+   * Check if $data is empty.
+   * 
+   * @return bool 
+   */
   final public function isEmpty ()
   {
     return $this->data === [];
@@ -253,7 +285,7 @@ class Collection implements IteratorAggregate
   }
 
   /**
-   * Get count of $data, if it's an array
+   * Get count of $data, if it's an array.
    * 
    * @return bool
    */
@@ -262,10 +294,11 @@ class Collection implements IteratorAggregate
     if ($this->isCollection()) {
       return count($this->data);
     }
+    return 0;
   }
 
   /**
-   * Checks, if the given $key string or integer
+   * Checks, if the given $key valid (string or integer).
    * 
    * @param mixed $key
    * @return bool

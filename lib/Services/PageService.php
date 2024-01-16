@@ -9,18 +9,27 @@ use Tritrics\AflevereApi\v1\Models\SiteModel;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Services\BlueprintService;
 use Tritrics\AflevereApi\v1\Services\FieldService;
+
 /**
- * 
+ * Service for API's page interface. Handles a single page or site.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
  */
-class NodeService
+class PageService
 {
   /**
-   * Main method for action api/node/[id]
-   * Gets a page or the site
+   * Main method to respond to "page" action.
    * 
-   * @param Kirby\Cms\[Page|Site] $page
-   * @param Array $params
-   * @return Array
+   * @param Page|Site $node
+   * @param string $lang
+   * @param string|array $fields
+   * @return Response 
+   * @throws DuplicateException 
+   * @throws LogicException 
    */
   public static function get ($node, $lang, $fields)
   {

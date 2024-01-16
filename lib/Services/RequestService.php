@@ -4,12 +4,22 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Tritrics\AflevereApi\v1\Services\BlueprintService;
 
+/**
+ * Reads an normalizes request parameter from the API request.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class RequestService
 {
   /**
-   * get page parameter from Request, any number > 0, default 1
+   * Get page parameter from Request, any number > 0, default 1.
+   * 
    * @param mixed $request 
-   * @return void 
+   * @return int 
    */
   public static function getPage ($request)
   {
@@ -21,9 +31,10 @@ class RequestService
   }
 
   /**
-   * get limit parameter from Request, any number > 0, default 10
+   * Get limit parameter from Request, any number > 0, default 10.
+   * 
    * @param mixed $request 
-   * @return void 
+   * @return int 
    */
   public static function getLimit ($request)
   {
@@ -35,9 +46,10 @@ class RequestService
   }
 
   /**
-   * get order parameter from Request, asc or desc, default desc
+   * Get order parameter from Request, asc or desc, default desc.
+   * 
    * @param mixed $request 
-   * @return void 
+   * @return string [ asc, desc ] 
    */
   public static function getOrder ($request)
   {
@@ -50,9 +62,10 @@ class RequestService
   }
 
   /**
-   * get fields parameter from Request, can be 'all' or array with field-names
+   * Get fields parameter from Request, can be 'all' or array with field-names.
+   * 
    * @param mixed $request 
-   * @return void 
+   * @return string|array 
    */
   public static function getFields ($request)
   {
@@ -73,9 +86,29 @@ class RequestService
   }
 
   /**
+   * Debugging-Function to stop execution for x sec.
+   * Helpful to test frontend behaviour for async requests.
+   * Limited to 10 sec.
+   * 
+   * @param mixed $request 
+   * @return int 
+   */
+  public static function getSleep($request)
+  {
+    $val = intval($request->get('sleep'));
+    if (kirby()->option('debug', false) && is_int($val) && $val > 0 && $val <= 10) {
+      sleep($val);
+    }
+    return $val;
+  }
+
+  /**
    * Parse the request like field.eq.foo to array.
    * Attention: the first parameter "field" is the fieldname, where as
    * compare() uses the value of the field.
+   * 
+   * @param mixed $request 
+   * @return null|array
    */
   public static function getFilter ($request)
   {
@@ -100,19 +133,20 @@ class RequestService
     }
     return count($res) > 0 ? $res : null;
   }
-  
+
   /**
    * Filter children by criteria like fieldname.eq.value
-   * TO DO: Convert the different value-types (number, string, date) and make them comparable
    * 
-   * @param Page $page
-   * @param Array $filter
-   * @param Pages
+   * @param Page $page 
+   * @param array $filter
+   * @return mixed 
+   * 
+   * @TODO: Convert the different value-types (number, string, date) and make them comparable
    */
-  public static function filterChildren ($page, $filter, $lang)
+  public static function filterChildren ($page, $filter)
   {
     $children =  $page->children()->filter( // the Kirby-filter-function of children()
-      function($child) use ($filter, $lang) {
+      function($child) use ($filter) {
         $blueprint = BlueprintService::getBlueprint($child);
         foreach ($filter as $criteria) {
           $fieldname = $criteria[0];
@@ -150,23 +184,12 @@ class RequestService
   }
 
   /**
-   * Debugging-Function to stop execution for x sec
-   * Helpful to test frontend behaviour for async requests.
-   * Limited to 10 sec.
-   * @param mixed $request 
-   * @return int 
-   */
-  public static function getSleep($request)
-  {
-    $val = intval($request->get('sleep'));
-    if (kirby()->option('debug', false) && is_int($val) && $val > 0 && $val <= 10) {
-      sleep($val);
-    }
-    return $val;
-  }
-
-  /**
-   * Basic compare function
+   * Comparing values
+   * 
+   * @param mixed $value 
+   * @param string $operator 
+   * @param mixed $compare 
+   * @return bool 
    */
   public static function compare ($value, $operator, $compare)
   {

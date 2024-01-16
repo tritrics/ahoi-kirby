@@ -6,20 +6,31 @@ use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\GlobalService;
 
-/** */
+/**
+ * Model for Kirby's fields: checkboxes, multiselect, tags
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class OptionsModel extends Model
 {
-  /** */
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * @return Collection
+   */
   protected function getValue () : Collection
   {
     $values = $this->splitSelectedOptions($this->model->value());
     $addLabel = $this->blueprint->node('api', 'labels')->is(true);
 
-    /**
-     * OptionsModel can't be used her, because there is no blueprint
-     * representation of a single option. So we create a pseudo-field 
-     * with type=option here.
-     */
+    // OptionsModel can't be used her, because there is no blueprint
+    // representation of a single option. So we create a pseudo-field 
+    // with type=option here.
     $res = new Collection();
     foreach($values as $key => $value) {
       $option = new Collection();
@@ -34,7 +45,10 @@ class OptionsModel extends Model
   }
 
   /**
-   * split and trim
+   * Helper to split and trim the defined options.
+   * 
+   * @param string|number $value 
+   * @return array
    */
   private function splitSelectedOptions ($value)
   {

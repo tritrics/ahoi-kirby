@@ -2,12 +2,30 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Exception\DuplicateException;
+use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Models\LanguagesModel;
 
+/**
+ * Service for API's info interface.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class InfoService
 {
+  /**
+   * Main method to respond to "info" action.
+   * 
+   * @return Response 
+   * @throws DuplicateException 
+   * @throws LogicException 
+   */
   public static function get()
   {
     $expose = kirby()->option('debug', false);
@@ -53,7 +71,6 @@ class InfoService
       }
     }
 
-    // value
     // add languages
     if ($isMultilang) {
       $value = $body->add('value');

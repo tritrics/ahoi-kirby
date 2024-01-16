@@ -2,26 +2,41 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
+/**
+ * Service for any kind of links (texts, page, file, user) to produce consistant output.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class LinkService
 {
-  /** */
+  /**
+   * 2-digit language code
+   * 
+   * @var string
+   */
   private static $lang;
 
-  /** */
-  private static $multilang;
-
-  /** 
-   * Host and port of Kirby instance
+  /**
+   * Detected host and port of Kirby instance.
+   * 
+   * @var array
    */
   private static $backend = [
     'host' => null, // backend-domain.com
     'port' => null // 8081, if given
   ];
 
-  /** 
-   * Host and port of the frontend
+  /**
+   * Detected host and port of the frontend.
+   * 
+   * @var array
    */
   private static $referer = [
     'host' => null, // referer-domain.com or backend-host, if not given
@@ -29,7 +44,9 @@ class LinkService
   ];
 
   /**
-   * Slugs with starting slash
+   * Detected slugs with starting slash.
+   * 
+   * @var array
    */
   private static $slugs = [
     'home' => null, // /home
@@ -37,12 +54,22 @@ class LinkService
     'lang' => null // /en, if multilang-site
   ];
 
-  private static function init($lang)
+  /**
+   * Detects the linktype from a given $href.
+   * 
+   * @param string $lang 
+   * @param string $href
+   * @param string $title
+   * @param bool $target
+   * @return array 
+   */
+  public static function getInline($lang, $href, $title = null, $target = false)
   {
-    if (self::$lang !== $lang) { // do only once
+    // Initialization
+    // do only once
+    if (self::$lang !== $lang) {
       self::$lang = $lang;
-      self::$multilang = LanguagesService::isMultilang();
-      
+
       $backend = self::parseUrl(site()->url(self::$lang));
       self::$backend['host'] = $backend['host'];
       self::$backend['port'] = isset($backend['port']) ? $backend['port'] : null;
@@ -62,18 +89,6 @@ class LinkService
       self::$slugs['media'] = $media['path'];
       self::$slugs['lang'] = '/' . LanguagesService::getSlug(self::$lang);
     }
-  }
-
-  /**
-   * Detects the linktype from a given $href
-   * @param string $lang 
-   * @param string $href
-   * @param string $title
-   * @return array 
-   */
-  public static function getInline($lang, $href, $title = null, $target = false)
-  {
-    self::init($lang);
 
     // rewrite intern page and file links, which start with
     // /@/page and /@/file
@@ -136,7 +151,8 @@ class LinkService
   }
 
   /**
-   * get extern link
+   * Get extern link.
+   * 
    * @param string $lang 
    * @param mixed $href 
    * @param string $title 
@@ -160,7 +176,8 @@ class LinkService
   }
 
   /**
-   * get page (intern) link
+   * Get page (intern) link.
+   * 
    * @param string $lang 
    * @param string $path 
    * @param string $title 
@@ -173,7 +190,7 @@ class LinkService
 
     // path is empty, set path to homepage, optional with prepending lang
     if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {
-      if (self::$multilang) {
+      if (LanguagesService::isMultilang()) {
         $parts['path'] = self::$slugs['lang'] . self::$slugs['home'];
       } else {
         $parts['path'] = self::$slugs['home'];
@@ -181,7 +198,7 @@ class LinkService
     }
     
     // path is not empty in a multilang installation
-    else if (self::$multilang) {
+    else if (LanguagesService::isMultilang()) {
       $slugs = array_values(array_filter(explode('/', $parts['path'])));
       $lang = count($slugs) > 0 ? $slugs[0] : null;
       $langSettings = null;
@@ -215,7 +232,8 @@ class LinkService
   }
 
   /**
-   * get file (download) link
+   * Get file (download) link.
+   * 
    * @param string $lang 
    * @param string $path 
    * @param string $title 
@@ -237,7 +255,8 @@ class LinkService
   }
 
   /**
-   * get email link
+   * Get email link.
+   * 
    * @param string $lang 
    * @param mixed $email 
    * @param string $title 
@@ -256,7 +275,8 @@ class LinkService
   }
 
   /**
-   * get telephone linke
+   * Get telephone link.
+   * 
    * @param string $lang 
    * @param mixed $tel 
    * @param string $title 
@@ -277,7 +297,8 @@ class LinkService
   }
 
   /**
-   * get anchor
+   * Get anchor.
+   * 
    * @param string $lang 
    * @param mixed $anchor 
    * @param string $title 
@@ -299,7 +320,8 @@ class LinkService
   }
 
   /**
-   * get custom
+   * Get custom link.
+   * 
    * @param string $lang
    * @param string $title 
    * @return array
@@ -317,8 +339,9 @@ class LinkService
   }
 
   /**
-   * Parsing url in parts
-   * @param mixed $href 
+   * Parsing url in parts.
+   * 
+   * @param string $href 
    * @return array|string|int|false|null 
    */
   private static function parseUrl($href)
@@ -361,8 +384,9 @@ class LinkService
   }
 
   /**
-   * Build the url, reverse of parseUrl()
-   * @param mixed $parts 
+   * Build the url, reverse of parseUrl().
+   * 
+   * @param array $parts 
    * @return string 
    */
   private static function buildUrl($parts) {
@@ -380,8 +404,9 @@ class LinkService
   }
 
   /**
-   * Build the path, ignoring all host-parts
-   * @param mixed $parts 
+   * Build the path, ignoring all host-parts.
+   * 
+   * @param array $parts 
    * @return string 
    */
   private static function buildPath($parts)
@@ -393,9 +418,10 @@ class LinkService
   }
 
   /**
-   * compare two hosts and ports
-   * @param mixed $parts 
-   * @param mixed $compare 
+   * Compare two hosts and ports.
+   * 
+   * @param array $parts 
+   * @param array $compare 
    * @return bool 
    */
   private static function isInternLink($parts, $compare)

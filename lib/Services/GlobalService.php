@@ -2,13 +2,25 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+/**
+ * Collection of globally used functions.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class GlobalService
 {
   /**
-   * @param mixed $value
-   * @param bool $trim trim string values
-   * @return string|int|float|bool
-   */
+  * Normalize a value.
+
+  * @param mixed $value 
+  * @param bool $trim 
+  * @param bool $strtolower 
+  * @return object|array|bool|float|string 
+  */
   public static function typecast ($value, $trim = false, $strtolower = false)
   {
     if (is_object($value) || is_array($value) || is_bool($value)) {
@@ -23,7 +35,13 @@ class GlobalService
     return $value;
   }
 
-  /** */
+  /**
+   * Normalize a bool value.
+   * 
+   * @param mixed $value 
+   * @param mixed $defaultReturn 
+   * @return mixed 
+   */
   public static function typecastBool ($value, $defaultReturn = null)
   {
     if (
@@ -41,8 +59,11 @@ class GlobalService
   }
 
   /**
+   * Normalize an array.
+   *
    * @param array $arr the array to normalise
    * @param array|bool $norm_values normalise all values or the given
+   * @return array 
    */
   public static function normaliseArray ($arr, $norm_values = false)
   {

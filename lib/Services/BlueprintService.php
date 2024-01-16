@@ -11,15 +11,28 @@ use Kirby\Exception\NotFoundException;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Services\GlobalService;
 
+/**
+ * Reads a Kirby blueprint and translates it for internal needs.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class BlueprintService
 {
   /**
-   * cache Kirby's blueprint-files
+   * Cache Kirby's blueprint-files.
+   * 
+   * @var array
    */
   private static $files = [];
 
   /**
-   * cache parsed blueprints
+   * Cache parsed blueprints.
+   * 
+   * @var array
    */
   private static $map = [];
 
@@ -27,7 +40,7 @@ class BlueprintService
    * Get the blueprint either from intern map or compute.
    * Map is used to avoid repetition, which may occour for files, users and pages.
    * 
-   * @param (string) $path
+   * @param object $model
    * @return Collection
    */
   public static function getBlueprint ($model)
@@ -56,8 +69,9 @@ class BlueprintService
   /**
    * Get an instace of Collection with the relevant blueprint-information.
    * 
-   * @param (string) $path
-   * @return Collection
+   * @param mixed $path 
+   * @param mixed $add_title_field 
+   * @return Collection 
    */
   private static function parse ($path, $add_title_field)
   {
@@ -75,10 +89,10 @@ class BlueprintService
   }
 
   /**
-   * get raw blueprint/fragment, avoid Exceptions
+   * Get raw blueprint/fragment, avoid Exceptions.
    * 
-   * @param (string) $path
-   * @return array
+   * @param string $path 
+   * @return array 
    */
   private static function getBlueprintFile ($path)
   {
@@ -97,8 +111,9 @@ class BlueprintService
 
   /**
    * Recursive function to extend and normalise blueprint.
-   * @param (array) $nodes
-   * @return array
+   * 
+   * @param array $nodes 
+   * @return array 
    */
   private static function extend ($nodes)
   {
@@ -144,12 +159,15 @@ class BlueprintService
   }
 
   /**
-   * recursivly extracts all field definitions from blueprint array
+   * Recursivly extracts all field definitions from blueprint array.
    * 
-   * @param (array) $nodes
-   * @return array
+   * @param array $nodes 
+   * @param bool $publish 
+   * @param bool $add_title_field 
+   * @param bool $toplevel 
+   * @return array 
    */
-  private static function getFields ($nodes, $publish_inherited, $add_title_field = false, $toplevel = false)
+  private static function getFields ($nodes, $publish, $add_title_field = false, $toplevel = false)
   {
     $res = [];
     if ($toplevel && $add_title_field) {
@@ -171,10 +189,10 @@ class BlueprintService
         foreach($node as $fieldname => $fielddef) {
 
           // check if it is published or invalid, otherwise skip
-          if (!self::isPublished($fielddef, $publish_inherited) || !isset($fielddef['type'])) {
+          if (!self::isPublished($fielddef, $publish) || !isset($fielddef['type'])) {
             continue;
           }
-          $publish_inherited = self::getApply($fielddef, $publish_inherited);
+          $publish = self::isPublishedApplied($fielddef, $publish);
 
           // Block - special case, fields have different structure
           if ($fielddef['type'] === 'blocks') {
@@ -191,27 +209,27 @@ class BlueprintService
                   // grouped blocks
                   if (isset($block['type']) && $block['type'] === 'group' && isset($block['fieldsets'])) {
                     foreach($block['fieldsets'] as $fieldset2 => $block2) {
-                      if (!self::isPublished($block2, $publish_inherited)) {
+                      if (!self::isPublished($block2, $publish)) {
                         continue;
                       }
-                      $publish_inherited = self::getApply($block2, $publish_inherited);
+                      $publish = self::isPublishedApplied($block2, $publish);
                       if (isset($block2['api'])) {
                         $res[$fieldname]['blocks'][$fieldset]['api'] = $block2['api'];
                       }
-                      $res[$fieldname]['blocks'][$fieldset2]['fields'] = self::getFields($block2, $publish_inherited);
+                      $res[$fieldname]['blocks'][$fieldset2]['fields'] = self::getFields($block2, $publish);
                     }
                   }
                   
                   // ungrouped blocks
                   else {
-                    if (!self::isPublished($block, $publish_inherited)) {
+                    if (!self::isPublished($block, $publish)) {
                       continue;
                     }
-                    $publish_inherited = self::getApply($block, $publish_inherited);
+                    $publish = self::isPublishedApplied($block, $publish);
                     if (isset($block['api'])) {
                       $res[$fieldname]['blocks'][$fieldset]['api'] = $block['api'];
                     }
-                    $res[$fieldname]['blocks'][$fieldset]['fields'] = self::getFields($block, $publish_inherited);
+                    $res[$fieldname]['blocks'][$fieldset]['fields'] = self::getFields($block, $publish);
                   }
                 }
               }
@@ -228,7 +246,7 @@ class BlueprintService
             $res[$fieldname] = [];
             foreach($fielddef as $property => $setting) {
               if (is_array($setting) && $property === 'fields') {
-                $res[$fieldname][$property] = self::getFields($fielddef, $publish_inherited);
+                $res[$fieldname][$property] = self::getFields($fielddef, $publish);
               } else {
                 $res[$fieldname][$property] = $setting;
               }
@@ -239,7 +257,7 @@ class BlueprintService
       
       // no fields, search deeper
       elseif (is_array($node)) {
-        $res = array_merge($res, self::getFields($node, $publish_inherited));
+        $res = array_merge($res, self::getFields($node, $publish));
       }
     }
     return $res;
@@ -247,16 +265,16 @@ class BlueprintService
 
   /**
    * Check field definition for publish-settings:
-   * 
    * fieldname:
    *   api: publish -or-
    *   api:
    *     publish: true
    * 
-   * @param mixed $def 
+   * @param array $def 
+   * @param bool $publish_default 
    * @return bool 
    */
-  private static function isPublished ($def, $publish_inherited)
+  private static function isPublished ($def, $publish_default)
   {
     if (is_array($def) && isset($def['api'])) {
       if (is_bool($def['api'])) {
@@ -269,10 +287,17 @@ class BlueprintService
         return !!$def['api']['publish'];
       }
     }
-    return $publish_inherited;    
+    return $publish_default;
   }
 
-  private static function getApply ($def, $publish_inherited)
+  /**
+   * Check field defintion for applied publish-settings.
+   * 
+   * @param array $def 
+   * @param bool $publish_default 
+   * @return bool 
+   */
+  private static function isPublishedApplied ($def, $publish_default)
   {
     if (
       is_array($def) &&
@@ -283,17 +308,6 @@ class BlueprintService
     ) {
       return !!$def['api']['apply'];
     }
-    return $publish_inherited;
+    return $publish_default;
   }
-
-  // private static function log($val)
-  // {
-  //   if ($val instanceof Collection) {
-  //     error_log(print_r($val->get(), true));
-  //   } else if (is_array($val)) {
-  //     error_log(print_r($val, true));
-  //   } else {
-  //     error_log($val);
-  //   }
-  // }
 }

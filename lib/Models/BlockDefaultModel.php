@@ -1,12 +1,12 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\AflevereApi\v1\Blocks;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
+use Tritrics\AflevereApi\v1\Data\Collection;
 
 /**
- * Model for Kirby's user object 
+ * Default model for Kirby's blocks
  *
  * @package   AflevereAPI Models
  * @author    Michael Adams <ma@tritrics.dk>
@@ -14,7 +14,7 @@ use Tritrics\AflevereApi\v1\Data\Model;
  * @copyright Michael Adams
  * @license   https://opensource.org/license/isc-license-txt/
  */
-class UserModel extends Model
+class BlockDefaultModel extends Model
 {
   /**
    * Marker if this model has child fields.
@@ -24,28 +24,34 @@ class UserModel extends Model
   protected $hasChildFields = true;
 
   /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   * 
+   * @return string 
+   */
+  protected function getType ()
+  {
+    return 'block';
+  }
+
+  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    * 
    * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties()
   {
-    $meta = new Collection();
-    $meta->add('id', md5($this->model->id()));
-
     $res = new Collection();
-    $res->add('meta', $meta);
+    $res->add('block', $this->model->type());
     return $res;
   }
 
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * For security-reasons we don't expose user's build-in values like
-   * name, email, role, avatar. We only expose possibly extra-fields.
    * 
-   * @return Collection|string|number|bool
+   * @return string|number|bool
    */
   protected function getValue ()
   {

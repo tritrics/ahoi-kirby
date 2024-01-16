@@ -3,6 +3,7 @@
 namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Cms\Site;
+use Kirby\Exception\InvalidArgumentException;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Models\PageModel;
 use Tritrics\AflevereApi\v1\Services\ApiService;
@@ -11,16 +12,25 @@ use Tritrics\AflevereApi\v1\Services\BlueprintService;
 use Tritrics\AflevereApi\v1\Services\FieldService;
 
 /**
- * 
+ * Service for API's pages interface. Handles a collection of pages.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
  */
-class NodesService
+class PagesService
 {
   /**
-   * Main method for action api/collection/[id]
-   *
-   * @param Kirby\Cms\[Page|Site] $node
-   * @param Array $params
-   * @return Array
+   * Main method to respond to "pages" action.
+   * 
+   * @param Page|Site $node
+   * @param string $lang
+   * @param array $params
+   * @return Response 
+   * @throws DuplicateException 
+   * @throws LogicException 
    */
   public static function get($node, $lang, $params)
   {
@@ -86,16 +96,19 @@ class NodesService
       }
     }
 
-    $body->add('value', self::getChildren($children, $lang, ['listed'], $params['fields']));
+    $body->add('value', self::getChildren($children, $lang, [ 'listed' ], $params['fields']));
     return $res->get();
   }
 
   /**
-   * get children filtered by status
-   *
-   * @param Kirby\Cms\Pages $children
-   * @param Array $status, [ listed, unlisted, draft ]
-   * @return Collection
+   * Get children filtered by status.
+   * 
+   * @param Pages $children 
+   * @param string $lang 
+   * @param array $status which Kirby page status to select [ draft, listed, unlisted ]
+   * @param string|array $fields the fields to get, can be 'all' for all fields
+   * @return Collection 
+   * @throws InvalidArgumentException 
    */
   private static function getChildren($children, $lang, $status, $fields)
   {

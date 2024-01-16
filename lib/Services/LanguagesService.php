@@ -2,15 +2,38 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Cms\Language;
+use Kirby\Cms\Languages;
+use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Models\LanguageModel;
 
+/**
+ * Service for API's language interface and all language related functions.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class LanguagesService
 {
-  /** */
+  /**
+   * Intern cache for language slugs.
+   * 
+   * @var array
+   */
   private static $slugs = [];
 
+  /**
+   * Main method to respond to "language" action.
+   * 
+   * @return Response 
+   * @throws DuplicateException 
+   * @throws LogicException 
+   */
   public static function get($lang)
   {
     $language = self::getLanguage($lang);
@@ -20,7 +43,9 @@ class LanguagesService
   }
 
   /**
-   * Languages for intern use
+   * List availabe languages for intern use.
+   * 
+   * @return Collection 
    */
   public static function list ()
   {
@@ -40,19 +65,23 @@ class LanguagesService
   }
 
   /**
-   * Multilang-site is defined in config.php: languages => true and the existance
-   * of at least one language.
-   * @return Language|null 
+   * Check if installation is multilang.
+   * Multilang-site is defined in config.php: languages => true.
+   * 
+   * @return boolean 
    */
   public static function isMultilang()
   {
-    // not working correctly: true, even if config is false
-    // return kirby()->multilang() ? true : false;
+    // kirby()->multilang() is not working correctly.
+    // It's returning true, even if config is false.
     return kirby()->option('languages', false);
   }
 
   /**
-   * all languages
+   * Get all languages as Kirby object.
+   * 
+   * @return Languages 
+   * @throws LogicException 
    */
   public static function getLanguages ()
   {
@@ -60,7 +89,11 @@ class LanguagesService
   }
 
   /**
-   * a single language
+   * Get a single language as Kirby object defined by $code.
+   * 
+   * @param string $code 
+   * @return Language|null 
+   * @throws LogicException 
    */
   public static function getLanguage($code)
   {
@@ -71,7 +104,10 @@ class LanguagesService
   }
 
   /**
-   * the default language
+   * Get the default language as Kirby object.
+   * 
+   * @return Language|null 
+   * @throws LogicException 
    */
   public static function getDefault()
   {
@@ -82,8 +118,9 @@ class LanguagesService
   }
 
   /**
-   * Language count, 0 if multilang = false
-   * @return int|int<0, max> 
+   * Get the language count if it's a multilang installation.
+   * 
+   * @return int
    * @throws LogicException 
    */
   public static function count()
@@ -95,20 +132,26 @@ class LanguagesService
   }
 
   /**
+   * Check if a given language code is valid.
+   * 
+   * @param mixed $code 
+   * @return bool 
+   * @throws LogicException 
    */
-  public static function isValid ($lang)
+  public static function isValid ($code)
   {
     if (!self::isMultilang()) {
       return true; // why??
     }
-    return self::getLanguages()->has($lang);
+    return self::getLanguages()->has($code);
   }
 
   /**
-   * get lang prefix like "en" or "" if url set to ''
-   * no leading slash!
-   * @param string $code
-   * @return string
+   * Get the slug for a given language.
+   * 
+   * @param string $code 
+   * @return string 
+   * @throws LogicException 
    */
   public static function getSlug ($code) {
     if (!self::isMultilang()) {
@@ -131,9 +174,11 @@ class LanguagesService
   }
 
   /**
-   * get locale (de_DE)
-   * @param mixed $code 
+   * Get the locale for a given language.
+   * 
+   * @param string $code 
    * @return array|string 
+   * @throws LogicException 
    */
   public static function getLocale ($code)
   {
@@ -146,26 +191,13 @@ class LanguagesService
   }
 
   /**
-   * Function will fail with fatal error, if not all nodes exists in langfile (Kirby-bug)
-   * @param object $language
-   * @return string|array
+   * Get the url for a given language.
+   * 
+   * @param string $code 
+   * @param string $slug 
+   * @return string 
+   * @throws LogicException 
    */
-  // private static function getLocale ($language)
-  // {
-  //   $locale = $language->locale(LC_ALL);
-  //   if ($locale) {
-  //     return $locale;
-  //   }
-  //   $locale = [];
-  //   $locale['LC_COLLATE'] = $language->locale(LC_COLLATE);
-  //   $locale['LC_CTYPE'] = $language->locale(LC_CTYPE);
-  //   $locale['LC_MONETARY'] = $language->locale(LC_MONETARY);
-  //   $locale['LC_NUMERIC'] = $language->locale(LC_NUMERIC);
-  //   $locale['LC_TIME'] = $language->locale(LC_TIME);
-  //   $locale['LC_MESSAGES'] = $language->locale(LC_MESSAGES);
-  //   return $locale;
-  // }
-
   public static function getUrl($code, $slug): string
   {
     return '/' . trim(self::getSlug($code) . '/' . $slug, '/');

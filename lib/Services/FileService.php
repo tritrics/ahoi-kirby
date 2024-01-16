@@ -2,10 +2,23 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Exception;
 use Kirby\Filesystem\F;
 use Kirby\Http\Header;
 use Kirby\Cms\Media;
+use Kirby\Exception\NotFoundException;
+use Kirby\Exception\InvalidArgumentException;
+use Kirby\Exception\LogicException;
 
+/**
+ * File functions and image handling. Creates thumbs.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class FileService
 {
   public static function getPathinfo($path)
@@ -19,7 +32,9 @@ class FileService
   }
 
   /**
+   * Create a thumb so that it can be called by the given path.
    * Options given by filename:
+   * filename[-(width)x(height)][-crop-(option)][-blur(integer)][-bw][-q(integer)].extension
    *
    * - width
    * - height
@@ -28,7 +43,15 @@ class FileService
    * - greyscale (default false)
    * - quality (default 90)
    * 
-   * filename[-(width)x(height)][-crop-(option)][-blur(integer)][-bw][-q(integer)].extension
+   * @param string $path 
+   * @param array $arguments 
+   * @param string $pattern 
+   * @param array $options 
+   * @return void 
+   * @throws NotFoundException 
+   * @throws InvalidArgumentException 
+   * @throws LogicException 
+   * @throws Exception 
    */
   public static function getImage ($path, $arguments, $pattern, $options = [])
   {

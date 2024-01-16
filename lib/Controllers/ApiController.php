@@ -10,9 +10,19 @@ use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\RequestService;
 use Tritrics\AflevereApi\v1\Services\InfoService;
-use Tritrics\AflevereApi\v1\Services\NodeService;
-use Tritrics\AflevereApi\v1\Services\NodesService;
+use Tritrics\AflevereApi\v1\Services\PageService;
+use Tritrics\AflevereApi\v1\Services\PagesService;
 
+/**
+ * API Controller
+ * Entry point for API functions. Basic checks and delegation to services.
+ *
+ * @package   AflevereAPI Controllers
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class ApiController
 {
   /**
@@ -26,7 +36,8 @@ class ApiController
   }
 
   /**
-   * Get a list of defined languages
+   * Get general information, i.e. defined languages
+   * 
    * @return Response|array 
    */
   public function info ()
@@ -70,11 +81,12 @@ class ApiController
 
   /**
    * Get a single node
+   * 
    * @param string|null $lang
    * @param string|null $slug
    * @return Response|array|void 
    */
-  public function node($lang, $slug)
+  public function page($lang, $slug)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -97,7 +109,7 @@ class ApiController
           return ApiService::notFound();
         }
       }
-      return NodeService::get($node, $lang, RequestService::getFields($request));
+      return PageService::get($node, $lang, RequestService::getFields($request));
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }
@@ -105,11 +117,12 @@ class ApiController
 
   /**
    * Get the children of a page, optionally filtered, limited etc.
+   * 
    * @param string|null $lang
    * @param string|null $slug
    * @return Response|array 
    */
-  public function nodes($lang, $slug)
+  public function pages($lang, $slug)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -139,7 +152,7 @@ class ApiController
         'fields' => RequestService::getFields($request),
         'filter' => RequestService::getFilter($request),
       ];
-      return NodesService::get($node, $lang, $params);
+      return PagesService::get($node, $lang, $params);
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }
@@ -147,6 +160,7 @@ class ApiController
 
   /**
    * Handle all post-actions (only 'email' so far)
+   * 
    * @param mixed $lang 
    * @param mixed $action 
    * @return Response

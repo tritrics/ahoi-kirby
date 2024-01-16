@@ -8,43 +8,68 @@ use Tritrics\AflevereApi\v1\Services\LinkService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\FileService;
 
-/** */
+/**
+ * Model for Kirby's fields: link
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class LinkModel extends Model
 {
-  /** */
-  private $type;
+  /**
+   * Linktype, intern use
+   * 
+   * @var string [http, https, page, file, email, tel, anchor, custom]
+   */
+  private $linktype;
 
-  /** */
+  /**
+   * Constructor with additional initialization.
+   * 
+   * @param mixed $model 
+   * @param mixed $blueprint 
+   * @param mixed $lang 
+   * @param bool $add_details 
+   * @return void 
+   */
   public function __construct($model, $blueprint, $lang)
   {
     $value = $model->value();
     if (str_starts_with($value, '#')) {
-      $this->type = 'anchor';
+      $this->linktype = 'anchor';
     } else if (str_starts_with($value, 'mailto:')) {
-      $this->type = 'email';
+      $this->linktype = 'email';
     } else if (str_starts_with($value, 'file://')) {
       $model = $model->toFile();
-      $this->type = 'file';
+      $this->linktype = 'file';
     } else if (str_starts_with($value, 'page://')) {
       $model = $model->toPage();
-      $this->type = 'page';
+      $this->linktype = 'page';
     } else if (str_starts_with($value, 'tel:')) {
-      $this->type = 'tel';
+      $this->linktype = 'tel';
     } else if (str_starts_with($value, 'http://')) {
-      $this->type = 'http';
+      $this->linktype = 'http';
     } else if (str_starts_with($value, 'https://')) {
-      $this->type = 'https';
+      $this->linktype = 'https';
     } else {
-      $this->type = 'custom';
+      $this->linktype = 'custom';
     }
     parent::__construct($model, $blueprint, $lang);
   }
 
-  /** */
+  /**
+   * Get additional field data (besides type and value)
+   * Method called by setModelData()
+   * 
+   * @return Collection 
+   */
   protected function getProperties()
   {
     $res = new Collection();
-    switch($this->type) {
+    switch($this->linktype) {
       case 'anchor':
         $res->add('link', LinkService::getAnchor($this->model->value()));
         break;
@@ -73,10 +98,15 @@ class LinkModel extends Model
     return $res;
   }
 
-  /** */
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * @return string
+   */
   protected function getValue()
   {
-    switch ($this->type) {
+    switch ($this->linktype) {
       case 'anchor':
         return substr($this->model->value(), 1);
       case 'email':

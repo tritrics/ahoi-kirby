@@ -6,11 +6,24 @@ use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\FieldService;
 
-/** */
+/**
+ * Model for Kirby's fields: structure
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class StructureModel extends Model
 {
-  /** */
-  protected function getValue () : Collection
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * @return Collection 
+   */
+  protected function getValue ()
   {
     $res = new Collection();
     foreach ($this->model->toStructure() as $entry) {

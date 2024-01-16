@@ -6,6 +6,15 @@ use Tritrics\AflevereApi\v1\Services\FileService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 
+/**
+ * Plugin registration
+ *
+ * @package   AflevereAPI
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 kirby()::plugin(ApiService::$pluginName, [
   'options' => [
     'enabled' => [
@@ -93,7 +102,7 @@ kirby()::plugin(ApiService::$pluginName, [
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = ApiService::parsePath($resource, $multilang);
           $controller = new ApiController();
-          return $controller->node($lang, $path);
+          return $controller->page($lang, $path);
         }
       ];
     }
@@ -106,7 +115,7 @@ kirby()::plugin(ApiService::$pluginName, [
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = ApiService::parsePath($resource, $multilang);
           $controller = new ApiController();
-          return $controller->nodes($lang, $path);
+          return $controller->pages($lang, $path);
         }
       ];
     }

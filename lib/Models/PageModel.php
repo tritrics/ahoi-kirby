@@ -7,21 +7,41 @@ use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\LinkService;
 
-
-/** */
+/**
+ * Model for Kirby's page object 
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class PageModel extends Model
 {
   /** */
   private $add_details;
 
-  /** */
+  /**
+   * Constructor with additional property $add_details
+   * 
+   * @param mixed $model 
+   * @param mixed $blueprint 
+   * @param mixed $lang 
+   * @param bool $add_details 
+   * @return void 
+   */
   public function __construct ($model, $blueprint, $lang, $add_details = false)
   {
     $this->add_details = $add_details;
     parent::__construct($model, $blueprint, $lang);
   }
-  
-  /** */
+
+  /**
+   * Get additional field data (besides type and value)
+   * Method called by setModelData()
+   * 
+   * @return Collection 
+   */
   protected function getProperties ()
   {
     $content = $this->model->content($this->lang);
@@ -69,7 +89,12 @@ class PageModel extends Model
     return $res;
   }
 
-  /** */
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * @return void
+   */
   protected function getValue () {}
 
   /** */

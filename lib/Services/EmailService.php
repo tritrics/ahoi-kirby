@@ -4,13 +4,31 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Exception\Exception;
 
+/**
+ * Sending emails as a helper API's form interface.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class EmailService
 {
   /**
-   * Presets in config.php, use:
+   * Send emails of a given preset.
+   *  
+   * Presets are defined in config.php, use:
+   *   [preset]-[something] or
+   *   [preset]-[something].[lang] for multi-language
    * 
-   * [preset]-[something] or
-   * [preset]-[something].[lang] for multi-language
+   * Required data:
+   *   __from__ email
+   *   __preset__ string
+   * 
+   * @param string $lang 
+   * @param array $data 
+   * @return string|void 
    */
   public static function send ($lang, $data)
   {
@@ -56,11 +74,15 @@ class EmailService
   }
 
   /**
-   * detects all defined email presets for given $preset
-   * checks present of to and from, where from can be given by form data
+   * Detects all defined email presets for given $preset.
+   * Checks present of to and from, where from can be given by form data
    * template-naming convention: name-something(.lang)?.[text|html].php
    * where -something is mandatory!
-   * @return {array}
+   * 
+   * @param string $preset 
+   * @param string $lang 
+   * @param string $fromGiven 
+   * @return array 
    */
   private static function getPresets ($preset, $lang, $fromGiven)
   {

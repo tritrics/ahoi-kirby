@@ -6,22 +6,34 @@ use Kirby\Cms\Response;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
+/**
+ * Service for underlying API functions, checks and initializing responses.
+ *
+ * @package   AflevereAPI Services
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class ApiService
 {
   /**
    * The API version
+   * 
    * @var string
    */
   public static $version = 'v1';
 
   /**
-   * The plugin, under which the plugin is registered in Kirby 
+   * The plugin, under which the plugin is registered in Kirby
+   * 
    * @var string
    */
   public static $pluginName = 'tritrics/aflevere-api-v1';
 
   /**
    * The namespace for dynamic imports in php
+   * 
    * @var string
    */
   public static $namespace = 'Tritrics\AflevereApi\v1';
@@ -34,6 +46,7 @@ class ApiService
   /**
    * Get setting from plugins config.php
    * example: tritrics.aflevere-api.v1.slug
+   * 
    * @param string $node 
    * @param mixed $default 
    * @return mixed 
@@ -45,6 +58,7 @@ class ApiService
 
   /**
    * Compute the base slug like /public-api/v1
+   * 
    * @return null|string 
    */
   public static function getApiSlug()
@@ -58,6 +72,7 @@ class ApiService
 
   /**
    * Check, if a slug the backend-user enters, has a conflict with the API-Route
+   * 
    * @param mixed $slug 
    * @return bool 
    */
@@ -80,6 +95,7 @@ class ApiService
    * multi language installation:
    * "/en" -> english version of site
    * "/en/some/page" -> english version of page "/some/path"
+   * 
    * @param mixed $path 
    * @param bool $multilang
    * @return array 
@@ -93,6 +109,8 @@ class ApiService
   }
 
   /**
+   * Check if "info" action is enabled.
+   * 
    * @return bool 
    */
   public static function isEnabledInfo()
@@ -101,6 +119,8 @@ class ApiService
   }
 
   /**
+   * Check if "language" action is enabled.
+   * 
    * @return bool 
    */
   public static function isEnabledLanguage()
@@ -109,6 +129,8 @@ class ApiService
   }
 
   /**
+   * Check if "page" action is enabled.
+   * 
    * @return bool 
    */
   public static function isEnabledPage()
@@ -117,6 +139,8 @@ class ApiService
   }
 
   /**
+   * Check if "pages" action is enabled.
+   * 
    * @return bool 
    */
   public static function isEnabledPages()
@@ -125,6 +149,8 @@ class ApiService
   }
 
   /**
+   * Check if "form" action is enabled.
+   * 
    * @return bool 
    */
   public static function isEnabledForm()
@@ -135,6 +161,7 @@ class ApiService
   /**
    * Helper: Find a page by translated slug
    * (Kirby can only find by default slug)
+   * 
    * @param mixed $lang 
    * @param mixed $slug 
    * @return mixed 
@@ -150,7 +177,13 @@ class ApiService
     }
   }
 
-  /** */
+  /**
+   * Init response with basic properties.
+   * 
+   * @param int $status 
+   * @param string $msg 
+   * @return Collection 
+   */
   public static function initResponse($status = 200, $msg = 'OK')
   {
     $Request = kirby()->request();
@@ -163,7 +196,8 @@ class ApiService
   }
 
   /**
-   * Response OK
+   * Response: OK
+   * 
    * @param string $msg 
    * @return Response 
    */
@@ -173,7 +207,8 @@ class ApiService
   }
 
   /**
-   * Shortcut for Bad Request
+   * Reponse: Invalid language.
+   * 
    * @return Response 
    */
   public static function invalidLang()
@@ -182,7 +217,8 @@ class ApiService
   }
 
   /**
-   * Bad Request
+   * Response: Bad Request.
+   * 
    * @param string $msg 
    * @return Response 
    */
@@ -192,7 +228,8 @@ class ApiService
   }
 
   /**
-   * API is diabled
+   * Response: API is diabled.
+   * 
    * @param string $msg 
    * @return Response 
    */
@@ -202,7 +239,8 @@ class ApiService
   }
 
   /**
-   * Not found
+   * Response: Not found.
+   * 
    * @param string $msg 
    * @return Response 
    */
@@ -212,7 +250,8 @@ class ApiService
   }
 
   /**
-   * Not Allowed
+   * Response: Not Allowed.
+   * 
    * @param string $msg 
    * @return Response 
    */
@@ -222,7 +261,8 @@ class ApiService
   }
 
   /**
-   * Internal Server Error
+   * Response: Internal Server Error.
+   * 
    * @param string $msg 
    * @return Response 
    */
@@ -232,7 +272,8 @@ class ApiService
   }
 
   /**
-   * Check, if API's functions are enabled
+   * Check, if API's functions are enabled.
+   * 
    * @param string $method post|get
    * @return bool 
    */
@@ -244,7 +285,8 @@ class ApiService
   }
 
   /**
-   * Subfunction of findPageBySlug
+   * Subfunction of findPageBySlug.
+   * 
    * @param mixed $collection 
    * @param mixed $lang 
    * @param mixed $keys 

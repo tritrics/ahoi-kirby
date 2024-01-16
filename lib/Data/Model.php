@@ -5,36 +5,58 @@ namespace Tritrics\AflevereApi\v1\Data;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Services\FieldService;
 
-/** */
+/**
+ * Inherits from Collection and adds some model functions. Base class for all models.
+ *
+ * @package   AflevereAPI Data
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 abstract class Model extends Collection
 {
   /**
    * the Kirby model instance
+   * 
+   * @var mixed
    */
   protected $model;
 
   /**
    * the Kirby Blueprint fragment
+   * 
+   * @var Collection
    */
   protected $blueprint;
 
   /**
-   * Language-code
+   * 2-digit Language-code
+   * 
+   * @var string|null
    */
   protected $lang;
 
   /**
    * Optionally child-fields, auto-detected from blueprint
+   * 
+   * @var Collection
    */
   protected $fields;
 
-  /** */
+  /**
+   * Marker if this model has child fields. Can be overwritten
+   * by same property in child class.
+   * 
+   * @var false
+   */
   protected $hasChildFields = false;
 
   /**
-   * @param mixed $model, can be instance of KirbyField or value
-   * @param Collection $blueprint
-   * @param string $lang
+   * @param mixed $model can be instance of KirbyField or value
+   * @param mixed $blueprint 
+   * @param mixed $lang 
+   * @return void 
    */
   public function __construct ($model, $blueprint = null, $lang = null)
   {
@@ -45,7 +67,11 @@ abstract class Model extends Collection
     $this->setModelData();
   }
 
-  /** */
+  /**
+   * Check and set possible child fields.
+   * 
+   * @return void 
+   */
   private function setChildFields ()
   {
     $this->fields = new Collection();
@@ -68,14 +94,9 @@ abstract class Model extends Collection
   }
 
   /**
-   * Get the model value
+   * Set the model properties.
    * 
-   * @return Collection|string|int|float|bool
-   */
-  abstract protected function getValue ();
-
-  /**
-   * set the model properties
+   * @return void 
    */
   private function setModelData ()
   {
@@ -105,7 +126,17 @@ abstract class Model extends Collection
   }
 
   /**
-   * Get the corresponding label for the selected option
+   * Get the model value. Overwritten by child class.
+   * 
+   * @return mixed 
+   */
+  abstract protected function getValue();
+
+  /**
+   * Get the corresponding label for the selected option.
+   * 
+   * @param mixed $value 
+   * @return mixed 
    */
   protected function getLabel($value)
   {
@@ -128,11 +159,11 @@ abstract class Model extends Collection
   }
 
   /**
-   * Helper for fields with option-node:
-   * Kirby allowes different type of options.
-   * So far we can only handle static options.
+   * Helper for fields with option-node: Kirby allowes different type of options.
+   * (So far we can only handle static options.)
    * 
-   * @return string|null
+   * @param array $options 
+   * @return string|void 
    */
   protected function checkOpionsType ($options)
   {
@@ -163,7 +194,9 @@ abstract class Model extends Collection
   /**
    * Because Kirby sets multiple to true on default, we check for false here.
    * max = 1 is NOT interpreted as multiple, because the setting multiple
-   * is explicitely designed for this. 
+   * is explicitely designed for this.
+   * 
+   * @return bool
    */
   protected function isMultiple()
   {

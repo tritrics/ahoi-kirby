@@ -3,56 +3,72 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Collator;
+use Kirby\Exception\InvalidArgumentException;
+use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LinkService;
 
-/** */
+/**
+ * Model for Kirby's fields: list, slug, text, textarea, writer
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ * 
+ * Possible Texttypes:
+ * 
+ * -------------------------------------------------------------------------------------------
+ * | FIELD-TYPE   | FIELD-DEF              | FORMATTING | LINEBREAKS        | API-TYPE       | 
+ * |--------------|------------------------|------------|-------------------|----------------|
+ * | text, slug   |                        | ./.        | ./.               | string         |
+ * |--------------|------------------------|------------|-------------------|----------------|
+ * | textarea     | buttons: false         | ./.        | \n                | text           |
+ * |--------------|------------------------|------------|-------------------|----------------|
+ * | textarea     | buttons: true          | markdown   | \n                | markdown       |
+ * |--------------|------------------------|------------|-------------------|----------------|
+ * | textarea     | buttons: false|true    | html       | <blocks>          | html           |
+ * |              | api: html: true        |            | <br>              |                |
+ * |--------------|------------------------|------------|-------------------|----------------|
+ * | writer, list | inline: false          | html       | <blocks>          | html           |
+ * |              |                        |            | <br>              |                |
+ * |--------------|------------------------|------------|-------------------|----------------|
+ * | writer       | inline: true           | html       | <br>              | html           |
+ * |              | or nor breaks in text  |            |                   | without elem   |
+ * -------------------------------------------------------------------------------------------
+ * 
+ * Textarea parsing as html is provided for older Kirby-projects, where writer-field was
+ * not existing. In new projects writer should be used for html and textarea for text/markdown.
+ * The possible combination: $textarea->kirbytext()->inline() is not provided, because the
+ * field-buttons contains the block-elements headline and lists. These blocks are
+ * stripped out by inline() which only makes sense, when the buttons are configured without.
+ */
 class TextModel extends Model
 {
-  /** */
-  private $fieldtype;
-
-  /** */
+  /**
+   * Type retured in response.
+   * 
+   * @var string [html, text, markdown, string]
+   */
   private $type;
 
   /**
-   * Possible Texttypes:
+   * Constructor with additional initialization.
    * 
-   * -------------------------------------------------------------------------------------------
-   * | FIELD-TYPE   | FIELD-DEF              | FORMATTING | LINEBREAKS        | API-TYPE       | 
-   * |--------------|------------------------|------------|-------------------|----------------|
-   * | text, slug   |                        | ./.        | ./.               | string         |
-   * |--------------|------------------------|------------|-------------------|----------------|
-   * | textarea     | buttons: false         | ./.        | \n                | text           |
-   * |--------------|------------------------|------------|-------------------|----------------|
-   * | textarea     | buttons: true          | markdown   | \n                | markdown       |
-   * |--------------|------------------------|------------|-------------------|----------------|
-   * | textarea     | buttons: false|true    | html       | <blocks>          | html           |
-   * |              | api: html: true        |            | <br>              |                |
-   * |--------------|------------------------|------------|-------------------|----------------|
-   * | writer, list | inline: false          | html       | <blocks>          | html           |
-   * |              |                        |            | <br>              |                |
-   * |--------------|------------------------|------------|-------------------|----------------|
-   * | writer       | inline: true           | html       | <br>              | html           |
-   * |              | or nor breaks in text  |            |                   | without elem   |
-   * -------------------------------------------------------------------------------------------
-   * 
-   * Textarea parsing as html is provided for older Kirby-projects, where writer-field was
-   * not existing. In new projects writer should be used for html and textarea for text/markdown.
-   * The possible combination: $textarea->kirbytext()->inline() is not provided, because the
-   * field-buttons contains the block-elements headline and lists. These blocks are
-   * stripped out by inline() which only makes sense, when the buttons are configured without.
+   * @param mixed $model 
+   * @param mixed $blueprint 
+   * @param mixed $lang 
+   * @param bool $add_details 
+   * @return void 
    */
-  protected function getType ()
+  public function __construct($model, $blueprint = null, $lang = null)
   {
-    // set properties
-    $this->fieldtype = $this->blueprint->node('type')->get();
-
-    switch ($this->fieldtype) {
+    switch ($blueprint->node('type')->get()) {
       case 'textarea':
-        if ($this->blueprint->node('api', 'html')->is(true)) {
+        if ($blueprint->node('api', 'html')->is(true)) {
           $this->type = 'html';
-        } elseif ($this->blueprint->node('buttons')->is(false)) {
+        } elseif ($blueprint->node('buttons')->is(false)) {
           $this->type = 'text';
         } else {
           $this->type = 'markdown';
@@ -66,29 +82,59 @@ class TextModel extends Model
         break;
       default: // text, slug
         $this->type = 'string';
-        break;
     }
+    parent::__construct($model, $blueprint, $lang);
+  }
+
+  /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   * 
+   * @return string 
+   */
+  protected function getType ()
+  {
     return $this->type;
   }
 
-  /** */
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * return value can be:
+   * 
+   * 1. A string for non-html fields
+   * 
+   * 2. A simple text
+   * { text: 'the text' }
+   * 
+   * 3. A single block-element
+   * { elem: 'h1', text: 'the text' }
+   * 
+   * 4. An array with more than one of the above where every
+   * possible sub-element is in node children.
+   * [ { elem: 'h1', text: 'the text' }, { elem: 'p', children: [] }]
+   * 
+   * @return array|string
+   */
   protected function getValue ()
   {
     if ($this->type !== 'html') {
       return '' . $this->model->value();
     }
 
-    if ($this->fieldtype === 'textarea') {
+    $fieldtype = $this->blueprint->node('type')->get();
+    if ($fieldtype === 'textarea') {
       $buffer = $this->model->kirbytext();
-    } else if ($this->fieldtype === 'writer') {
+    } else if ($fieldtype === 'writer') {
       $buffer = $this->model->text();
-    } else if ($this->fieldtype === 'list') {
+    } else if ($fieldtype === 'list') {
       $buffer = $this->model->list();
     } else { // error
       return '';
     }
 
-      // delete line breaks
+    // delete line breaks
     $buffer = str_replace(["\n", "\r", "\rn"], "", $buffer);
 
     // delete special elements
@@ -117,27 +163,17 @@ class TextModel extends Model
         $res = $res['value'];
       }
     }
-
-    /**
-     * $res can be:
-     * 
-     * 1. a simple text
-     * { text: 'the text' }
-     * 
-     * 2. a single block-element
-     * { elem: 'h1', text: 'the text' }
-     * 
-     * 3. an array with more than one of the above where every
-     *    possible sub-element is in node children
-     * [ { elem: 'h1', text: 'the text' }, { elem: 'p', children: [] }]
-     */
     return $res;
   }
 
   /**
+   * Helper to convert DOMDocument to array.
    * Credits to https://gist.github.com/yosko/6991691
+   * 
    * @param mixed $root 
-   * @return mixed 
+   * @return array|void 
+   * @throws InvalidArgumentException 
+   * @throws LogicException 
    */
   function htmlToArray($root)
   {

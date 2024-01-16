@@ -7,24 +7,41 @@ use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LinkService;
 use Tritrics\AflevereApi\v1\Services\FileService;
 
-/** */
+/**
+ * Model for Kirby's file object
+ *
+ * @package   AflevereAPI Models
+ * @author    Michael Adams <ma@tritrics.dk>
+ * @link      https://aflevereapi.dev
+ * @copyright Michael Adams
+ * @license   https://opensource.org/license/isc-license-txt/
+ */
 class FileModel extends Model
 {
-  /** */
+  /**
+   * Marker if this model has child fields.
+   * 
+   * @var true
+   */
   protected $hasChildFields = true;
 
-  /** */
-  public function __construct($model, $blueprint, $lang)
-  {
-    parent::__construct($model, $blueprint, $lang);
-  }
-
+  /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   * 
+   * @return string 
+   */
   protected function getType()
   {
     return $this->model->type();
   }
 
-  /** */
+  /**
+   * Get additional field data (besides type and value)
+   * Method called by setModelData()
+   * 
+   * @return Collection 
+   */
   protected function getProperties ()
   {
     $pathinfo = FileService::getPathinfo($this->model->url());
@@ -52,7 +69,12 @@ class FileModel extends Model
     return $res;
   }
 
-  /** */
+  /**
+   * Get the value of model as it's returned in response.
+   * Mandatory method.
+   * 
+   * @return Collection
+   */
   protected function getValue()
   {
     return $this->fields;
