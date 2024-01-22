@@ -10,12 +10,6 @@ use Tritrics\AflevereApi\v1\Services\LinkService;
 
 /**
  * Model for Kirby's fields: list, slug, text, textarea, writer
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  * 
  * Possible Texttypes:
  * 

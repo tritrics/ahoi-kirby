@@ -7,12 +7,6 @@ use Tritrics\AflevereApi\v1\Services\FieldService;
 
 /**
  * Inherits from Collection and adds some model functions. Base class for all models.
- *
- * @package   AflevereAPI Data
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 abstract class Model extends Collection
 {

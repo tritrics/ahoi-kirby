@@ -6,12 +6,6 @@ use Tritrics\AflevereApi\v1\Services\ApiService;
 
 /**
  * Translates Kirby's fields and objects to API data models.
- *
- * @package   AflevereAPI Factories
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class ModelFactory
 {

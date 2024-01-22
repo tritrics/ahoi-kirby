@@ -7,13 +7,7 @@ use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Models\LanguageModel;
 
 /**
- * Model for Kirby's languages object 
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
+ * Model for Kirby's languages object
  */
 class LanguagesModel extends Model
 {

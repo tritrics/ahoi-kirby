@@ -8,12 +8,6 @@ use Tritrics\AflevereApi\v1\Services\FieldService;
 
 /**
  * Model for Kirby's fields: structure
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class StructureModel extends Model
 {

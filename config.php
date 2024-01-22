@@ -8,12 +8,6 @@ use Tritrics\AflevereApi\v1\Services\ApiService;
 
 /**
  * Plugin registration
- *
- * @package   AflevereAPI
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 kirby()::plugin(ApiService::$pluginName, [
   'options' => [
@@ -37,10 +31,15 @@ kirby()::plugin(ApiService::$pluginName, [
         throw new Exception('Slug not allowed');
       }
     },
-    'route:after' => function ($route, $path, $method, $result) {
+    'route:before' => function ($route, $path, $method) {
       $attributes = $route->attributes();
-      if (isset($attributes['env']) && $attributes['env'] === 'media' && empty($result)) {
-        FileService::getImage($path, $route->arguments(), $route->pattern());
+      if (
+        $method === 'GET' &&
+        isset($attributes['env']) &&
+        $attributes['env'] === 'media' &&
+        is_string($path) &&
+        !is_file(kirby()->root('index') . '/' . $path)) {
+          FileService::getImage($path, $route->arguments(), $route->pattern());
       }
       return;
     }

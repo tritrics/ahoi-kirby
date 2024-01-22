@@ -1,18 +1,12 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Blocks;
+namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Data\Collection;
 
 /**
  * Default model for Kirby's blocks
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class BlockDefaultModel extends Model
 {

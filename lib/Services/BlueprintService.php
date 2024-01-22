@@ -13,12 +13,6 @@ use Tritrics\AflevereApi\v1\Services\GlobalService;
 
 /**
  * Reads a Kirby blueprint and translates it for internal needs.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class BlueprintService
 {

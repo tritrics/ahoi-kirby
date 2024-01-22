@@ -4,12 +4,6 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 /**
  * Collection of globally used functions.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class GlobalService
 {

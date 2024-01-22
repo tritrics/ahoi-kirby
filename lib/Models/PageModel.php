@@ -8,13 +8,7 @@ use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\LinkService;
 
 /**
- * Model for Kirby's page object 
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
+ * Model for Kirby's page object
  */
 class PageModel extends Model
 {

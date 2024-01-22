@@ -10,12 +10,6 @@ use Tritrics\AflevereApi\v1\Models\LanguagesModel;
 
 /**
  * Service for API's info interface.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class InfoService
 {

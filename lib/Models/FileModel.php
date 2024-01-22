@@ -9,12 +9,6 @@ use Tritrics\AflevereApi\v1\Services\FileService;
 
 /**
  * Model for Kirby's file object
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class FileModel extends Model
 {

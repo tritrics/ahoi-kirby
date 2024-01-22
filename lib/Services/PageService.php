@@ -12,12 +12,6 @@ use Tritrics\AflevereApi\v1\Services\FieldService;
 
 /**
  * Service for API's page interface. Handles a single page or site.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class PageService
 {

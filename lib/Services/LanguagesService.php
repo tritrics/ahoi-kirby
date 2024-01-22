@@ -11,12 +11,6 @@ use Tritrics\AflevereApi\v1\Models\LanguageModel;
 
 /**
  * Service for API's language interface and all language related functions.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class LanguagesService
 {

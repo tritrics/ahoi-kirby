@@ -7,12 +7,6 @@ use Tritrics\AflevereApi\v1\Data\Model;
 
 /**
  * Model for Kirby's fields: color
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class ColorModel extends Model
 {

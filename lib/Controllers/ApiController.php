@@ -16,12 +16,6 @@ use Tritrics\AflevereApi\v1\Services\PagesService;
 /**
  * API Controller
  * Entry point for API functions. Basic checks and delegation to services.
- *
- * @package   AflevereAPI Controllers
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class ApiController
 {
@@ -59,6 +53,7 @@ class ApiController
 
   /**
    * Get a single language
+   * 
    * @param string|null $lang
    * @param string|null $slug
    * @return Response|array|void 

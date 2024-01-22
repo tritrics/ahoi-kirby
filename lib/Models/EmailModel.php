@@ -8,12 +8,6 @@ use Tritrics\AflevereApi\v1\Services\LinkService;
 
 /**
  * Model for Kirby's fields: email
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class EmailModel extends Model
 {

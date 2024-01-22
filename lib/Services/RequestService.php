@@ -6,12 +6,6 @@ use Tritrics\AflevereApi\v1\Services\BlueprintService;
 
 /**
  * Reads an normalizes request parameter from the API request.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class RequestService
 {

@@ -9,12 +9,6 @@ use Tritrics\AflevereApi\v1\Services\ApiService;
 
 /**
  * Reads all Kirby fields of a blueprint and translates it to collection of models.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class FieldService
 {

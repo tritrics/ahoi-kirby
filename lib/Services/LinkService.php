@@ -7,12 +7,6 @@ use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
 /**
  * Service for any kind of links (texts, page, file, user) to produce consistant output.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class LinkService
 {

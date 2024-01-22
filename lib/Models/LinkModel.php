@@ -10,12 +10,6 @@ use Tritrics\AflevereApi\v1\Services\FileService;
 
 /**
  * Model for Kirby's fields: link
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class LinkModel extends Model
 {

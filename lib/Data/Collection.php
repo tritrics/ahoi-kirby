@@ -8,12 +8,6 @@ use IteratorAggregate;
 
 /**
  * Handles array-like data and wraps it with handy functions.
- *
- * @package   AflevereAPI Data
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class Collection implements IteratorAggregate
 {

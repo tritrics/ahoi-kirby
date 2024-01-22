@@ -6,13 +6,7 @@ use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 
 /**
- * Model for Kirby's user object 
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
+ * Model for Kirby's user object
  */
 class UserModel extends Model
 {

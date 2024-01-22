@@ -12,12 +12,6 @@ use Kirby\Exception\LogicException;
 
 /**
  * File functions and image handling. Creates thumbs.
- *
- * @package   AflevereAPI Services
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class FileService
 {

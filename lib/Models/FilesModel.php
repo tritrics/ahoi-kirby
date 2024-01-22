@@ -9,12 +9,6 @@ use Tritrics\AflevereApi\v1\Services\BlueprintService;
 
 /**
  * Model for Kirby's fields: files
- *
- * @package   AflevereAPI Models
- * @author    Michael Adams <ma@tritrics.dk>
- * @link      https://aflevereapi.dev
- * @copyright Michael Adams
- * @license   https://opensource.org/license/isc-license-txt/
  */
 class FilesModel extends Model
 {
