@@ -13,7 +13,7 @@ class BlockHeadingModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var true
+   * @var Boolean
    */
   protected $hasChildFields = true;
 
@@ -21,7 +21,7 @@ class BlockHeadingModel extends Model
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
    * 
-   * @return string 
+   * @return String 
    */
   protected function getType()
   {
@@ -45,7 +45,7 @@ class BlockHeadingModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return string 
+   * @return String 
    */
   protected function getValue ()
   {

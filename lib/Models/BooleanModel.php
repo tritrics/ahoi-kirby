@@ -13,7 +13,7 @@ class BooleanModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return bool
+   * @return Boolean
    */
   protected function getValue ()
   {

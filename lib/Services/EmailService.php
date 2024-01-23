@@ -20,9 +20,9 @@ class EmailService
    *   __from__ email
    *   __preset__ string
    * 
-   * @param string $lang 
-   * @param array $data 
-   * @return string|void 
+   * @param String $lang 
+   * @param Array $data 
+   * @return String|void 
    */
   public static function send ($lang, $data)
   {
@@ -73,10 +73,10 @@ class EmailService
    * template-naming convention: name-something(.lang)?.[text|html].php
    * where -something is mandatory!
    * 
-   * @param string $preset 
-   * @param string $lang 
-   * @param string $fromGiven 
-   * @return array 
+   * @param String $preset 
+   * @param String $lang 
+   * @param String $fromGiven 
+   * @return Array 
    */
   private static function getPresets ($preset, $lang, $fromGiven)
   {

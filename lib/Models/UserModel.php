@@ -13,7 +13,7 @@ class UserModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var true
+   * @var Boolean
    */
   protected $hasChildFields = true;
 
@@ -39,7 +39,7 @@ class UserModel extends Model
    * For security-reasons we don't expose user's build-in values like
    * name, email, role, avatar. We only expose possibly extra-fields.
    * 
-   * @return Collection|string|number|bool
+   * @return Collection|String|Number|Boolean
    */
   protected function getValue ()
   {

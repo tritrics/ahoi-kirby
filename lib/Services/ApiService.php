@@ -14,21 +14,21 @@ class ApiService
   /**
    * The API version
    * 
-   * @var string
+   * @var String
    */
   public static $version = 'v1';
 
   /**
    * The plugin, under which the plugin is registered in Kirby
    * 
-   * @var string
+   * @var String
    */
   public static $pluginName = 'tritrics/aflevere-api-v1';
 
   /**
    * The namespace for dynamic imports in php
    * 
-   * @var string
+   * @var String
    */
   public static $namespace = 'Tritrics\AflevereApi\v1';
 
@@ -41,9 +41,9 @@ class ApiService
    * Get setting from plugins config.php
    * example: tritrics.aflevere-api.v1.slug
    * 
-   * @param string $node 
-   * @param mixed $default 
-   * @return mixed 
+   * @param String $node 
+   * @param Mixed $default 
+   * @return Mixed 
    */
   public static function getConfig($node, $default = false)
   {
@@ -67,8 +67,8 @@ class ApiService
   /**
    * Check, if a slug the backend-user enters, has a conflict with the API-Route
    * 
-   * @param mixed $slug 
-   * @return bool 
+   * @param Mixed $slug 
+   * @return Boolean 
    */
   public static function isProtectedSlug($slug)
   {
@@ -90,9 +90,9 @@ class ApiService
    * "/en" -> english version of site
    * "/en/some/page" -> english version of page "/some/path"
    * 
-   * @param mixed $path 
-   * @param bool $multilang
-   * @return array 
+   * @param Mixed $path 
+   * @param Boolean $multilang
+   * @return Array 
    */
   public static function parsePath($path, $multilang)
   {
@@ -105,7 +105,7 @@ class ApiService
   /**
    * Check if "info" action is enabled.
    * 
-   * @return bool 
+   * @return Boolean 
    */
   public static function isEnabledInfo()
   {
@@ -115,7 +115,7 @@ class ApiService
   /**
    * Check if "language" action is enabled.
    * 
-   * @return bool 
+   * @return Boolean 
    */
   public static function isEnabledLanguage()
   {
@@ -125,7 +125,7 @@ class ApiService
   /**
    * Check if "page" action is enabled.
    * 
-   * @return bool 
+   * @return Boolean 
    */
   public static function isEnabledPage()
   {
@@ -135,7 +135,7 @@ class ApiService
   /**
    * Check if "pages" action is enabled.
    * 
-   * @return bool 
+   * @return Boolean 
    */
   public static function isEnabledPages()
   {
@@ -145,20 +145,20 @@ class ApiService
   /**
    * Check if "form" action is enabled.
    * 
-   * @return bool 
+   * @return Boolean 
    */
-  public static function isEnabledForm()
+  public static function isEnabledAction()
   {
-    return self::isEnabled('form');
+    return self::isEnabled('action');
   }
 
   /**
    * Helper: Find a page by translated slug
    * (Kirby can only find by default slug)
    * 
-   * @param mixed $lang 
-   * @param mixed $slug 
-   * @return mixed 
+   * @param Mixed $lang 
+   * @param Mixed $slug 
+   * @return Mixed 
    */
   public static function findPageBySlug($lang, $slug)
   {
@@ -174,8 +174,8 @@ class ApiService
   /**
    * Init response with basic properties.
    * 
-   * @param int $status 
-   * @param string $msg 
+   * @param Integer $status 
+   * @param String $msg 
    * @return Collection 
    */
   public static function initResponse($status = 200, $msg = 'OK')
@@ -192,7 +192,7 @@ class ApiService
   /**
    * Response: OK
    * 
-   * @param string $msg 
+   * @param String $msg 
    * @return Response 
    */
   public static function ok($msg = 'OK')
@@ -213,7 +213,7 @@ class ApiService
   /**
    * Response: Bad Request.
    * 
-   * @param string $msg 
+   * @param String $msg 
    * @return Response 
    */
   public static function badRequest($msg = 'Bad Request')
@@ -224,7 +224,7 @@ class ApiService
   /**
    * Response: API is diabled.
    * 
-   * @param string $msg 
+   * @param String $msg 
    * @return Response 
    */
   public static function disabled($msg = 'API is disabled for this action')
@@ -235,7 +235,7 @@ class ApiService
   /**
    * Response: Not found.
    * 
-   * @param string $msg 
+   * @param String $msg 
    * @return Response 
    */
   public static function notFound($msg = 'Page is not found')
@@ -246,7 +246,7 @@ class ApiService
   /**
    * Response: Not Allowed.
    * 
-   * @param string $msg 
+   * @param String $msg 
    * @return Response 
    */
   public static function notAllowed($msg = 'Action not allowed')
@@ -257,7 +257,7 @@ class ApiService
   /**
    * Response: Internal Server Error.
    * 
-   * @param string $msg 
+   * @param String $msg 
    * @return Response 
    */
   public static function fatal($msg = 'Internal Server Error')
@@ -268,8 +268,8 @@ class ApiService
   /**
    * Check, if API's functions are enabled.
    * 
-   * @param string $method post|get
-   * @return bool 
+   * @param String $method post|get
+   * @return Boolean 
    */
   private static function isEnabled($method)
   {
@@ -281,10 +281,10 @@ class ApiService
   /**
    * Subfunction of findPageBySlug.
    * 
-   * @param mixed $collection 
-   * @param mixed $lang 
-   * @param mixed $keys 
-   * @return mixed 
+   * @param Mixed $collection 
+   * @param Mixed $lang 
+   * @param Mixed $keys 
+   * @return Mixed 
    */
   private static function findPageBySlugRec($collection, $lang, $keys)
   {

@@ -12,7 +12,7 @@ class ObjectModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var true
+   * @var Boolean
    */
   protected $hasChildFields = true;
 

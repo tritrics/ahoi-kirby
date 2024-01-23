@@ -19,8 +19,8 @@ class PageService
    * Main method to respond to "page" action.
    * 
    * @param Page|Site $node
-   * @param string $lang
-   * @param string|array $fields
+   * @param String $lang
+   * @param String|Array $fields
    * @return Response 
    * @throws DuplicateException 
    * @throws LogicException 

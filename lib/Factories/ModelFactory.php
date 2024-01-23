@@ -12,7 +12,7 @@ class ModelFactory
   /**
    * Kirby field type to model tranlation table.
    * 
-   * @var array
+   * @var Array
    */
   private static $buildIn = [
     'block-default' => '\Models\BlockDefaultModel',
@@ -54,14 +54,14 @@ class ModelFactory
    * These can be added by other plugins with the hook
    * tritrics-aflevere-api-v1.register-model
    * 
-   * @var array
+   * @var Array
    */
   private static $added = [];
 
   /**
    * Interface to trigger the hooks
    * 
-   * @return void 
+   * @return Void 
    */
   public static function hooks ()
   {
@@ -71,9 +71,9 @@ class ModelFactory
   /**
    * Register a field type to model equivalent
    * 
-   * @param string $type 
-   * @param string $model 
-   * @return void 
+   * @param String $type 
+   * @param String $model 
+   * @return Void 
    */
   public static function register ($type, $model)
   {
@@ -85,8 +85,8 @@ class ModelFactory
   /**
    * Check if a filed type is existing.
    * 
-   * @param string $type 
-   * @return bool 
+   * @param String $type 
+   * @return Boolean 
    */
   public static function has ($type)
   {
@@ -96,11 +96,11 @@ class ModelFactory
   /**
    * Create an instance of a model class defined by type.
    * 
-   * @param string $type 
+   * @param String $type 
    * @param Collection $field 
    * @param Collection $fieldDef 
-   * @param string $lang 
-   * @return object 
+   * @param String $lang 
+   * @return Object 
    */
   public static function create ($type, $field, $fieldDef, $lang)
   {
@@ -118,11 +118,11 @@ class ModelFactory
   /**
    * Create an instance of a block-model class defined by type.
    * 
-   * @param string $type 
+   * @param String $type 
    * @param Collection $field 
    * @param Collection $fieldDef 
-   * @param string $lang 
-   * @return object 
+   * @param String $lang 
+   * @return Object 
    */
   public static function createBlock($type, $field, $fieldDef, $lang)
   {

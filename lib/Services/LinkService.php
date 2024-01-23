@@ -13,14 +13,14 @@ class LinkService
   /**
    * 2-digit language code
    * 
-   * @var string
+   * @var String
    */
   private static $lang;
 
   /**
    * Detected host and port of Kirby instance.
    * 
-   * @var array
+   * @var Array
    */
   private static $backend = [
     'host' => null, // backend-domain.com
@@ -30,7 +30,7 @@ class LinkService
   /**
    * Detected host and port of the frontend.
    * 
-   * @var array
+   * @var Array
    */
   private static $referer = [
     'host' => null, // referer-domain.com or backend-host, if not given
@@ -40,7 +40,7 @@ class LinkService
   /**
    * Detected slugs with starting slash.
    * 
-   * @var array
+   * @var Array
    */
   private static $slugs = [
     'home' => null, // /home
@@ -51,11 +51,11 @@ class LinkService
   /**
    * Detects the linktype from a given $href.
    * 
-   * @param string $lang 
-   * @param string $href
-   * @param string $title
-   * @param bool $target
-   * @return array 
+   * @param String $lang 
+   * @param String $href
+   * @param String $title
+   * @param Boolean $target
+   * @return Array 
    */
   public static function getInline($lang, $href, $title = null, $target = false)
   {
@@ -147,10 +147,10 @@ class LinkService
   /**
    * Get extern link.
    * 
-   * @param string $lang 
-   * @param mixed $href 
-   * @param string $title 
-   * @return array 
+   * @param String $lang 
+   * @param Mixed $href 
+   * @param String $title 
+   * @return Array 
    */
   public static function getUrl($href, $title = null, $blank = false)
   {
@@ -172,10 +172,10 @@ class LinkService
   /**
    * Get page (intern) link.
    * 
-   * @param string $lang 
-   * @param string $path 
-   * @param string $title 
-   * @return array 
+   * @param String $lang 
+   * @param String $path 
+   * @param String $title 
+   * @return Array 
    */
   public static function getPage($path, $title = null, $blank = false)
   {
@@ -228,10 +228,10 @@ class LinkService
   /**
    * Get file (download) link.
    * 
-   * @param string $lang 
-   * @param string $path 
-   * @param string $title 
-   * @return array 
+   * @param String $lang 
+   * @param String $path 
+   * @param String $title 
+   * @return Array 
    */
   public static function getFile($path, $title = null, $blank = false)
   {
@@ -251,10 +251,10 @@ class LinkService
   /**
    * Get email link.
    * 
-   * @param string $lang 
-   * @param mixed $email 
-   * @param string $title 
-   * @return array
+   * @param String $lang 
+   * @param Mixed $email 
+   * @param String $title 
+   * @return Array
    */
   public static function getEmail($email, $title = null)
   {
@@ -271,10 +271,10 @@ class LinkService
   /**
    * Get telephone link.
    * 
-   * @param string $lang 
-   * @param mixed $tel 
-   * @param string $title 
-   * @return array
+   * @param String $lang 
+   * @param Mixed $tel 
+   * @param String $title 
+   * @return Array
    */
   public static function getTel($tel, $title = null)
   {
@@ -293,10 +293,10 @@ class LinkService
   /**
    * Get anchor.
    * 
-   * @param string $lang 
-   * @param mixed $anchor 
-   * @param string $title 
-   * @return array
+   * @param String $lang 
+   * @param Mixed $anchor 
+   * @param String $title 
+   * @return Array
    */
   public static function getAnchor($anchor, $title = null)
   {
@@ -316,9 +316,9 @@ class LinkService
   /**
    * Get custom link.
    * 
-   * @param string $lang
-   * @param string $title 
-   * @return array
+   * @param String $lang
+   * @param String $title 
+   * @return Array
    */
   public static function getCustom($link, $title = null)
   {
@@ -335,8 +335,8 @@ class LinkService
   /**
    * Parsing url in parts.
    * 
-   * @param string $href 
-   * @return array|string|int|false|null 
+   * @param String $href 
+   * @return Array|String|Integer|Boolean|Null 
    */
   private static function parseUrl($href)
   {
@@ -380,8 +380,8 @@ class LinkService
   /**
    * Build the url, reverse of parseUrl().
    * 
-   * @param array $parts 
-   * @return string 
+   * @param Array $parts 
+   * @return String 
    */
   private static function buildUrl($parts) {
     return
@@ -400,8 +400,8 @@ class LinkService
   /**
    * Build the path, ignoring all host-parts.
    * 
-   * @param array $parts 
-   * @return string 
+   * @param Array $parts 
+   * @return String 
    */
   private static function buildPath($parts)
   {
@@ -414,9 +414,9 @@ class LinkService
   /**
    * Compare two hosts and ports.
    * 
-   * @param array $parts 
-   * @param array $compare 
-   * @return bool 
+   * @param Array $parts 
+   * @param Array $compare 
+   * @return Boolean 
    */
   private static function isInternLink($parts, $compare)
   {

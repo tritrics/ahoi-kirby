@@ -41,8 +41,8 @@ class OptionsModel extends Model
   /**
    * Helper to split and trim the defined options.
    * 
-   * @param string|number $value 
-   * @return array
+   * @param String|Number $value 
+   * @return Array
    */
   private function splitSelectedOptions ($value)
   {

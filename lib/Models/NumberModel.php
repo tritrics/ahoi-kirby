@@ -13,7 +13,7 @@ class NumberModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return number
+   * @return Number
    */
   protected function getValue ()
   {

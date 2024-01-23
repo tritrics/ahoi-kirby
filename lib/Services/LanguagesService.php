@@ -17,7 +17,7 @@ class LanguagesService
   /**
    * Intern cache for language slugs.
    * 
-   * @var array
+   * @var Array
    */
   private static $slugs = [];
 
@@ -62,7 +62,7 @@ class LanguagesService
    * Check if installation is multilang.
    * Multilang-site is defined in config.php: languages => true.
    * 
-   * @return boolean 
+   * @return Boolean 
    */
   public static function isMultilang()
   {
@@ -85,7 +85,7 @@ class LanguagesService
   /**
    * Get a single language as Kirby object defined by $code.
    * 
-   * @param string $code 
+   * @param String $code 
    * @return Language|null 
    * @throws LogicException 
    */
@@ -128,8 +128,8 @@ class LanguagesService
   /**
    * Check if a given language code is valid.
    * 
-   * @param mixed $code 
-   * @return bool 
+   * @param Mixed $code 
+   * @return Boolean 
    * @throws LogicException 
    */
   public static function isValid ($code)
@@ -143,8 +143,8 @@ class LanguagesService
   /**
    * Get the slug for a given language.
    * 
-   * @param string $code 
-   * @return string 
+   * @param String $code 
+   * @return String 
    * @throws LogicException 
    */
   public static function getSlug ($code) {
@@ -170,8 +170,8 @@ class LanguagesService
   /**
    * Get the locale for a given language.
    * 
-   * @param string $code 
-   * @return array|string 
+   * @param String $code 
+   * @return Array|string 
    * @throws LogicException 
    */
   public static function getLocale ($code)
@@ -187,9 +187,9 @@ class LanguagesService
   /**
    * Get the url for a given language.
    * 
-   * @param string $code 
-   * @param string $slug 
-   * @return string 
+   * @param String $code 
+   * @param String $slug 
+   * @return String 
    * @throws LogicException 
    */
   public static function getUrl($code, $slug): string

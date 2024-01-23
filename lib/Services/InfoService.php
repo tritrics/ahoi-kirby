@@ -60,8 +60,8 @@ class InfoService
       if (ApiService::isEnabledPages()) {
         $interface->add('pages', $url . '/pages');
       }
-      if (ApiService::isEnabledForm()) {
-        $interface->add('form', $url . '/form');
+      if (ApiService::isEnabledAction()) {
+        $interface->add('action', $url . '/action');
       }
     }
 

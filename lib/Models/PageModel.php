@@ -18,11 +18,11 @@ class PageModel extends Model
   /**
    * Constructor with additional property $add_details
    * 
-   * @param mixed $model 
-   * @param mixed $blueprint 
-   * @param mixed $lang 
-   * @param bool $add_details 
-   * @return void 
+   * @param Mixed $model 
+   * @param Mixed $blueprint 
+   * @param Mixed $lang 
+   * @param Boolean $add_details 
+   * @return Void 
    */
   public function __construct ($model, $blueprint, $lang, $add_details = false)
   {
@@ -87,7 +87,7 @@ class PageModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return void
+   * @return Void
    */
   protected function getValue () {}
 

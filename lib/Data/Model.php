@@ -13,7 +13,7 @@ abstract class Model extends Collection
   /**
    * the Kirby model instance
    * 
-   * @var mixed
+   * @var Mixed
    */
   protected $model;
 
@@ -27,7 +27,7 @@ abstract class Model extends Collection
   /**
    * 2-digit Language-code
    * 
-   * @var string|null
+   * @var String|Null
    */
   protected $lang;
 
@@ -42,15 +42,15 @@ abstract class Model extends Collection
    * Marker if this model has child fields. Can be overwritten
    * by same property in child class.
    * 
-   * @var false
+   * @var Boolean
    */
   protected $hasChildFields = false;
 
   /**
-   * @param mixed $model can be instance of KirbyField or value
-   * @param mixed $blueprint 
-   * @param mixed $lang 
-   * @return void 
+   * @param Mixed $model can be instance of KirbyField or value
+   * @param Mixed $blueprint 
+   * @param Mixed $lang 
+   * @return Void 
    */
   public function __construct ($model, $blueprint = null, $lang = null)
   {
@@ -64,7 +64,7 @@ abstract class Model extends Collection
   /**
    * Check and set possible child fields.
    * 
-   * @return void 
+   * @return Void 
    */
   private function setChildFields ()
   {
@@ -90,7 +90,7 @@ abstract class Model extends Collection
   /**
    * Set the model properties.
    * 
-   * @return void 
+   * @return Void 
    */
   private function setModelData ()
   {
@@ -122,15 +122,15 @@ abstract class Model extends Collection
   /**
    * Get the model value. Overwritten by child class.
    * 
-   * @return mixed 
+   * @return Mixed 
    */
   abstract protected function getValue();
 
   /**
    * Get the corresponding label for the selected option.
    * 
-   * @param mixed $value 
-   * @return mixed 
+   * @param Mixed $value 
+   * @return Mixed 
    */
   protected function getLabel($value)
   {
@@ -156,8 +156,8 @@ abstract class Model extends Collection
    * Helper for fields with option-node: Kirby allowes different type of options.
    * (So far we can only handle static options.)
    * 
-   * @param array $options 
-   * @return string|void 
+   * @param Array $options 
+   * @return String|Void 
    */
   protected function checkOpionsType ($options)
   {
@@ -190,7 +190,7 @@ abstract class Model extends Collection
    * max = 1 is NOT interpreted as multiple, because the setting multiple
    * is explicitely designed for this.
    * 
-   * @return bool
+   * @return Boolean
    */
   protected function isMultiple()
   {

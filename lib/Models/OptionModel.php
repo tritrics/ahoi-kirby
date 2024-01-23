@@ -30,7 +30,7 @@ class OptionModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return string|number 
+   * @return String|Number 
    */
   protected function getValue ()
   {

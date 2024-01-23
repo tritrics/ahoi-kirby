@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Controllers;
 
 use Kirby\Cms\Response;
 use Kirby\Exception\Exception;
-use Tritrics\AflevereApi\v1\Services\EmailService;
+use Tritrics\AflevereApi\v1\Services\ActionService;
 use Tritrics\AflevereApi\v1\Factories\ModelFactory;
 use Tritrics\AflevereApi\v1\Services\ApiService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
@@ -22,7 +22,7 @@ class ApiController
   /**
    * Constructor, invokes the hooks of ModelFactory, in case other
    * plugins define own model-classes for special field-types.
-   * @return void 
+   * @return Void 
    */
   public function __construct ()
   {
@@ -32,7 +32,7 @@ class ApiController
   /**
    * Get general information, i.e. defined languages
    * 
-   * @return Response|array 
+   * @return Response|Array 
    */
   public function info ()
   {
@@ -54,9 +54,9 @@ class ApiController
   /**
    * Get a single language
    * 
-   * @param string|null $lang
-   * @param string|null $slug
-   * @return Response|array|void 
+   * @param String|Null $lang
+   * @param String|Null $slug
+   * @return Response|Array|Void 
    */
   public function language($lang)
   {
@@ -77,9 +77,9 @@ class ApiController
   /**
    * Get a single node
    * 
-   * @param string|null $lang
-   * @param string|null $slug
-   * @return Response|array|void 
+   * @param String|Null $lang
+   * @param String|Null $slug
+   * @return Response|Array|Void 
    */
   public function page($lang, $slug)
   {
@@ -113,9 +113,9 @@ class ApiController
   /**
    * Get the children of a page, optionally filtered, limited etc.
    * 
-   * @param string|null $lang
-   * @param string|null $slug
-   * @return Response|array 
+   * @param String|Null $lang
+   * @param String|Null $slug
+   * @return Response|Array 
    */
   public function pages($lang, $slug)
   {
@@ -154,13 +154,13 @@ class ApiController
   }
 
   /**
-   * Handle all post-actions (only 'email' so far)
+   * Handle all post-actions
    * 
-   * @param mixed $lang 
-   * @param mixed $action 
+   * @param Mixed $lang 
+   * @param Mixed $action 
    * @return Response
    */
-  public function form($lang, $action)
+  public function action($lang, $action)
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
@@ -168,7 +168,7 @@ class ApiController
     }
 
     try {
-      if ( ! ApiService::isEnabledForm()) {
+      if ( ! ApiService::isEnabledAction()) {
         return ApiService::disabled();
       }
       $lang = trim(strtolower($lang));
@@ -177,17 +177,7 @@ class ApiController
       }
       $data = $request->data();
       $action = trim(strToLower($action));
-      switch ($action) {
-        case 'email':
-          $msg = EmailService::send($lang, $data);
-          break;
-        default:
-          $msg = "Action is not given";
-      }
-      if ($msg) {
-        return ApiService::notAllowed($msg);
-      }
-      return ApiService::ok();
+      return ActionService::do($lang, $action, $data);
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());
     }

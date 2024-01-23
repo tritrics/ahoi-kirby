@@ -19,14 +19,14 @@ class BlueprintService
   /**
    * Cache Kirby's blueprint-files.
    * 
-   * @var array
+   * @var Array
    */
   private static $files = [];
 
   /**
    * Cache parsed blueprints.
    * 
-   * @var array
+   * @var Array
    */
   private static $map = [];
 
@@ -34,7 +34,7 @@ class BlueprintService
    * Get the blueprint either from intern map or compute.
    * Map is used to avoid repetition, which may occour for files, users and pages.
    * 
-   * @param object $model
+   * @param Object $model
    * @return Collection
    */
   public static function getBlueprint ($model)
@@ -63,8 +63,8 @@ class BlueprintService
   /**
    * Get an instace of Collection with the relevant blueprint-information.
    * 
-   * @param mixed $path 
-   * @param mixed $add_title_field 
+   * @param Mixed $path 
+   * @param Mixed $add_title_field 
    * @return Collection 
    */
   private static function parse ($path, $add_title_field)
@@ -85,8 +85,8 @@ class BlueprintService
   /**
    * Get raw blueprint/fragment, avoid Exceptions.
    * 
-   * @param string $path 
-   * @return array 
+   * @param String $path 
+   * @return Array 
    */
   private static function getBlueprintFile ($path)
   {
@@ -106,8 +106,8 @@ class BlueprintService
   /**
    * Recursive function to extend and normalise blueprint.
    * 
-   * @param array $nodes 
-   * @return array 
+   * @param Array $nodes 
+   * @return Array 
    */
   private static function extend ($nodes)
   {
@@ -155,11 +155,11 @@ class BlueprintService
   /**
    * Recursivly extracts all field definitions from blueprint array.
    * 
-   * @param array $nodes 
-   * @param bool $publish 
-   * @param bool $add_title_field 
-   * @param bool $toplevel 
-   * @return array 
+   * @param Array $nodes 
+   * @param Boolean $publish 
+   * @param Boolean $add_title_field 
+   * @param Boolean $toplevel 
+   * @return Array 
    */
   private static function getFields ($nodes, $publish, $add_title_field = false, $toplevel = false)
   {
@@ -264,9 +264,9 @@ class BlueprintService
    *   api:
    *     publish: true
    * 
-   * @param array $def 
-   * @param bool $publish_default 
-   * @return bool 
+   * @param Array $def 
+   * @param Boolean $publish_default 
+   * @return Boolean 
    */
   private static function isPublished ($def, $publish_default)
   {
@@ -287,9 +287,9 @@ class BlueprintService
   /**
    * Check field defintion for applied publish-settings.
    * 
-   * @param array $def 
-   * @param bool $publish_default 
-   * @return bool 
+   * @param Array $def 
+   * @param Boolean $publish_default 
+   * @return Boolean 
    */
   private static function isPublishedApplied ($def, $publish_default)
   {

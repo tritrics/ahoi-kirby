@@ -15,6 +15,12 @@ use Kirby\Exception\LogicException;
  */
 class FileService
 {
+  /**
+   * Extend PHP's pathinfo
+   * 
+   * @param Mixed $path 
+   * @return String|Array
+   */
   public static function getPathinfo($path)
   {
     // Kirby confuses jpeg an jpg on images. FileService only works with jpg!
@@ -37,11 +43,11 @@ class FileService
    * - greyscale (default false)
    * - quality (default 90)
    * 
-   * @param string $path 
-   * @param array $arguments 
-   * @param string $pattern 
-   * @param array $options 
-   * @return void 
+   * @param String $path 
+   * @param Array $arguments 
+   * @param String $pattern 
+   * @param Array $options 
+   * @return Void 
    * @throws NotFoundException 
    * @throws InvalidArgumentException 
    * @throws LogicException 

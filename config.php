@@ -15,7 +15,7 @@ kirby()::plugin(ApiService::$pluginName, [
       'info' => false,
       'page' => false,
       'pages' => false,
-      'form' => false // hidden, not documented so far
+      'action' => false
     ],
     'slug' => 'public-api',
     'field-name-separator' => '_',
@@ -119,15 +119,15 @@ kirby()::plugin(ApiService::$pluginName, [
       ];
     }
 
-    // form handling
-    if (ApiService::isEnabledForm()) {
+    // action (post-data) handling
+    if (ApiService::isEnabledAction()) {
       $routes[] = [
-        'pattern' => $slug . '/form/(:all?)',
-        'method' => 'POST|OPTIONS',
+        'pattern' => $slug . '/action/(:all?)',
+        'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $action) = ApiService::parsePath($resource, $multilang);
           $controller = new ApiController();
-          return $controller->form($lang, $action);
+          return $controller->action($lang, $action);
         }
       ];
     }

@@ -14,12 +14,12 @@ class Collection implements IteratorAggregate
   /**
    * The wrapped data
    * 
-   * @var array
+   * @var Array
    */
   protected $data = [];
 
   /**
-   * @param mixed optionally give initial data
+   * @param Mixed optionally give initial data
    */
   public function __construct ()
   {
@@ -31,9 +31,9 @@ class Collection implements IteratorAggregate
   /**
    * Delegate function calls to $data.
    * 
-   * @param mixed $method 
-   * @param mixed $args 
-   * @return mixed 
+   * @param Mixed $method 
+   * @param Mixed $args 
+   * @return Mixed 
    */
   final public function __call ($method, $args)
   {
@@ -53,7 +53,7 @@ class Collection implements IteratorAggregate
   /**
    * Find a (sub-)node with given key(s).
    * 
-   * @param array $keys
+   * @param Array $keys
    * @return Collection
    */
   final public function node (...$keys)
@@ -74,7 +74,7 @@ class Collection implements IteratorAggregate
   /**
    * Set the value of this node. Adds new Collections if given value is an array.
    * 
-   * @param mixed $mixed
+   * @param Mixed $mixed
    */
   final public function set ($mixed)
   {
@@ -95,8 +95,8 @@ class Collection implements IteratorAggregate
    * Method fails if data isn't an array. Giving an array with keys will
    * add nesting nodes.
    * 
-   * @param string|integer|array $keys
-   * @param mixed the value for the new node
+   * @param String|integer|array $keys
+   * @param Mixed the value for the new node
    * @return Collection
    */
   final public function add ($keys /*, mixed */)
@@ -135,7 +135,7 @@ class Collection implements IteratorAggregate
   /**
    * Same like add() + set(), but for numerical index.
    * 
-   * @param mixed $mixed the value of the new node
+   * @param Mixed $mixed the value of the new node
    * @return Collection
   */
   final public function push ($mixed)
@@ -169,7 +169,7 @@ class Collection implements IteratorAggregate
   /**
    * Get value from $data
    * 
-   * @return mixed
+   * @return Mixed
    */
   final public function get () : array|string|int|float|null
   {
@@ -196,8 +196,8 @@ class Collection implements IteratorAggregate
   /**
    * Check if a key in $data exists.
    * 
-   * @param string|integer $key
-   * @return bool
+   * @param String|integer $key
+   * @return Booleanean
    */
   final public function has ($key)
   {
@@ -207,8 +207,8 @@ class Collection implements IteratorAggregate
   /**
    * Unset/delete a subnode of $data.
    * 
-   * @param mixed $key 
-   * @return void
+   * @param Mixed $key 
+   * @return Void
    */
   final public function unset ($key)
   {
@@ -220,8 +220,8 @@ class Collection implements IteratorAggregate
   /**
    * Compare $data with a given value.
    * 
-   * @param mixed $compare 
-   * @return bool 
+   * @param Mixed $compare 
+   * @return Boolean 
    */
   final public function is ($compare)
   {
@@ -248,7 +248,7 @@ class Collection implements IteratorAggregate
   /**
    * Check if $data is empty.
    * 
-   * @return bool 
+   * @return Boolean 
    */
   final public function isEmpty ()
   {
@@ -258,7 +258,7 @@ class Collection implements IteratorAggregate
   /**
    * Check, if $data is an array
    * 
-   * @return bool
+   * @return Boolean
    */
   final public function isCollection ()
   {
@@ -268,7 +268,7 @@ class Collection implements IteratorAggregate
   /**
    * Check, if $data is a numeric array
    * 
-   * @return bool
+   * @return Boolean
    */
   final public function isNumeric ()
   {
@@ -281,7 +281,7 @@ class Collection implements IteratorAggregate
   /**
    * Get count of $data, if it's an array.
    * 
-   * @return bool
+   * @return Boolean
    */
   final public function count ()
   {
@@ -294,8 +294,8 @@ class Collection implements IteratorAggregate
   /**
    * Checks, if the given $key valid (string or integer).
    * 
-   * @param mixed $key
-   * @return bool
+   * @param Mixed $key
+   * @return Boolean
    */
   private function isKey ($check) {
     return ((is_string($check) && strlen($check) > 0) || (is_int($check) && $check >= 0));

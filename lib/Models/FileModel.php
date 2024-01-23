@@ -15,7 +15,7 @@ class FileModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var true
+   * @var Boolean
    */
   protected $hasChildFields = true;
 
@@ -23,7 +23,7 @@ class FileModel extends Model
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
    * 
-   * @return string 
+   * @return String 
    */
   protected function getType()
   {

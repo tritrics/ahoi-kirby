@@ -12,8 +12,8 @@ class RequestService
   /**
    * Get page parameter from Request, any number > 0, default 1.
    * 
-   * @param mixed $request 
-   * @return int 
+   * @param Mixed $request 
+   * @return Integer 
    */
   public static function getPage ($request)
   {
@@ -27,8 +27,8 @@ class RequestService
   /**
    * Get limit parameter from Request, any number > 0, default 10.
    * 
-   * @param mixed $request 
-   * @return int 
+   * @param Mixed $request 
+   * @return Integer 
    */
   public static function getLimit ($request)
   {
@@ -42,8 +42,8 @@ class RequestService
   /**
    * Get order parameter from Request, asc or desc, default desc.
    * 
-   * @param mixed $request 
-   * @return string [ asc, desc ] 
+   * @param Mixed $request 
+   * @return String [ asc, desc ] 
    */
   public static function getOrder ($request)
   {
@@ -58,8 +58,8 @@ class RequestService
   /**
    * Get fields parameter from Request, can be 'all' or array with field-names.
    * 
-   * @param mixed $request 
-   * @return string|array 
+   * @param Mixed $request 
+   * @return String|Array 
    */
   public static function getFields ($request)
   {
@@ -84,8 +84,8 @@ class RequestService
    * Helpful to test frontend behaviour for async requests.
    * Limited to 10 sec.
    * 
-   * @param mixed $request 
-   * @return int 
+   * @param Mixed $request 
+   * @return Integer 
    */
   public static function getSleep($request)
   {
@@ -101,8 +101,8 @@ class RequestService
    * Attention: the first parameter "field" is the fieldname, where as
    * compare() uses the value of the field.
    * 
-   * @param mixed $request 
-   * @return null|array
+   * @param Mixed $request 
+   * @return Null|Array
    */
   public static function getFilter ($request)
   {
@@ -132,8 +132,8 @@ class RequestService
    * Filter children by criteria like fieldname.eq.value
    * 
    * @param Page $page 
-   * @param array $filter
-   * @return mixed 
+   * @param Array $filter
+   * @return Mixed 
    * 
    * @TODO: Convert the different value-types (number, string, date) and make them comparable
    */
@@ -180,10 +180,10 @@ class RequestService
   /**
    * Comparing values
    * 
-   * @param mixed $value 
-   * @param string $operator 
-   * @param mixed $compare 
-   * @return bool 
+   * @param Mixed $value 
+   * @param String $operator 
+   * @param Mixed $compare 
+   * @return Boolean 
    */
   public static function compare ($value, $operator, $compare)
   {

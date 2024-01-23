@@ -43,18 +43,18 @@ class TextModel extends Model
   /**
    * Type retured in response.
    * 
-   * @var string [html, text, markdown, string]
+   * @var String [html, text, markdown, string]
    */
   private $type;
 
   /**
    * Constructor with additional initialization.
    * 
-   * @param mixed $model 
-   * @param mixed $blueprint 
-   * @param mixed $lang 
-   * @param bool $add_details 
-   * @return void 
+   * @param Mixed $model 
+   * @param Mixed $blueprint 
+   * @param Mixed $lang 
+   * @param Boolean $add_details 
+   * @return Void 
    */
   public function __construct($model, $blueprint = null, $lang = null)
   {
@@ -84,7 +84,7 @@ class TextModel extends Model
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
    * 
-   * @return string 
+   * @return String 
    */
   protected function getType ()
   {
@@ -109,7 +109,7 @@ class TextModel extends Model
    * possible sub-element is in node children.
    * [ { elem: 'h1', text: 'the text' }, { elem: 'p', children: [] }]
    * 
-   * @return array|string
+   * @return Array|string
    */
   protected function getValue ()
   {
@@ -164,8 +164,8 @@ class TextModel extends Model
    * Helper to convert DOMDocument to array.
    * Credits to https://gist.github.com/yosko/6991691
    * 
-   * @param mixed $root 
-   * @return array|void 
+   * @param Mixed $root 
+   * @return Array|void 
    * @throws InvalidArgumentException 
    * @throws LogicException 
    */

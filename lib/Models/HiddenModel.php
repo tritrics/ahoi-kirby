@@ -14,7 +14,7 @@ class HiddenModel extends Model
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
    * 
-   * @return string 
+   * @return String 
    */
   protected function getType ()
   {
@@ -31,7 +31,7 @@ class HiddenModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return string|number
+   * @return String|Number
    */
   protected function getValue ()
   {

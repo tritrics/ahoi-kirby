@@ -11,16 +11,19 @@ use Tritrics\AflevereApi\v1\Models\LanguageModel;
  */
 class LanguagesModel extends Model
 {
+  /**
+   * @var Boolean
+   */
   private $add_details;
 
   /**
    * Constructor with additional property $add_details
    * 
-   * @param mixed $model 
-   * @param mixed $blueprint 
-   * @param mixed $lang 
-   * @param bool $add_details 
-   * @return void 
+   * @param Mixed $model 
+   * @param Mixed $blueprint 
+   * @param Mixed $lang 
+   * @param Boolean $add_details 
+   * @return Void 
    */
   public function __construct($model, $blueprint = null, $lang = null, $add_details = false)
   {

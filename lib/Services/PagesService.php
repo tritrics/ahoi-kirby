@@ -20,8 +20,8 @@ class PagesService
    * Main method to respond to "pages" action.
    * 
    * @param Page|Site $node
-   * @param string $lang
-   * @param array $params
+   * @param String $lang
+   * @param Array $params
    * @return Response 
    * @throws DuplicateException 
    * @throws LogicException 
@@ -98,9 +98,9 @@ class PagesService
    * Get children filtered by status.
    * 
    * @param Pages $children 
-   * @param string $lang 
-   * @param array $status which Kirby page status to select [ draft, listed, unlisted ]
-   * @param string|array $fields the fields to get, can be 'all' for all fields
+   * @param String $lang 
+   * @param Array $status which Kirby page status to select [ draft, listed, unlisted ]
+   * @param String|array $fields the fields to get, can be 'all' for all fields
    * @return Collection 
    * @throws InvalidArgumentException 
    */

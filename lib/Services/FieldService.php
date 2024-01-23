@@ -16,13 +16,13 @@ class FieldService
    * Recoursive function to add field data to the given $resultObj object
    * includeFields only work for top-level fields, not for nested fields in structure or objects
    * 
-   * @param (Collection) $resultObj Collection of the result data
-   * @param (Fields) $allFields Kirby field object which contains the data
-   * @param (Collection) $blueprint the blueprint definitions of the fields
-   * @param (string) $lang two char language code
-   * @param (int) $level interation count of recoursive
-   * @param (array) $excludeFields explicit exclude fields from result data (for special case)
-   * @return (void)
+   * @param Collection $resultObj Collection of the result data
+   * @param Fields $allFields Kirby field object which contains the data
+   * @param Collection $blueprint the blueprint definitions of the fields
+   * @param String $lang two char language code
+   * @param Integer $level interation count of recoursive
+   * @param Array $excludeFields explicit exclude fields from result data (for special case)
+   * @return Void
    */
   public static function addFields (
     Collection $resultObj,
@@ -57,12 +57,12 @@ class FieldService
   /**
    * Creates a Kirby Field out of given values.
    * 
-   * @param string $type can be any of Field-Classes of $models
-   * @param string $key the field name
-   * @param mixed $value the field value
+   * @param String $type can be any of Field-Classes of $models
+   * @param String $key the field name
+   * @param Mixed $value the field value
    * @param Collection $blueprint the field definition, can be null
-   * @param string $lang the 2-digit language code
-   * @return object|void 
+   * @param String $lang the 2-digit language code
+   * @return Object|Void 
    */
   public static function factory ($type, $key, $value, $blueprint = null, $lang = null)
   {
@@ -80,8 +80,8 @@ class FieldService
    * pollute the result set.
    * 
    * @param Collection $blueprint 
-   * @param array $fields 
-   * @return bool 
+   * @param Array $fields 
+   * @return Boolean 
    */
   private static function isConditionalField($blueprint, $fields)
   {

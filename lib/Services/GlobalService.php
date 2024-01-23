@@ -9,11 +9,11 @@ class GlobalService
 {
   /**
   * Normalize a value.
-
-  * @param mixed $value 
-  * @param bool $trim 
-  * @param bool $strtolower 
-  * @return object|array|bool|float|string 
+  *
+  * @param Mixed $value 
+  * @param Boolean $trim 
+  * @param Boolean $strtolower 
+  * @return Object|array|bool|float|string 
   */
   public static function typecast ($value, $trim = false, $strtolower = false)
   {
@@ -32,9 +32,9 @@ class GlobalService
   /**
    * Normalize a bool value.
    * 
-   * @param mixed $value 
-   * @param mixed $defaultReturn 
-   * @return mixed 
+   * @param Mixed $value 
+   * @param Mixed $defaultReturn 
+   * @return Mixed 
    */
   public static function typecastBool ($value, $defaultReturn = null)
   {
@@ -55,9 +55,9 @@ class GlobalService
   /**
    * Normalize an array.
    *
-   * @param array $arr the array to normalise
-   * @param array|bool $norm_values normalise all values or the given
-   * @return array 
+   * @param Array $arr the array to normalise
+   * @param Array|bool $norm_values normalise all values or the given
+   * @return Array 
    */
   public static function normaliseArray ($arr, $norm_values = false)
   {

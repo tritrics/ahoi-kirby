@@ -51,7 +51,7 @@ class SiteModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return void
+   * @return Void
    */
   protected function getValue () {
   }

@@ -16,18 +16,18 @@ class LinkModel extends Model
   /**
    * Linktype, intern use
    * 
-   * @var string [http, https, page, file, email, tel, anchor, custom]
+   * @var String [http, https, page, file, email, tel, anchor, custom]
    */
   private $linktype;
 
   /**
    * Constructor with additional initialization.
    * 
-   * @param mixed $model 
-   * @param mixed $blueprint 
-   * @param mixed $lang 
-   * @param bool $add_details 
-   * @return void 
+   * @param Mixed $model 
+   * @param Mixed $blueprint 
+   * @param Mixed $lang 
+   * @param Boolean $add_details 
+   * @return Void 
    */
   public function __construct($model, $blueprint, $lang)
   {
@@ -96,7 +96,7 @@ class LinkModel extends Model
    * Get the value of model as it's returned in response.
    * Mandatory method.
    * 
-   * @return string
+   * @return String
    */
   protected function getValue()
   {
