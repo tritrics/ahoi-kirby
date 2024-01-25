@@ -135,7 +135,7 @@ class LanguagesService
   public static function isValid ($code)
   {
     if (!self::isMultilang()) {
-      return true; // why??
+      return true;
     }
     return self::getLanguages()->has($code);
   }

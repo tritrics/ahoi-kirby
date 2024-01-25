@@ -2,13 +2,50 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
 /**
  * Reads an normalizes request parameter from the API request.
  */
 class RequestService
 {
+  /**
+   * Normalize and check lang-code
+   * 
+   * @param Mixed $val 
+   * @return Null|String 
+   * @throws LogicException 
+   */
+  public static function getLang ($val)
+  {
+    $lang = strtolower(trim($val));
+    if (!LanguagesService::isValid($lang)) {
+      return null;
+    }
+    return is_string($lang) ? $lang : '';
+  }
+
+  /**
+   * Normalize and check Action
+   * 
+   * @param Mixed $val 
+   * @return Null|String 
+   * @throws LogicException 
+   */
+  public static function getAction($val)
+  {
+    if (!is_string($val)) {
+      return null;
+    }
+    $action = strtolower(trim($val));
+    if (strlen($action) === 0) {
+      return null;
+    }
+    return $action;
+  }
+
   /**
    * Get page parameter from Request, any number > 0, default 1.
    * 

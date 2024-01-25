@@ -266,6 +266,17 @@ class ApiService
   }
 
   /**
+   * Response: Not implemented.
+   * 
+   * @param String $msg 
+   * @return Response 
+   */
+  public static function notimplemented($msg = 'Not Implemented or misconfigured')
+  {
+    return Response::json(self::initResponse(501, $msg)->get(), 501);
+  }
+
+  /**
    * Check, if API's functions are enabled.
    * 
    * @param String $method post|get

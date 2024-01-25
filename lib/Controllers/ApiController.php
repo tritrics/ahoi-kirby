@@ -40,7 +40,6 @@ class ApiController
     if ($request->method() === 'OPTIONS') {
       return ApiService::ok();
     }
-
     try {
       if ( ! ApiService::isEnabledInfo()) {
         return ApiService::disabled();
@@ -65,7 +64,8 @@ class ApiController
       if (!ApiService::isEnabledLanguage()) {
         return ApiService::disabled();
       }
-      if (!LanguagesService::isValid($lang)) {
+      $lang = RequestService::getLang($lang);
+      if ($lang === null) {
         return ApiService::invalidLang();
       }
       return LanguagesService::get($lang);
@@ -93,7 +93,8 @@ class ApiController
       if ( ! ApiService::isEnabledPage()) {
         return ApiService::disabled();
       }
-      if (!LanguagesService::isValid($lang)) {
+      $lang = RequestService::getLang($lang);
+      if ($lang === null) {
         return ApiService::invalidLang();
       }
       if ($slug === null) {
@@ -123,14 +124,14 @@ class ApiController
     if ($request->method() === 'OPTIONS') {
       return ApiService::ok();
     }
-
     try {
       RequestService::getSleep($request); // Debugging
       if ( ! ApiService::isEnabledPages()) {
         return ApiService::disabled();
       }
-      if (!LanguagesService::isValid($lang)) {
-        return ApiService::badRequest();
+      $lang = RequestService::getLang($lang);
+      if ($lang === null) {
+        return ApiService::invalidLang();
       }
       if ($slug === null) {
         $node = site();
@@ -166,17 +167,19 @@ class ApiController
     if ($request->method() === 'OPTIONS') {
       return ApiService::ok();
     }
-
     try {
       if ( ! ApiService::isEnabledAction()) {
         return ApiService::disabled();
       }
-      $lang = trim(strtolower($lang));
-      if ( ! kirby()->languages()->has($lang)) {
+      $lang = RequestService::getLang($lang);
+      if ($lang === null) {
         return ApiService::invalidLang();
       }
-      $data = $request->data();
-      $action = trim(strToLower($action));
+      $action = RequestService::getAction($action);
+      if ($action === null) {
+        return ApiService::badRequest();
+      }
+      $data = $request->data() ?? [];
       return ActionService::do($lang, $action, $data);
     } catch (Exception $e) {
       return ApiService::fatal($e->getMessage());

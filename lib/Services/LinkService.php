@@ -4,6 +4,7 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Tritrics\AflevereApi\v1\Services\GlobalService;
 
 /**
  * Service for any kind of links (texts, page, file, user) to produce consistant output.
@@ -17,25 +18,6 @@ class LinkService
    */
   private static $lang;
 
-  /**
-   * Detected host and port of Kirby instance.
-   * 
-   * @var Array
-   */
-  private static $backend = [
-    'host' => null, // backend-domain.com
-    'port' => null // 8081, if given
-  ];
-
-  /**
-   * Detected host and port of the frontend.
-   * 
-   * @var Array
-   */
-  private static $referer = [
-    'host' => null, // referer-domain.com or backend-host, if not given
-    'port' => null // 8080, if given
-  ];
 
   /**
    * Detected slugs with starting slash.
@@ -63,26 +45,13 @@ class LinkService
     // do only once
     if (self::$lang !== $lang) {
       self::$lang = $lang;
-
-      $backend = self::parseUrl(site()->url(self::$lang));
-      self::$backend['host'] = $backend['host'];
-      self::$backend['port'] = isset($backend['port']) ? $backend['port'] : null;
-
-      if (isset($_SERVER['HTTP_REFERER'])) {
-        $referer = self::parseUrl($_SERVER['HTTP_REFERER']);
-        self::$referer['host'] = $referer['host'];
-        self::$referer['port'] = isset($referer['port']) ? $referer['port'] : null;
-      } else {
-        self::$referer['host'] = self::$backend['host'];
-        self::$referer['port'] = self::$backend['port'];
-      }
-
-      $home = self::parseUrl(site()->homePage()->uri(self::$lang));
+      $home = GlobalService::parseUrl(site()->homePage()->uri(self::$lang));
       self::$slugs['home'] = $home['path'];
-      $media = self::parseUrl(kirby()->url('media'));
+      $media = GlobalService::parseUrl(kirby()->url('media'));
       self::$slugs['media'] = $media['path'];
       self::$slugs['lang'] = '/' . LanguagesService::getSlug(self::$lang);
     }
+    $hosts = GlobalService::getHosts(self::$lang);
 
     // rewrite intern page and file links, which start with
     // /@/page and /@/file
@@ -105,7 +74,7 @@ class LinkService
     }
 
     // working with splitted url
-    $parts = self::parseUrl($href);
+    $parts = GlobalService::parseUrl($href);
 
     // email and tel
     if (isset($parts['scheme']) && isset($parts['path'])) {
@@ -122,26 +91,26 @@ class LinkService
     }
 
     // file links
-    if (self::isInternLink($parts, self::$backend)) {
+    if (self::isInternLink($parts, $hosts['self'])) {
       if (isset($parts['path']) && substr($parts['path'], 0, strlen(self::$slugs['media'])) === self::$slugs['media']) {
-        $parts['host'] = self::$backend['host']; // make absolute links to be sure
-        if (self::$backend['port']) {
-          $parts['port'] = self::$backend['port'];
+        $parts['host'] =  $hosts['self']['host']; // make absolute links to be sure
+        if ($hosts['self']['port']) {
+          $parts['port'] = $hosts['self']['port'];
         } else {
           unset($parts['port']);
         }
-        return self::getFile(self::buildUrl($parts), $title, $target);
+        return self::getFile(GlobalService::buildUrl($parts), $title, $target);
       } 
     }
 
     // intern links
     // use buildPath() -> make intern
-    if (self::isInternLink($parts, self::$referer) || self::isInternLink($parts, self::$backend)) {
+    if (self::isInternLink($parts, $hosts['referer']) || self::isInternLink($parts, $hosts['referer'])) {
       return self::getPage(self::buildPath($parts), $title, $target);   
     }
 
     // all other links
-    return self::getUrl(self::buildUrl($parts), $title, $target);
+    return self::getUrl(GlobalService::buildUrl($parts), $title, $target);
   }
 
   /**
@@ -154,11 +123,11 @@ class LinkService
    */
   public static function getUrl($href, $title = null, $blank = false)
   {
-    $url = self::parseUrl($href);
-    $host = isset($url['host']) ? $url['host'] : '';
+    $url = GlobalService::parseUrl($href);
     $res = [
       'type' => 'url',
-      'href' => $href
+      'href' => $href,
+      'host' => isset($url['host']) ? $url['host'] : '',
     ];
     if (!empty($title)) {
       $res['title'] = $title;
@@ -180,7 +149,7 @@ class LinkService
   public static function getPage($path, $title = null, $blank = false)
   {
     // check and correct links to home page(s)
-    $parts = self::parseUrl($path);
+    $parts = GlobalService::parseUrl($path);
 
     // path is empty, set path to homepage, optional with prepending lang
     if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {
@@ -330,71 +299,6 @@ class LinkService
       $res['title'] = $title;
     }
     return $res;
-  }
-
-  /**
-   * Parsing url in parts.
-   * 
-   * @param String $href 
-   * @return Array|String|Integer|Boolean|Null 
-   */
-  private static function parseUrl($href)
-  {
-    $parts = parse_url($href);
-
-    // doing some normalization
-    if (isset($parts['scheme'])) {
-      $parts['scheme'] = strtolower($parts['scheme']);
-    }
-    if (isset($parts['host'])) {
-      $parts['host'] = strtolower($parts['host']);
-    }
-    if (isset($parts['port'])) {
-      $parts['port'] = (int) $parts['port'];
-    }
-    if (isset($parts['path'])) {
-      $parts['path'] = trim(strtolower($parts['path']), '/');
-      if (!isset($parts['scheme']) || !in_array($parts['scheme'],['mailto', 'tel'])) {
-        $parts['path'] = '/' . $parts['path'];
-      }
-    }
-    if (isset($parts['fragment'])) {
-      if (strpos($parts['fragment'], '?') === false) {
-        $hash = $parts['fragment'];
-        $query = null;
-      } else {
-        $hash = substr($parts['fragment'], 0, strpos($parts['fragment'], '?') - 1);
-        $query = substr($parts['fragment'], strpos($parts['fragment'], '?'));
-      }
-      if (!empty($hash)) {
-        $parts['hash'] = $hash;
-      }
-      if (!empty($query)) {
-        $parts['query'] = $query;
-      }
-      unset($parts['fragment']);
-    }
-    return $parts;
-  }
-
-  /**
-   * Build the url, reverse of parseUrl().
-   * 
-   * @param Array $parts 
-   * @return String 
-   */
-  private static function buildUrl($parts) {
-    return
-      (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') . 
-      ((isset($parts['user']) || isset($parts['host'])) ? '//' : '') . 
-      (isset($parts['user']) ? "{$parts['user']}" : '') . 
-      (isset($parts['pass']) ? ":{$parts['pass']}" : '') . 
-      (isset($parts['user']) ? '@' : '') . 
-      (isset($parts['host']) ? "{$parts['host']}" : '') . 
-      (isset($parts['port']) ? ":{$parts['port']}" : '') . 
-      (isset($parts['path']) ? "{$parts['path']}" : '') . 
-      (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
-      (isset($parts['query']) ? "?{$parts['query']}" : '');
   }
 
   /**
