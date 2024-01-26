@@ -44,6 +44,9 @@ class ActionService
    */
   public static function do($lang, $action, $data)
   {
+    // first strip everything out that might be harmful
+    $data = self::sanitizeData($data);
+
     // read config data
     $actions = ApiService::getConfig('actions');
 
@@ -101,6 +104,31 @@ class ActionService
     return $res->get();
   }
 
+  /**
+   * Sanitize input, strip everything but stings and numbers.
+   * 
+   * @param Array $data 
+   * @return Array 
+   */
+  private static function sanitizeData ($data)
+  {
+    $res = [];
+    foreach($data as $key => $value) {
+      if (is_string($value) || is_numeric($value)) {
+        $res[$key] = trim(stripslashes(strip_tags((string) $value)));
+      }
+    }
+    return $res;
+  }
+
+  /**
+   * Log errors to PHP error log.
+   * 
+   * @param String $action 
+   * @param Integer $errno 
+   * @param Array $parse 
+   * @return void 
+   */
   private static function logError($action, $errno, $parse = [])
   {
     $message = isset(self::$errors[$errno]) ? self::$errors[$errno] : self::$errors[1];
