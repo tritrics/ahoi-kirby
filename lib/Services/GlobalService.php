@@ -111,15 +111,13 @@ class GlobalService
         self::$hosts[$lang]['referer']['host'] = self::$hosts[$lang]['self']['host'];
         self::$hosts[$lang]['referer']['port'] = self::$hosts[$lang]['self']['port'];
       }
-      self::$hosts[$lang]['referer']['ip'] = isset($_SERVER['HTTP_CLIENT_IP'])
-        ? $_SERVER['HTTP_CLIENT_IP']
-        : (isset($_SERVER['HTTP_X_FORWARDED_FOR'])
-          ? $_SERVER['HTTP_X_FORWARDED_FOR']
-          : $_SERVER['REMOTE_ADDR']);
+
+      // don't care about proxys, too complicated for our purpose
+      self::$hosts[$lang]['referer']['ip'] = getenv('HTTP_CLIENT_IP') ? getenv('HTTP_CLIENT_IP') : getenv('REMOTE_ADDR');
     }
     return self::$hosts[$lang];
   }
-
+  
   /**
    * Parsing url in parts.
    * 
