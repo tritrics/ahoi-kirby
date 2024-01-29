@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\FieldService;
+use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
 /**
  * Model for Kirby's fields: structure
@@ -22,7 +22,7 @@ class StructureModel extends Model
     $res = new Collection();
     foreach ($this->model->toStructure() as $entry) {
       $row = new Collection();
-      FieldService::addFields(
+      FieldHelper::addFields(
         $row,
         $entry->content($this->lang)->fields(),
         $this->blueprint->node('fields'),

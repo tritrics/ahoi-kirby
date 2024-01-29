@@ -2,7 +2,7 @@
 
 namespace Tritrics\AflevereApi\v1\Factories;
 
-use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Translates Kirby's fields and objects to API data models.
@@ -108,9 +108,9 @@ class ModelFactory
     if (isset(self::$added[$key])) {
       $class = self::$added[$key];
     } elseif (isset(self::$buildIn[$key])) {
-      $class = ApiService::$namespace . self::$buildIn[$key];
+      $class = GlobalHelper::getNamespace() . self::$buildIn[$key];
     } else {
-      $class = ApiService::$namespace . self::$buildIn['text'];
+      $class = GlobalHelper::getNamespace() . self::$buildIn['text'];
     }
     return new $class($field, $fieldDef, $lang);
   }
@@ -130,9 +130,9 @@ class ModelFactory
     if (isset(self::$added[$key])) {
       $class = self::$added[$key];
     } elseif (isset(self::$buildIn[$key])) {
-      $class = ApiService::$namespace . self::$buildIn[$key];
+      $class = GlobalHelper::getNamespace() . self::$buildIn[$key];
     } else {
-      $class = ApiService::$namespace . self::$buildIn['block-default'];
+      $class = GlobalHelper::getNamespace() . self::$buildIn['block-default'];
     }
     return new $class($field, $fieldDef, $lang);
   }

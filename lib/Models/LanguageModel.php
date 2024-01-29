@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's language object
@@ -51,7 +51,7 @@ class LanguageModel extends Model
       $meta->add('locale', LanguagesService::getLocale($code));
       $meta->add('direction', $this->model->direction());
     }
-    $res->add('link', LinkService::getPage(
+    $res->add('link', LinkHelper::getPage(
       LanguagesService::getUrl($code, $home->uri($code))
     ));
     if ($this->add_details) {

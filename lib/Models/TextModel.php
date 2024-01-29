@@ -6,7 +6,7 @@ use Collator;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's fields: list, slug, text, textarea, writer
@@ -199,7 +199,7 @@ class TextModel extends Model
 
         // change attributes, if it's a link
         if ($res['elem'] === 'a') {
-          $res['attr'] = LinkService::getInline(
+          $res['attr'] = LinkHelper::getInline(
             $this->lang,
             $res['attr']['href'],
             (isset($res['attr']['title']) ? $res['attr']['title'] : null),

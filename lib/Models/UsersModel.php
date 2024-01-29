@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Models\UserModel;
-use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
 
 /**
  * Model for Kirby's fields: users
@@ -37,7 +37,7 @@ class UsersModel extends Model
   {
     $res = new Collection();
     foreach ($this->model->toUsers() as $user) {
-      $blueprint = BlueprintService::getBlueprint($user);
+      $blueprint = BlueprintHelper::getBlueprint($user);
       $model = new UserModel($user, $blueprint, $this->lang);
       $res->push($model);
     }

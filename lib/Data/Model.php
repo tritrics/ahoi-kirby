@@ -3,7 +3,7 @@
 namespace Tritrics\AflevereApi\v1\Data;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Services\FieldService;
+use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
 /**
  * Inherits from Collection and adds some model functions. Base class for all models.
@@ -78,7 +78,7 @@ abstract class Model extends Collection
       } else {
         $fields = $this->model->content($this->lang)->fields();
       }
-      FieldService::addFields(
+      FieldHelper::addFields(
         $this->fields,
         $fields,
         $this->blueprint->node('fields'),

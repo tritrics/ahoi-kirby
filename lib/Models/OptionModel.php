@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Model for Kirby's fields: radio, select, toggles
@@ -34,6 +34,6 @@ class OptionModel extends Model
    */
   protected function getValue ()
   {
-    return GlobalService::typecast($this->model->value());
+    return GlobalHelper::typecast($this->model->value());
   }
 }

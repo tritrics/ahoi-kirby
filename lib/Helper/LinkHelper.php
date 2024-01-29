@@ -1,15 +1,14 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\AflevereApi\v1\Helper;
 
-use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Service for any kind of links (texts, page, file, user) to produce consistant output.
  */
-class LinkService
+class LinkHelper
 {
   /**
    * 2-digit language code
@@ -45,13 +44,13 @@ class LinkService
     // do only once
     if (self::$lang !== $lang) {
       self::$lang = $lang;
-      $home = GlobalService::parseUrl(site()->homePage()->uri(self::$lang));
+      $home = GlobalHelper::parseUrl(site()->homePage()->uri(self::$lang));
       self::$slugs['home'] = $home['path'];
-      $media = GlobalService::parseUrl(kirby()->url('media'));
+      $media = GlobalHelper::parseUrl(kirby()->url('media'));
       self::$slugs['media'] = $media['path'];
       self::$slugs['lang'] = '/' . LanguagesService::getSlug(self::$lang);
     }
-    $hosts = GlobalService::getHosts(self::$lang);
+    $hosts = GlobalHelper::getHosts(self::$lang);
 
     // rewrite intern page and file links, which start with
     // /@/page and /@/file
@@ -74,7 +73,7 @@ class LinkService
     }
 
     // working with splitted url
-    $parts = GlobalService::parseUrl($href);
+    $parts = GlobalHelper::parseUrl($href);
 
     // email and tel
     if (isset($parts['scheme']) && isset($parts['path'])) {
@@ -99,7 +98,7 @@ class LinkService
         } else {
           unset($parts['port']);
         }
-        return self::getFile(GlobalService::buildUrl($parts), $title, $target);
+        return self::getFile(GlobalHelper::buildUrl($parts), $title, $target);
       } 
     }
 
@@ -110,7 +109,7 @@ class LinkService
     }
 
     // all other links
-    return self::getUrl(GlobalService::buildUrl($parts), $title, $target);
+    return self::getUrl(GlobalHelper::buildUrl($parts), $title, $target);
   }
 
   /**
@@ -123,7 +122,7 @@ class LinkService
    */
   public static function getUrl($href, $title = null, $blank = false)
   {
-    $url = GlobalService::parseUrl($href);
+    $url = GlobalHelper::parseUrl($href);
     $res = [
       'type' => 'url',
       'href' => $href,
@@ -149,7 +148,7 @@ class LinkService
   public static function getPage($path, $title = null, $blank = false)
   {
     // check and correct links to home page(s)
-    $parts = GlobalService::parseUrl($path);
+    $parts = GlobalHelper::parseUrl($path);
 
     // path is empty, set path to homepage, optional with prepending lang
     if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {

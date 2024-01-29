@@ -1,15 +1,15 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\AflevereApi\v1\Helper;
 
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 
 /**
  * Reads an normalizes request parameter from the API request.
  */
-class RequestService
+class RequestHelper
 {
   /**
    * Normalize and check lang-code
@@ -117,23 +117,6 @@ class RequestService
   }
 
   /**
-   * Debugging-Function to stop execution for x sec.
-   * Helpful to test frontend behaviour for async requests.
-   * Limited to 10 sec.
-   * 
-   * @param Mixed $request 
-   * @return Integer 
-   */
-  public static function getSleep($request)
-  {
-    $val = intval($request->get('sleep'));
-    if (kirby()->option('debug', false) && is_int($val) && $val > 0 && $val <= 10) {
-      sleep($val);
-    }
-    return $val;
-  }
-
-  /**
    * Parse the request like field.eq.foo to array.
    * Attention: the first parameter "field" is the fieldname, where as
    * compare() uses the value of the field.
@@ -178,7 +161,7 @@ class RequestService
   {
     $children =  $page->children()->filter( // the Kirby-filter-function of children()
       function($child) use ($filter) {
-        $blueprint = BlueprintService::getBlueprint($child);
+        $blueprint = BlueprintHelper::getBlueprint($child);
         foreach ($filter as $criteria) {
           $fieldname = $criteria[0];
 
@@ -224,9 +207,9 @@ class RequestService
    */
   public static function compare ($value, $operator, $compare)
   {
-    $value = GlobalService::typecast($value, true, true);
-    $operator = GlobalService::typecast($operator, true, true);
-    $compare = GlobalService::typecast($compare, true, true);
+    $value = GlobalHelper::typecast($value, true, true);
+    $operator = GlobalHelper::typecast($operator, true, true);
+    $compare = GlobalHelper::typecast($compare, true, true);
     if ($value === null || $operator === null || $compare === null) {
       return false;
     }

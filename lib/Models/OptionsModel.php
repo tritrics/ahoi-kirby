@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Model for Kirby's fields: checkboxes, multiselect, tags
@@ -47,7 +47,7 @@ class OptionsModel extends Model
   private function splitSelectedOptions ($value)
   {
     return array_map(function ($option) {
-      return GlobalService::typecast($option, true);
+      return GlobalHelper::typecast($option, true);
     }, explode(',', $value));
   }
 }

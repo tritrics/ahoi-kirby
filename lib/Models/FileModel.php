@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 use Tritrics\AflevereApi\v1\Services\FileService;
 
 /**
@@ -59,7 +59,7 @@ class FileModel extends Model
 
     $res = new Collection();
     $res->add('meta', $meta);
-    $res->add('link', LinkService::getFile($pathinfo['path']));
+    $res->add('link', LinkHelper::getFile($pathinfo['path']));
     return $res;
   }
 

@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Actions;
 use Exception;
 use Throwable;
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Sending E-Mails
@@ -30,7 +30,7 @@ class EmailAction
       'errno' => 0,
     ];
 
-    $hosts = GlobalService::getHosts($lang);
+    $hosts = GlobalHelper::getHosts($lang);
 
     // Computing Meta
     $meta = [];

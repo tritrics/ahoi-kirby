@@ -6,10 +6,10 @@ use Kirby\Cms\Site;
 use Kirby\Exception\InvalidArgumentException;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Models\PageModel;
-use Tritrics\AflevereApi\v1\Services\ApiService;
-use Tritrics\AflevereApi\v1\Services\RequestService;
-use Tritrics\AflevereApi\v1\Services\BlueprintService;
-use Tritrics\AflevereApi\v1\Services\FieldService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\RequestHelper;
+use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
+use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
 /**
  * Service for API's pages interface. Handles a collection of pages.
@@ -22,7 +22,7 @@ class PagesService
    * @param Page|Site $node
    * @param String $lang
    * @param Array $params
-   * @return Response 
+   * @return Array 
    * @throws DuplicateException 
    * @throws LogicException 
    */
@@ -31,9 +31,9 @@ class PagesService
     if (empty($node)) {
       return [];
     }
-    $blueprint = BlueprintService::getBlueprint($node);
+    $blueprint = BlueprintHelper::getBlueprint($node);
     if (is_array($params['filter'])) {
-      $children = RequestService::filterChildren($node, $params['filter'], $lang);
+      $children = RequestHelper::filterChildren($node, $params['filter'], $lang);
     } else {
       $children = $node->children();
     }
@@ -43,7 +43,7 @@ class PagesService
       $children = $children->flip();
     }
 
-    $res = ApiService::initResponse();
+    $res = GlobalHelper::initResponse();
     $body = $res->add('body');
     $body->add('type', 'nodes');
     $meta = $body->add('meta');
@@ -112,13 +112,13 @@ class PagesService
         continue;
       }
 
-      $blueprint = BlueprintService::getBlueprint($child);
+      $blueprint = BlueprintHelper::getBlueprint($child);
       $node = new PageModel($child, $blueprint, $lang, false);
 
       // don't deactivate "all" here, because it's required for one-pager
       if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {
         $value = new Collection();
-        FieldService::addFields(
+        FieldHelper::addFields(
           $value,
           $child->content($lang)->fields(),
           $blueprint->node('fields'),

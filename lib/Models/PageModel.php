@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's page object
@@ -65,7 +65,7 @@ class PageModel extends Model
       }
     }
 
-    $res->add('link', LinkService::getPage(
+    $res->add('link', LinkHelper::getPage(
       LanguagesService::getUrl($this->lang, $this->model->uri($this->lang))
     ));
 
@@ -74,7 +74,7 @@ class PageModel extends Model
       foreach(LanguagesService::list() as $code => $data) {
         $lang = $translations->add($code);
         $lang->add('type', 'url');
-        $lang->add('link', LinkService::getPage(
+        $lang->add('link', LinkHelper::getPage(
           LanguagesService::getUrl($code, $this->model->uri($code))
         ));
         $lang->add('value', $data->node('name')->get());

@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Models\PageModel;
-use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
 
 /**
  * Model for Kirby's fields: pages
@@ -40,7 +40,7 @@ class PagesModel extends Model
       if ($page->isDraft()) {
         continue;
       }
-      $blueprint = BlueprintService::getBlueprint($page);
+      $blueprint = BlueprintHelper::getBlueprint($page);
       $model = new PageModel($page, $blueprint, $this->lang);
       $res->push($model);
     }

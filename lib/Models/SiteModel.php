@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
 
 /**
@@ -41,7 +41,7 @@ class SiteModel extends Model
     }
 
     $page = $this->model->homePage();
-    $res->add('home', LinkService::getPage(
+    $res->add('home', LinkHelper::getPage(
       LanguagesService::getUrl($this->lang, $page->uri($this->lang))
     ));
     return $res;

@@ -1,15 +1,22 @@
 <?php
 
 use Kirby\Exception\Exception;
-use Tritrics\AflevereApi\v1\Controllers\ApiController;
+use Tritrics\AflevereApi\v1\Controllers\GetController;
+use Tritrics\AflevereApi\v1\Controllers\ActionController;
 use Tritrics\AflevereApi\v1\Services\FileService;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+
+GlobalHelper::init([
+  'version' => 'v1',
+  'plugin-name' => 'tritrics/aflevere-api-v1',
+  'namespace' => 'Tritrics\AflevereApi\v1'
+]);
 
 /**
  * Plugin registration
  */
-kirby()::plugin(ApiService::$pluginName, [
+kirby()::plugin(GlobalHelper::getPluginName(), [
   'options' => [
     'enabled' => [
       'info' => false,
@@ -19,15 +26,22 @@ kirby()::plugin(ApiService::$pluginName, [
     ],
     'slug' => 'public-api',
     'field-name-separator' => '_',
+    'form-security' => [
+      'secret' => null,
+      'token-validity' => 10,
+      'strip-tags' => true,
+      'strip-backslashes' => true,
+      'strip-urls' => true,
+    ],
   ],
   'hooks' => [
     'page.create:before' => function ($page, array $input) {
-      if (ApiService::isProtectedSlug($input['slug'])) {
+      if (GlobalHelper::isProtectedSlug($input['slug'])) {
         throw new Exception('Slug not allowed');
       }
     },
     'page.changeSlug:before' => function ($page, string $slug, ?string $languageCode = null) {
-      if (ApiService::isProtectedSlug($slug)) {
+      if (GlobalHelper::isProtectedSlug($slug)) {
         throw new Exception('Slug not allowed');
       }
     },
@@ -45,7 +59,7 @@ kirby()::plugin(ApiService::$pluginName, [
     }
   ],
   'routes' => function ($kirby) {
-    $slug = ApiService::getApiSlug();
+    $slug = GlobalHelper::getApiSlug();
     if (!$slug) {
       return [];
     }
@@ -70,64 +84,76 @@ kirby()::plugin(ApiService::$pluginName, [
     }
 
     // expose
-    if (ApiService::isEnabledInfo()) {
+    if (GlobalHelper::isEnabledInfo()) {
       $routes[] = [
         'pattern' => $slug . '/info',
         'method' => 'GET',
         'action' => function () {
-          $controller = new ApiController();
+          $controller = new GetController();
           return $controller->info();
         }
       ];
     }
 
     // a language
-    if (ApiService::isEnabledLanguage()) {
+    if (GlobalHelper::isEnabledLanguage()) {
       $routes[] = [
         'pattern' => $slug . '/language/(:any)',
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
-          $controller = new ApiController();
+          $controller = new GetController();
           return $controller->language($resource);
         }
       ];
     }
 
     // a node
-    if (ApiService::isEnabledPage()) {
+    if (GlobalHelper::isEnabledPage()) {
       $routes[] = [
         'pattern' => $slug . '/page/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = ApiService::parsePath($resource, $multilang);
-          $controller = new ApiController();
+          list($lang, $path) = GlobalHelper::parsePath($resource, $multilang);
+          $controller = new GetController();
           return $controller->page($lang, $path);
         }
       ];
     }
 
     // children of a node
-    if (ApiService::isEnabledPages()) {
+    if (GlobalHelper::isEnabledPages()) {
       $routes[] = [
         'pattern' => $slug . '/pages/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = ApiService::parsePath($resource, $multilang);
-          $controller = new ApiController();
+          list($lang, $path) = GlobalHelper::parsePath($resource, $multilang);
+          $controller = new GetController();
           return $controller->pages($lang, $path);
         }
       ];
     }
 
     // action (post-data) handling
-    if (ApiService::isEnabledAction()) {
+    if (GlobalHelper::isEnabledAction()) {
+
+      // get a token, needed to submit an action
       $routes[] = [
-        'pattern' => $slug . '/action/(:all?)',
+        'pattern' => $slug . '/action/token/(:all?)',
+        'method' => 'GET',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $action, $token) = GlobalHelper::parseAction($resource, $multilang);
+          $controller = new ActionController();
+          return $controller->token($action);
+        }
+      ];
+
+      $routes[] = [
+        'pattern' => $slug . '/action/submit/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $action) = ApiService::parsePath($resource, $multilang);
-          $controller = new ApiController();
-          return $controller->action($lang, $action);
+          list($lang, $action, $token) = GlobalHelper::parseAction($resource, $multilang);
+          $controller = new ActionController();
+          return $controller->submit($lang, $action, $token);
         }
       ];
     }

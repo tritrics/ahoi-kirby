@@ -2,10 +2,10 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
-use Exception;
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Helper\TokenHelper;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ValidationHelper;
 use Tritrics\AflevereApi\v1\Actions\EmailAction;
-use Tritrics\AflevereApi\v1\Services\ApiService;
 
 /**
  * Handling actions (post-data)
@@ -19,7 +19,8 @@ class ActionService
     // 20 - 29 EmailAction
     // 30 - 99 unused
     1 => 'An unknown error occured.',
-    10 => 'Configuration is missing or incomplete in config.php.',
+    10 => 'Configuration is missing or incomplete in config.',
+    11 => 'Security token is missing in config or doesn\'t match the requirements.',
     15 => 'Action was declined due to security concerns.', // not used so far
     19 => 'Submitted data was not saved because all sub-actions failed.',
     20 => 'All mail configurations in config.php are invalid, nothing to send.',
@@ -35,27 +36,46 @@ class ActionService
   ];
 
   /**
-   * Main function to execute a given action.
+   * Getting a token.
    * 
-   * @param String $lang 
+   * @param String|null $lang 
+   * @param String $action 
+   * @return Array 
+   */
+  public static function token ($action)
+  {
+    $res = GlobalHelper::initResponse();
+    $body = $res->add('body');
+    $body->add('action', $action);
+    $body->add('token', TokenHelper::get($action));
+    return $res->get();
+  }
+
+  /**
+   * Main function to submit (execute) a given action.
+   * Token is already checked by controller.
+   * 
+   * @param String|null $lang 
    * @param String $action 
    * @param Array $data 
-   * @return Response
+   * @return Array
    */
-  public static function do($lang, $action, $data)
+  public static function submit($lang, $action, $data)
   {
-    // first strip everything out that might be harmful
-    $data = self::sanitizeData($data);
-
-    // read config data
-    $actions = ApiService::getConfig('actions');
-
-    $res = ApiService::initResponse();
+    // init response
+    $res = GlobalHelper::initResponse();
     $body = $res->add('body');
     $body->add('action', $action);
     $errno = $body->add('errno', 0);
+
+    // check for secret
+
+    // strip everything out that might be harmful
+    $data = ValidationHelper::sanitizeData($data);
     $body->add('data', $data);
-    $protocol = $body->add('result');
+
+    // read config data
+    $actions = GlobalHelper::getConfig('actions');
 
     // @errno10: Configuration is missing or incomplete in config.php. 
     // actions.[action] is not existing or is not an array
@@ -74,6 +94,7 @@ class ActionService
     // At least one action which saves the data must be successfull.
     $isSaved = false;
     $subActionFailed = false;
+    $protocol = $body->add('result');
 
     // ... other actions, evtl. set $isSaved = true
 
@@ -100,25 +121,7 @@ class ActionService
       $errno->set(100);
       self::logError($action, 100);
     }
-    
     return $res->get();
-  }
-
-  /**
-   * Sanitize input, strip everything but stings and numbers.
-   * 
-   * @param Array $data 
-   * @return Array 
-   */
-  private static function sanitizeData ($data)
-  {
-    $res = [];
-    foreach($data as $key => $value) {
-      if (is_string($value) || is_numeric($value)) {
-        $res[$key] = trim(stripslashes(strip_tags((string) $value)));
-      }
-    }
-    return $res;
   }
 
   /**
@@ -137,6 +140,6 @@ class ActionService
         $message = str_replace('%' . $key, $value, $message);
       }
     }
-    error_log(ApiService::$pluginName . ': Error ' . $errno . ' on excecuting /action/' . $action . ' (' . $message . ')');
+    error_log(GlobalHelper::getPluginName() . ': Error ' . $errno . ' on excecuting /action/' . $action . ' (' . $message . ')');
   }
 }

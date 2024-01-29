@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\AflevereApi\v1\Helper;
 
 use Kirby\Cms\Blueprint;
 use Kirby\Cms\Site;
@@ -9,12 +9,12 @@ use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Exception\NotFoundException;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Services\GlobalService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Reads a Kirby blueprint and translates it for internal needs.
  */
-class BlueprintService
+class BlueprintHelper
 {
   /**
    * Cache Kirby's blueprint-files.
@@ -95,7 +95,7 @@ class BlueprintService
       try {
         $blueprint = Blueprint::find($path);
         $blueprint = self::extend($blueprint);
-        self::$files[$name] = GlobalService::normaliseArray($blueprint, ['api', 'type', 'extends']);
+        self::$files[$name] = GlobalHelper::normaliseArray($blueprint, ['api', 'type', 'extends']);
       } catch (NotFoundException $e) {
         self::$files[$name] = [];
       }

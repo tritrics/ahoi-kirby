@@ -6,7 +6,7 @@ use Kirby\Cms\Language;
 use Kirby\Cms\Languages;
 use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 use Tritrics\AflevereApi\v1\Models\LanguageModel;
 
 /**
@@ -24,14 +24,14 @@ class LanguagesService
   /**
    * Main method to respond to "language" action.
    * 
-   * @return Response 
+   * @return Array 
    * @throws DuplicateException 
    * @throws LogicException 
    */
   public static function get($lang)
   {
     $language = self::getLanguage($lang);
-    $res = ApiService::initResponse();
+    $res = GlobalHelper::initResponse();
     $body = $res->add('body', new LanguageModel($language, null, null, true));
     return $res->get();
   }

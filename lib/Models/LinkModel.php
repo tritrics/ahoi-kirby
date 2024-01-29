@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\LinkService;
+use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 use Tritrics\AflevereApi\v1\Services\LanguagesService;
 use Tritrics\AflevereApi\v1\Services\FileService;
 
@@ -65,29 +65,29 @@ class LinkModel extends Model
     $res = new Collection();
     switch($this->linktype) {
       case 'anchor':
-        $res->add('link', LinkService::getAnchor($this->model->value()));
+        $res->add('link', LinkHelper::getAnchor($this->model->value()));
         break;
       case 'email':
-        $res->add('link', LinkService::getEmail($this->model->value()));
+        $res->add('link', LinkHelper::getEmail($this->model->value()));
         break;
       case 'file':
         $pathinfo = FileService::getPathinfo($this->model->url());
-        $res->add('link', LinkService::getFile($pathinfo['path']));
+        $res->add('link', LinkHelper::getFile($pathinfo['path']));
         break;
       case 'page':
-        $res->add('link', LinkService::getPage(
+        $res->add('link', LinkHelper::getPage(
           LanguagesService::getUrl($this->lang, $this->model->uri($this->lang)))
         );
         break;
       case 'tel':
-        $res->add('link', LinkService::getTel($this->model->value()));
+        $res->add('link', LinkHelper::getTel($this->model->value()));
         break;
       case 'http':
       case 'https':
-        $res->add('link', LinkService::getUrl($this->model->value()));
+        $res->add('link', LinkHelper::getUrl($this->model->value()));
         break;
       default:
-        $res->add('link', LinkService::getCustom($this->model->value()));
+        $res->add('link', LinkHelper::getCustom($this->model->value()));
     }
     return $res;
   }

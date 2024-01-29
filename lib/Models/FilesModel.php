@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Models\FileModel;
-use Tritrics\AflevereApi\v1\Services\BlueprintService;
+use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
 
 /**
  * Model for Kirby's fields: files
@@ -37,7 +37,7 @@ class FilesModel extends Model
   {
     $res = new Collection();
     foreach ($this->model->toFiles() as $file) {
-      $blueprint = BlueprintService::getBlueprint($file);
+      $blueprint = BlueprintHelper::getBlueprint($file);
       $model = new FileModel($file, $blueprint, $this->lang);
       $res->push($model);
     }

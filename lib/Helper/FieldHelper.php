@@ -1,16 +1,16 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\AflevereApi\v1\Helper;
 
 use Kirby\Cms\Field as KirbyField;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Factories\ModelFactory;
-use Tritrics\AflevereApi\v1\Services\ApiService;
+use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Reads all Kirby fields of a blueprint and translates it to collection of models.
  */
-class FieldService
+class FieldHelper
 {
   /**
    * Recoursive function to add field data to the given $resultObj object
@@ -32,7 +32,7 @@ class FieldService
     string|array $fields = 'all'
   ) {
 
-    $separator = ApiService::getconfig('field-name-separator', '');
+    $separator = GlobalHelper::getconfig('field-name-separator', '');
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
@@ -66,7 +66,7 @@ class FieldService
    */
   public static function factory ($type, $key, $value, $blueprint = null, $lang = null)
   {
-    $model = ApiService::getconfig('models.' . $type);
+    $model = GlobalHelper::getconfig('models.' . $type);
     if ($model) {
       $kirbyField = new KirbyField(null, $key, $value);
       return new $model($kirbyField, $blueprint, $lang);
@@ -91,12 +91,12 @@ class FieldService
         $key = strtolower($key);
         $condField = $fields[$key];
         if (isset($fields[$key])) {
-          $condValue = GlobalService::typecastBool($condField->value(), null);
+          $condValue = GlobalHelper::typecastBool($condField->value(), null);
           if (is_bool($condValue)) {
-            $value = GlobalService::typecastBool($value, null);
+            $value = GlobalHelper::typecastBool($value, null);
           } else {
-            $value = GlobalService::typecast($value, true, true);
-            $condValue = GlobalService::typecast($condField->value(), true, true);
+            $value = GlobalHelper::typecast($value, true, true);
+            $condValue = GlobalHelper::typecast($condField->value(), true, true);
           }
           if ($value !== $condValue) {
             return true;
