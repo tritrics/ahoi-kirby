@@ -5,8 +5,9 @@ namespace Tritrics\AflevereApi\v1\Controllers;
 use Kirby\Cms\Response;
 use Kirby\Exception\Exception;
 use Tritrics\AflevereApi\v1\Services\ActionService;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 use Tritrics\AflevereApi\v1\Helper\RequestHelper;
+use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
 use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 
 /**
@@ -17,63 +18,66 @@ use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 class ActionController
 {
   /**
-   * Get a token for submit action.
+   * Valid actions like implemented in ActionController::submit().
    * 
-   * @param String $action 
-   * @return Array
+   * @var array
    */
-  public function token($action)
+  var $valid_actions = [ 'default' ];
+
+  /**
+   * Get a token for submit action.
+   */
+  public function token(?string $action): Response
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
-      return GlobalHelper::ok();
+      return ResponseHelper::ok();
     }
     try {
-      if (!GlobalHelper::isEnabledAction()) {
-        return GlobalHelper::disabled();
+      if (!ConfigHelper::isEnabledAction()) {
+        return ResponseHelper::disabled();
       }
-      $action = RequestHelper::getAction($action);
+      $action = RequestHelper::getAction($action, $this->valid_actions);
       if ($action === null) {
-        return GlobalHelper::badRequest();
+        return ResponseHelper::badRequest();
       }
-      return ActionService::token($action);
+      return Response::json(ActionService::token($action));
     } catch (Exception $e) {
-      return GlobalHelper::fatal($e->getMessage());
+      return ResponseHelper::fatal($e->getMessage());
     }
   }
 
   /**
    * Submit an action
-   * 
-   * @param Mixed $lang 
-   * @param Mixed $action 
-   * @return Array
    */
-  public function submit($lang, $action, $token)
-  {
+  public function submit(
+    ?string $lang,
+    ?string $action,
+    ?string $token
+  ): Response {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
-      return GlobalHelper::ok();
+      return ResponseHelper::ok();
     }
     try {
-      if (!GlobalHelper::isEnabledAction()) {
-        return GlobalHelper::disabled();
+      if (!ConfigHelper::isEnabledAction()) {
+        return ResponseHelper::disabled();
       }
       $lang = RequestHelper::getLang($lang);
       if ($lang === null) {
-        return GlobalHelper::invalidLang();
+        return ResponseHelper::invalidLang();
       }
-      $action = RequestHelper::getAction($action);
+      $action = RequestHelper::getAction($action, $this->valid_actions);
       if ($action === null) {
-        return GlobalHelper::badRequest();
+        return ResponseHelper::badRequest();
       }
       if (!TokenHelper::check($action, $token)) {
-        return GlobalHelper::badRequest();
+        return ResponseHelper::badRequest();
       }
       $data = $request->data() ?? [];
-      return ActionService::submit($lang, $action, $data);
+      return Response::json(ActionService::submit($lang, $action, $data));
     } catch (Exception $e) {
-      return GlobalHelper::fatal($e->getMessage());
+      return ResponseHelper::fatal($e->getMessage());
     }
   }
 }

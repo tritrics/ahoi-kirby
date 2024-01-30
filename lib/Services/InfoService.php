@@ -4,8 +4,9 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
+use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
 use Tritrics\AflevereApi\v1\Models\LanguagesModel;
 
 /**
@@ -15,17 +16,16 @@ class InfoService
 {
   /**
    * Main method to respond to "info" action.
-   * 
-   * @return Array 
+   *
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get()
+  public static function get(): array
   {
     $expose = kirby()->option('debug', false);
-    $isMultilang = LanguagesService::isMultilang();
+    $isMultilang = ConfigHelper::isMultilang();
 
-    $res = GlobalHelper::initResponse();
+    $res = ResponseHelper::getHeader();
     $body = $res->add('body');
 
     // Type
@@ -35,12 +35,12 @@ class InfoService
     $meta = $body->add('meta');
     $meta->add('multilang', $isMultilang);
     if ($expose) {
-      $meta->add('api', GlobalHelper::getVersion());
-      $meta->add('plugin', GlobalHelper::getPluginVersion());
+      $meta->add('api', ConfigHelper::getVersion());
+      $meta->add('plugin', ConfigHelper::getPluginVersion());
       $meta->add('kirby', kirby()->version());
       $meta->add('php', phpversion());
-      $meta->add('slug', GlobalHelper::getconfig('slug', ''));
-      $meta->add('field-name-separator',  GlobalHelper::getconfig('field-name-separator', ''));
+      $meta->add('slug', ConfigHelper::getconfig('slug', ''));
+      $meta->add('field-name-separator',  ConfigHelper::getconfig('field-name-separator', ''));
     }
 
     // Interface
@@ -48,19 +48,19 @@ class InfoService
       $interface = $body->add('interface');
       $Request = kirby()->request();
       $url = substr($Request->url()->toString(), 0, -5); // the easy way
-      if (GlobalHelper::isEnabledInfo()) {
+      if (ConfigHelper::isEnabledInfo()) {
         $interface->add('info', $url . '/info',);
       }
-      if (GlobalHelper::isEnabledLanguage()) {
+      if (ConfigHelper::isEnabledLanguage()) {
         $interface->add('language', $url . '/language',);
       }
-      if (GlobalHelper::isEnabledPage()) {
+      if (ConfigHelper::isEnabledPage()) {
         $interface->add('page', $url . '/page');
       }
-      if (GlobalHelper::isEnabledPages()) {
+      if (ConfigHelper::isEnabledPages()) {
         $interface->add('pages', $url . '/pages');
       }
-      if (GlobalHelper::isEnabledAction()) {
+      if (ConfigHelper::isEnabledAction()) {
         $interface->add('action', $url . '/action');
       }
     }
@@ -68,7 +68,7 @@ class InfoService
     // add languages
     if ($isMultilang) {
       $value = $body->add('value');
-      $languages = new LanguagesModel(LanguagesService::getLanguages());
+      $languages = new LanguagesModel(KirbyHelper::getLanguages());
       $value->add('languages', $languages);
     }
     return $res->get();

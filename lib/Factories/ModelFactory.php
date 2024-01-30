@@ -2,7 +2,10 @@
 
 namespace Tritrics\AflevereApi\v1\Factories;
 
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Kirby\Content\Field;
+use Kirby\Cms\Block;
+use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 
 /**
  * Translates Kirby's fields and objects to API data models.
@@ -12,7 +15,7 @@ class ModelFactory
   /**
    * Kirby field type to model tranlation table.
    * 
-   * @var Array
+   * @var array
    */
   private static $buildIn = [
     'block-default' => '\Models\BlockDefaultModel',
@@ -54,28 +57,22 @@ class ModelFactory
    * These can be added by other plugins with the hook
    * tritrics-aflevere-api-v1.register-model
    * 
-   * @var Array
+   * @var array
    */
   private static $added = [];
 
   /**
    * Interface to trigger the hooks
-   * 
-   * @return Void 
    */
-  public static function hooks ()
+  public static function hooks (): void
   {
     kirby()->trigger('tritrics-aflevere-api-v1.register-model');
   }
 
   /**
    * Register a field type to model equivalent
-   * 
-   * @param String $type 
-   * @param String $model 
-   * @return Void 
    */
-  public static function register ($type, $model)
+  public static function register (string $type, string $model): void
   {
     if (is_string($type) && strlen($type) > 0 && class_exists($model)) {
       self::$added[$type] = $model;
@@ -84,56 +81,49 @@ class ModelFactory
 
   /**
    * Check if a filed type is existing.
-   * 
-   * @param String $type 
-   * @return Boolean 
    */
-  public static function has ($type)
+  public static function has (string $type): bool
   {
     return $type === 'link' || isset(self::$added[$type]) || isset(self::$buildIn[$type]);
   }
 
   /**
    * Create an instance of a model class defined by type.
-   * 
-   * @param String $type 
-   * @param Collection $field 
-   * @param Collection $fieldDef 
-   * @param String $lang 
-   * @return Object 
    */
-  public static function create ($type, $field, $fieldDef, $lang)
-  {
+  public static function create (
+    string $type,
+    Field $field,
+    Collection $def,
+    ?string $lang
+  ): object {
     $key = $type;
     if (isset(self::$added[$key])) {
       $class = self::$added[$key];
     } elseif (isset(self::$buildIn[$key])) {
-      $class = GlobalHelper::getNamespace() . self::$buildIn[$key];
+      $class = ConfigHelper::getNamespace() . self::$buildIn[$key];
     } else {
-      $class = GlobalHelper::getNamespace() . self::$buildIn['text'];
+      $class = ConfigHelper::getNamespace() . self::$buildIn['text'];
     }
-    return new $class($field, $fieldDef, $lang);
+    return new $class($field, $def, $lang);
   }
 
   /**
    * Create an instance of a block-model class defined by type.
-   * 
-   * @param String $type 
-   * @param Collection $field 
-   * @param Collection $fieldDef 
-   * @param String $lang 
-   * @return Object 
    */
-  public static function createBlock($type, $field, $fieldDef, $lang)
-  {
+  public static function createBlock(
+    string $type,
+    Block $block,
+    Collection $def,
+    ?string $lang
+  ): object {
     $key = 'block-' . $type;
     if (isset(self::$added[$key])) {
       $class = self::$added[$key];
     } elseif (isset(self::$buildIn[$key])) {
-      $class = GlobalHelper::getNamespace() . self::$buildIn[$key];
+      $class = ConfigHelper::getNamespace() . self::$buildIn[$key];
     } else {
-      $class = GlobalHelper::getNamespace() . self::$buildIn['block-default'];
+      $class = ConfigHelper::getNamespace() . self::$buildIn['block-default'];
     }
-    return new $class($field, $fieldDef, $lang);
+    return new $class($block, $def, $lang);
   }
 }

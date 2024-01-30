@@ -2,7 +2,14 @@
 
 namespace Tritrics\AflevereApi\v1\Data;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Kirby\Cms\Languages;
+use Kirby\Cms\Language;
+use Kirby\Cms\Site;
+use Kirby\Cms\Page;
+use Kirby\Cms\File;
+use Kirby\Cms\User;
+use Kirby\Content\Field;
+use Kirby\Cms\Block;
 use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
 /**
@@ -13,7 +20,7 @@ abstract class Model extends Collection
   /**
    * the Kirby model instance
    * 
-   * @var Mixed
+   * @var mixed
    */
   protected $model;
 
@@ -27,7 +34,7 @@ abstract class Model extends Collection
   /**
    * 2-digit Language-code
    * 
-   * @var String|Null
+   * @var ?string
    */
   protected $lang;
 
@@ -39,34 +46,40 @@ abstract class Model extends Collection
   protected $fields;
 
   /**
+   * Sometimes required for output control.
+   * 
+   * @var bool
+   */
+  protected $addDetails = false;
+
+  /**
    * Marker if this model has child fields. Can be overwritten
    * by same property in child class.
    * 
-   * @var Boolean
+   * @var bool
    */
   protected $hasChildFields = false;
 
   /**
-   * @param Mixed $model can be instance of KirbyField or value
-   * @param Mixed $blueprint 
-   * @param Mixed $lang 
-   * @return Void 
    */
-  public function __construct ($model, $blueprint = null, $lang = null)
-  {
+  public function __construct (
+    Block|Field|User|File|Page|Site|Language|Languages $model,
+    ?Collection $blueprint = null,
+    ?string $lang = null,
+    ?bool $addDetails = false
+  ) {
     $this->model = $model;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
+    $this->addDetails = $addDetails;
     $this->setChildFields();
     $this->setModelData();
   }
 
   /**
    * Check and set possible child fields.
-   * 
-   * @return Void 
    */
-  private function setChildFields ()
+  private function setChildFields (): void
   {
     $this->fields = new Collection();
     if ($this->hasChildFields && $this->blueprint->has('fields')) {
@@ -89,10 +102,8 @@ abstract class Model extends Collection
 
   /**
    * Set the model properties.
-   * 
-   * @return Void 
    */
-  private function setModelData ()
+  private function setModelData (): void
   {
     // compute type
     if (method_exists($this, 'getType')) {
@@ -121,18 +132,13 @@ abstract class Model extends Collection
 
   /**
    * Get the model value. Overwritten by child class.
-   * 
-   * @return Mixed 
    */
   abstract protected function getValue();
 
   /**
    * Get the corresponding label for the selected option.
-   * 
-   * @param Mixed $value 
-   * @return Mixed 
    */
-  protected function getLabel($value)
+  protected function getLabel(mixed $value): mixed
   {
     $options = $this->blueprint->node('options');
     if ($options instanceof Collection && $options->count() > 0) {
@@ -155,11 +161,8 @@ abstract class Model extends Collection
   /**
    * Helper for fields with option-node: Kirby allowes different type of options.
    * (So far we can only handle static options.)
-   * 
-   * @param Array $options 
-   * @return String|Void 
    */
-  protected function checkOpionsType ($options)
+  protected function checkOpionsType (array $options): ?string
   {
     $values = array_values($options);
     if (isset($values[0])) {
@@ -183,16 +186,15 @@ abstract class Model extends Collection
         return 'IS_STRING';
       }
     }
+    return null;
   }
 
   /**
    * Because Kirby sets multiple to true on default, we check for false here.
    * max = 1 is NOT interpreted as multiple, because the setting multiple
    * is explicitely designed for this.
-   * 
-   * @return Boolean
    */
-  protected function isMultiple()
+  protected function isMultiple(): bool
   {
     if ($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
       return false;

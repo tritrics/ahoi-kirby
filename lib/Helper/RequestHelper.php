@@ -2,9 +2,7 @@
 
 namespace Tritrics\AflevereApi\v1\Helper;
 
-use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Kirby\Http\Request;
 
 /**
  * Reads an normalizes request parameter from the API request.
@@ -12,81 +10,52 @@ use Tritrics\AflevereApi\v1\Services\LanguagesService;
 class RequestHelper
 {
   /**
-   * Normalize and check lang-code
-   * 
-   * @param Mixed $val 
-   * @return Null|String 
-   * @throws LogicException 
+   * Normalize and check lang-code.
+   * Returns empty string in a single-language installation. 
    */
-  public static function getLang ($val)
+  public static function getLang (mixed $val): ?string
   {
-    $lang = strtolower(trim($val));
-    if (!LanguagesService::isValid($lang)) {
+    $lang = TypeHelper::string($val, true, true);
+    if (!LanguagesHelper::isValid($lang)) {
       return null;
     }
-    return is_string($lang) ? $lang : '';
+    return strlen($lang) ? $lang : '';
   }
 
   /**
    * Normalize and check Action
-   * 
-   * @param Mixed $val 
-   * @return Null|String 
-   * @throws LogicException 
    */
-  public static function getAction($val)
+  public static function getAction(mixed $val, array $valid_actions): ?string
   {
-    if (!is_string($val)) {
-      return null;
-    }
-    $action = strtolower(trim($val));
-    if (strlen($action) === 0) {
-      return null;
-    }
-    return $action;
+    $action = TypeHelper::string($val, true, true);
+    return strlen($action) && in_array($action, $valid_actions) ? $action : null;
   }
 
   /**
    * Get page parameter from Request, any number > 0, default 1.
-   * 
-   * @param Mixed $request 
-   * @return Integer 
    */
-  public static function getPage ($request)
+  public static function getPage (Request $request): int
   {
-    $val = intval($request->get('page'));
-    if ( ! is_int($val) || $val <= 0) {
-      $val = 1;
-    }
-    return $val;
+    $val = TypeHelper::int($request->get('page'));
+    return ($val || $val <= 0) ? 1 : $val;
   }
 
   /**
    * Get limit parameter from Request, any number > 0, default 10.
-   * 
-   * @param Mixed $request 
-   * @return Integer 
    */
-  public static function getLimit ($request)
+  public static function getLimit (Request $request): int
   {
-    $val = intval($request->get('limit'));
-    if ( ! is_int($val) || $val <= 0) {
-      $val = 10;
-    }
-    return $val;
+    $val = TypeHelper::int($request->get('limit'));
+    return ($val || $val <= 0) ? 10 : $val;
   }
 
   /**
    * Get order parameter from Request, asc or desc, default desc.
-   * 
-   * @param Mixed $request 
-   * @return String [ asc, desc ] 
    */
-  public static function getOrder ($request)
+  public static function getOrder (Request$request): string
   {
-    $val = strval($request->get('order'));
-    $val = strtolower(trim($val));
-    if (is_string($val) && in_array($val, ['asc', 'desc'])) {
+    $val = TypeHelper::string($request->get('order'), true, true);
+    if (in_array($val, ['asc', 'desc'])) {
       return $val;
     }
     return 'asc';
@@ -94,21 +63,18 @@ class RequestHelper
 
   /**
    * Get fields parameter from Request, can be 'all' or array with field-names.
-   * 
-   * @param Mixed $request 
-   * @return String|Array 
    */
-  public static function getFields ($request)
+  public static function getFields (Request $request): string|array
   {
     $val  = $request->get('fields');
-    if (is_string($val) && strtolower(trim($val)) === 'all') {
+    if (is_string($val) && TypeHelper::string($val, true, true) === 'all') {
       return 'all';
     }
     if (!is_array($val) || count($val) === 0) {
       return [];
     }
     $val = array_map(function ($entry) {
-      return preg_replace("/[^a-z0-9_-]/", "", strtolower(trim($entry))); 
+      return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::string($entry, true, true)); 
     }, $val);
     $val = array_filter($val, function ($entry) {
       return (is_string($entry) && strlen($entry) > 0);
@@ -120,15 +86,12 @@ class RequestHelper
    * Parse the request like field.eq.foo to array.
    * Attention: the first parameter "field" is the fieldname, where as
    * compare() uses the value of the field.
-   * 
-   * @param Mixed $request 
-   * @return Null|Array
    */
-  public static function getFilter ($request)
+  public static function getFilter (Request $request): array
   {
     $val = $request->get('filter');
     if (!$val) {
-      return null;
+      return [];
     }
     if (!is_array($val)) {
       $val = [ $val ];
@@ -140,100 +103,73 @@ class RequestHelper
         continue;
       }
       $res[] = [
-        preg_replace("/[^a-z0-9_-]/", "", strtolower(trim(array_shift($query)))),
-        preg_replace("/[^a-z]/", "", strtolower(trim(array_shift($query)))),
+        preg_replace("/[^a-z0-9_-]/", "", TypeHelper::string(array_shift($query), true, true)),
+        preg_replace("/[^a-z]/", "", TypeHelper::string(array_shift($query), true, true)),
         implode('.', $query)
       ];
     }
-    return count($res) > 0 ? $res : null;
+    return $res;
   }
 
   /**
-   * Filter children by criteria like fieldname.eq.value
+   * Parse the given path and return language and node. In a multi language
+   * installation, the first part of the path must be a valid language (which
+   * is not validated here).
    * 
-   * @param Page $page 
-   * @param Array $filter
-   * @return Mixed 
+   * single language installation:
+   * "/" -> site
+   * "/some/page" -> page
    * 
-   * @TODO: Convert the different value-types (number, string, date) and make them comparable
+   * multi language installation:
+   * "/en" -> english version of site
+   * "/en/some/page" -> english version of page "/some/path"
    */
-  public static function filterChildren ($page, $filter)
+  public static function parsePath(string $path, bool $multilang): array
   {
-    $children =  $page->children()->filter( // the Kirby-filter-function of children()
-      function($child) use ($filter) {
-        $blueprint = BlueprintHelper::getBlueprint($child);
-        foreach ($filter as $criteria) {
-          $fieldname = $criteria[0];
-
-          // Special cases
-          if ($fieldname === 'blueprint') {
-            if (!self::compare($blueprint->name(), $criteria[1], $criteria[2])) {
-              return false;
-            }
-          }
-
-          // Field
-          if (!$child->content()->has($fieldname)) {
-            continue;
-          }
-          $field = $child->$fieldname();
-          $fieldDef = $blueprint->node('fields', $fieldname);
-          if (!$fieldDef) {
-            continue;
-          }
-          switch ($fieldDef->node('type')->get()) {
-            // case 'date':
-            // case ...
-            default:
-              $value = (string) $field->get();
-          }
-          if (!self::compare($value, $criteria[1], $criteria[2])) {
-            return false;
-          }
-        }
-        return true;
-      }
-    );
-    return $children;
+    $parts = array_filter(explode('/', $path));
+    $lang = $multilang ? array_shift($parts) : null;
+    $slug = count($parts) > 0 ? implode('/', $parts) : null;
+    return [$lang, $slug];
   }
 
   /**
-   * Comparing values
-   * 
-   * @param Mixed $value 
-   * @param String $operator 
-   * @param Mixed $compare 
-   * @return Boolean 
+   * Parse the given path and return action.
+   * @see parsesPath()
    */
-  public static function compare ($value, $operator, $compare)
+  public static function parseAction(string $path, bool $multilang): array
   {
-    $value = GlobalHelper::typecast($value, true, true);
-    $operator = GlobalHelper::typecast($operator, true, true);
-    $compare = GlobalHelper::typecast($compare, true, true);
-    if ($value === null || $operator === null || $compare === null) {
-      return false;
+    $parts = array_filter(explode('/', $path));
+    $lang = $multilang ? array_shift($parts) : null;
+    $action = array_shift($parts);
+    $token = count($parts) > 0 ? array_shift($parts) : null;
+    return [$lang, $action, $token];
+  }
+
+  /**
+   * Get host inforamtion about API and frontend.
+   */
+  public static function getHosts(?string $lang = null): array
+  {
+    $backend = LinkHelper::parseUrl(site()->url($lang));
+    $res = [
+      'self' => [
+        'host' => $backend['host'],
+        'port' => isset($backend['port']) ? $backend['port'] : null,
+      ],
+      'referer' => [
+        'host' => null,
+        'port' => null,
+        'ip' => getenv('HTTP_CLIENT_IP') ? getenv('HTTP_CLIENT_IP') : getenv('REMOTE_ADDR') // don't care about proxys, too complicated for our purpose
+      ]
+    ];
+    if (isset($_SERVER['HTTP_REFERER'])) {
+      $referer = LinkHelper::parseUrl($_SERVER['HTTP_REFERER']);
+      $res['referer']['host'] = $referer['host'];
+      $res['referer']['port'] = isset($referer['port']) ? $referer['port'] : null;
+    } else {
+      $res['referer']['host'] = $res['self']['host'];
+      $res['referer']['port'] = $res['self']['port'];
     }
-    switch ($operator) {
-      case 'eq':
-        return $value === $compare;
-        break;
-      case 'nt':
-        return $value !== $compare;
-        break;
-      case 'gt':
-        return $value > $compare;
-        break;
-      case 'gte':
-        return $value >= $compare;
-        break;
-      case 'lt':
-        return $value < $compare;
-        break;
-      case 'lte':
-        return $value <= $compare;
-        break;
-      // ... more like startswith, contains, endswith
-    }
-    return true;
+    return $res;
   }
 }

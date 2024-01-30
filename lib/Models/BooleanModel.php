@@ -12,10 +12,8 @@ class BooleanModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Boolean
    */
-  protected function getValue ()
+  protected function getValue (): int
   {
     return (float) $this->model->isTrue(); // return 0 or 1 as number
   }

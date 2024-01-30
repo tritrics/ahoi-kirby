@@ -13,10 +13,8 @@ class ColorModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties()
+  protected function getProperties(): Collection
   {
     $res = new Collection();
     $meta = $res->add('meta');
@@ -36,11 +34,9 @@ class ColorModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return String
    */
-  protected function getValue()
+  protected function getValue(): string
   {
-    return $this->model->value();
+    return (string) $this->model->value();
   }
 }

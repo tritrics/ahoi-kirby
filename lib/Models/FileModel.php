@@ -15,17 +15,15 @@ class FileModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var Boolean
+   * @var bool
    */
   protected $hasChildFields = true;
 
   /**
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
-   * 
-   * @return String 
    */
-  protected function getType()
+  protected function getType(): string
   {
     return $this->model->type();
   }
@@ -33,10 +31,8 @@ class FileModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties (): Collection
   {
     $pathinfo = FileService::getPathinfo($this->model->url());
 
@@ -66,10 +62,8 @@ class FileModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Collection
    */
-  protected function getValue()
+  protected function getValue(): Collection
   {
     return $this->fields;
   }

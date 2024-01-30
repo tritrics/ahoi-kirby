@@ -13,10 +13,8 @@ class DatetimeModel extends Model
   /**
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
-   * 
-   * @return String 
    */
-  protected function getType()
+  protected function getType(): string
   {
     if ($this->blueprint->node('type')->get() === 'time') {
       return 'time';
@@ -30,10 +28,8 @@ class DatetimeModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties (): Collection
   {
     $time = strtotime($this->getValue());
     $type = $this->getType();
@@ -57,11 +53,9 @@ class DatetimeModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return String
    */
-  protected function getValue ()
+  protected function getValue (): string
   {
-    return $this->model->value();
+    return (string) $this->model->value();
   }
 }

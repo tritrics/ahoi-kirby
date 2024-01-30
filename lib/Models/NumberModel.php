@@ -12,10 +12,8 @@ class NumberModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Number
    */
-  protected function getValue ()
+  protected function getValue (): int|float
   {
     return (float) $this->model->value();
   }

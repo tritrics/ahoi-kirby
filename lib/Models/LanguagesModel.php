@@ -4,7 +4,6 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Models\LanguageModel;
 
 /**
  * Model for Kirby's languages object
@@ -12,32 +11,10 @@ use Tritrics\AflevereApi\v1\Models\LanguageModel;
 class LanguagesModel extends Model
 {
   /**
-   * @var Boolean
-   */
-  private $add_details;
-
-  /**
-   * Constructor with additional property $add_details
-   * 
-   * @param Mixed $model 
-   * @param Mixed $blueprint 
-   * @param Mixed $lang 
-   * @param Boolean $add_details 
-   * @return Void 
-   */
-  public function __construct($model, $blueprint = null, $lang = null, $add_details = false)
-  {
-    parent::__construct($model, $blueprint, $lang);
-    $this->add_details = $add_details;
-  }
-
-  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties()
+  protected function getProperties(): Collection
   {
     $res = new Collection();
     $meta = $res->add('meta');
@@ -49,14 +26,12 @@ class LanguagesModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Collection
    */
-  protected function getValue()
+  protected function getValue(): Collection
   {
     $res = new Collection();
     foreach ($this->model as $language) {
-      $model = new LanguageModel($language, null, null, $this->add_details);
+      $model = new LanguageModel($language, null, null, $this->addDetails);
       $res->push($model);
     }
     return $res;

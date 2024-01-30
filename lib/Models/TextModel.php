@@ -2,9 +2,13 @@
 
 namespace Tritrics\AflevereApi\v1\Models;
 
-use Collator;
+use \DOMDocument;
+use \DOMElement;
+use \DOMText;
+use \DOMCdataSection;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
+use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
@@ -43,21 +47,18 @@ class TextModel extends Model
   /**
    * Type retured in response.
    * 
-   * @var String [html, text, markdown, string]
+   * @var string [html, text, markdown, string]
    */
   private $type;
 
   /**
    * Constructor with additional initialization.
-   * 
-   * @param Mixed $model 
-   * @param Mixed $blueprint 
-   * @param Mixed $lang 
-   * @param Boolean $add_details 
-   * @return Void 
    */
-  public function __construct($model, $blueprint = null, $lang = null)
-  {
+  public function __construct(
+    mixed $model,
+    ?Collection $blueprint = null,
+    ?string $lang = null
+  ) {
     switch ($blueprint->node('type')->get()) {
       case 'textarea':
         if ($blueprint->node('api', 'html')->is(true)) {
@@ -83,10 +84,8 @@ class TextModel extends Model
   /**
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
-   * 
-   * @return String 
    */
-  protected function getType ()
+  protected function getType (): string
   {
     return $this->type;
   }
@@ -108,13 +107,11 @@ class TextModel extends Model
    * 4. An array with more than one of the above where every
    * possible sub-element is in node children.
    * [ { elem: 'h1', text: 'the text' }, { elem: 'p', children: [] }]
-   * 
-   * @return Array|string
    */
-  protected function getValue ()
+  protected function getValue (): string|array
   {
     if ($this->type !== 'html') {
-      return '' . $this->model->value();
+      return (string) $this->model->value();
     }
 
     $fieldtype = $this->blueprint->node('type')->get();
@@ -135,7 +132,7 @@ class TextModel extends Model
     $buffer = str_replace(["<figure>", "</figure>"], "", $buffer);
 
     // make HTML editabel and get as array
-    $dom = new \DOMDocument();
+    $dom = new DOMDocument();
     $dom->preserveWhiteSpace = false;
     $dom->loadHTML('
       <!DOCTYPE html>
@@ -164,12 +161,10 @@ class TextModel extends Model
    * Helper to convert DOMDocument to array.
    * Credits to https://gist.github.com/yosko/6991691
    * 
-   * @param Mixed $root 
-   * @return Array|void 
    * @throws InvalidArgumentException 
    * @throws LogicException 
    */
-  function htmlToArray($root)
+  function htmlToArray(DOMElement|DOMText|DOMCdataSection $root): array
   {
     // node with nodetype
     if ($root->nodeType == XML_ELEMENT_NODE) {

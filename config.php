@@ -4,10 +4,10 @@ use Kirby\Exception\Exception;
 use Tritrics\AflevereApi\v1\Controllers\GetController;
 use Tritrics\AflevereApi\v1\Controllers\ActionController;
 use Tritrics\AflevereApi\v1\Services\FileService;
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 
-GlobalHelper::init([
+ConfigHelper::init([
   'version' => 'v1',
   'plugin-name' => 'tritrics/aflevere-api-v1',
   'namespace' => 'Tritrics\AflevereApi\v1'
@@ -16,7 +16,7 @@ GlobalHelper::init([
 /**
  * Plugin registration
  */
-kirby()::plugin(GlobalHelper::getPluginName(), [
+kirby()::plugin(ConfigHelper::getPluginName(), [
   'options' => [
     'enabled' => [
       'info' => false,
@@ -36,12 +36,12 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
   ],
   'hooks' => [
     'page.create:before' => function ($page, array $input) {
-      if (GlobalHelper::isProtectedSlug($input['slug'])) {
+      if (ConfigHelper::isProtectedSlug($input['slug'])) {
         throw new Exception('Slug not allowed');
       }
     },
     'page.changeSlug:before' => function ($page, string $slug, ?string $languageCode = null) {
-      if (GlobalHelper::isProtectedSlug($slug)) {
+      if (ConfigHelper::isProtectedSlug($slug)) {
         throw new Exception('Slug not allowed');
       }
     },
@@ -59,11 +59,11 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
     }
   ],
   'routes' => function ($kirby) {
-    $slug = GlobalHelper::getApiSlug();
+    $slug = ConfigHelper::getApiSlug();
     if (!$slug) {
       return [];
     }
-    $multilang = LanguagesService::isMultilang();
+    $multilang = ConfigHelper::isMultilang();
     $routes = array();
 
     // language-based routes, only relevant if any language
@@ -84,7 +84,7 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
     }
 
     // expose
-    if (GlobalHelper::isEnabledInfo()) {
+    if (ConfigHelper::isEnabledInfo()) {
       $routes[] = [
         'pattern' => $slug . '/info',
         'method' => 'GET',
@@ -96,7 +96,7 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
     }
 
     // a language
-    if (GlobalHelper::isEnabledLanguage()) {
+    if (ConfigHelper::isEnabledLanguage()) {
       $routes[] = [
         'pattern' => $slug . '/language/(:any)',
         'method' => 'GET',
@@ -108,12 +108,12 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
     }
 
     // a node
-    if (GlobalHelper::isEnabledPage()) {
+    if (ConfigHelper::isEnabledPage()) {
       $routes[] = [
         'pattern' => $slug . '/page/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = GlobalHelper::parsePath($resource, $multilang);
+          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
           $controller = new GetController();
           return $controller->page($lang, $path);
         }
@@ -121,12 +121,12 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
     }
 
     // children of a node
-    if (GlobalHelper::isEnabledPages()) {
+    if (ConfigHelper::isEnabledPages()) {
       $routes[] = [
         'pattern' => $slug . '/pages/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = GlobalHelper::parsePath($resource, $multilang);
+          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
           $controller = new GetController();
           return $controller->pages($lang, $path);
         }
@@ -134,14 +134,14 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
     }
 
     // action (post-data) handling
-    if (GlobalHelper::isEnabledAction()) {
+    if (ConfigHelper::isEnabledAction()) {
 
       // get a token, needed to submit an action
       $routes[] = [
         'pattern' => $slug . '/action/token/(:all?)',
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $action, $token) = GlobalHelper::parseAction($resource, $multilang);
+          list($lang, $action, $token) = RequestHelper::parseAction($resource, $multilang);
           $controller = new ActionController();
           return $controller->token($action);
         }
@@ -151,7 +151,7 @@ kirby()::plugin(GlobalHelper::getPluginName(), [
         'pattern' => $slug . '/action/submit/(:all?)',
         'method' => 'GET|POST|OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
-          list($lang, $action, $token) = GlobalHelper::parseAction($resource, $multilang);
+          list($lang, $action, $token) = RequestHelper::parseAction($resource, $multilang);
           $controller = new ActionController();
           return $controller->submit($lang, $action, $token);
         }

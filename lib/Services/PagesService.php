@@ -2,12 +2,14 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Cms\Page;
+use Kirby\Cms\Pages;
 use Kirby\Cms\Site;
 use Kirby\Exception\InvalidArgumentException;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Models\PageModel;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
-use Tritrics\AflevereApi\v1\Helper\RequestHelper;
+use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
+use Tritrics\AflevereApi\v1\Helper\FilterHelper;
 use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
 use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
@@ -19,21 +21,17 @@ class PagesService
   /**
    * Main method to respond to "pages" action.
    * 
-   * @param Page|Site $node
-   * @param String $lang
-   * @param Array $params
-   * @return Array 
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get($node, $lang, $params)
+  public static function get(Page|Site $node, ?string $lang, array $params): array
   {
     if (empty($node)) {
       return [];
     }
     $blueprint = BlueprintHelper::getBlueprint($node);
-    if (is_array($params['filter'])) {
-      $children = RequestHelper::filterChildren($node, $params['filter'], $lang);
+    if (count($params['filter']) > 0) {
+      $children = FilterHelper::filterChildren($node, $params['filter']);
     } else {
       $children = $node->children();
     }
@@ -43,7 +41,7 @@ class PagesService
       $children = $children->flip();
     }
 
-    $res = GlobalHelper::initResponse();
+    $res = ResponseHelper::getHeader();
     $body = $res->add('body');
     $body->add('type', 'nodes');
     $meta = $body->add('meta');
@@ -97,15 +95,14 @@ class PagesService
   /**
    * Get children filtered by status.
    * 
-   * @param Pages $children 
-   * @param String $lang 
-   * @param Array $status which Kirby page status to select [ draft, listed, unlisted ]
-   * @param String|array $fields the fields to get, can be 'all' for all fields
-   * @return Collection 
    * @throws InvalidArgumentException 
    */
-  private static function getChildren($children, $lang, $status, $fields)
-  {
+  private static function getChildren(
+    Pages $children,
+    ?string $lang,
+    array $status,
+    string|array $fields
+  ): Collection {
     $res = new Collection();
     foreach ($children as $child) {
       if (!in_array($child->status(), $status)) {

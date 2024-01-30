@@ -2,8 +2,6 @@
 
 namespace Tritrics\AflevereApi\v1\Helper;
 
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
-
 /**
  * Helper to create and check action token.
  */
@@ -13,15 +11,12 @@ class TokenHelper
    * Getting a form token which is x sec valid.
    * @see: https://dev.to/robdwaller/how-to-create-a-json-web-token-using-php-3gml
    * @see: https://github.com/RobDWaller/ReallySimpleJWT
-   * 
-   * @param String $action 
-   * @return String|null
    */
-  public static function get($action)
+  public static function get(string $action): ?string
   {
     // Payload
     $payload = json_encode([
-      'exp' => time() + GlobalHelper::getConfig('form-security.token-validity', 10),
+      'exp' => time() + ConfigHelper::getConfig('form-security.token-validity', 10),
       'act' => $action,
     ]);
     $payloadEnc = self::base64UrlEncode($payload);
@@ -40,12 +35,8 @@ class TokenHelper
   /**
    * Checking the token, reverse of getToken().
    * Checks for same action and expiration time.
-   * 
-   * @param String $action
-   * @param String $token 
-   * @return Boolean 
    */
-  public static function check($action, $token)
+  public static function check(string $action, string $token): bool
   {
     list($payloadEnc, $signatureEnc) = explode('.', (string) $token);
     if (!is_string($payloadEnc) || !is_string($signatureEnc)) {
@@ -69,12 +60,10 @@ class TokenHelper
   /**
    * Get the secret from config.
    * min. 12 chars, containing upper, lower, numbers and #?!@$%^&*-
-   * 
-   * @return String|null 
    */
-  public static function getSecret()
+  public static function getSecret(): ?string
   {
-    $secret = (string) GlobalHelper::getConfig('form-security.secret');
+    $secret = (string) ConfigHelper::getConfig('form-security.secret');
     preg_match("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,}$/", $secret, $check);
     if (is_array($check) && count($check) === 1 && $check[0] === $secret) {
       return $secret;
@@ -84,21 +73,16 @@ class TokenHelper
 
   /**
    * Check if config has valid secret.
-   * 
-   * @return Boolean 
    */
-  public static function hasSecret()
+  public static function hasSecret(): bool
   {
     return self::getSecret() !== null;
   }
 
   /**
    * Getting the signature, encoded with secret from config.
-   *  
-   * @param String $payloadEnc 
-   * @return null|String 
    */
-  private static function getSignature($payloadEnc)
+  private static function getSignature(string $payloadEnc): ?string
   {
     $secret = self::getSecret();
     if ($secret === null) {
@@ -109,11 +93,8 @@ class TokenHelper
 
   /**
    * Helper to encode url encoded base64 string.
-   * 
-   * @param String $str 
-   * @return String 
    */
-  private static function base64UrlEncode($str)
+  private static function base64UrlEncode(string $str): string
   {
     $base64 = base64_encode($str);
     return str_replace(['+', '/', '='], ['-', '_', ''], $base64);
@@ -121,11 +102,8 @@ class TokenHelper
 
   /**
    * Helper to decode url encoded base64 string.
-   * 
-   * @param String $str 
-   * @return String|false 
    */
-  private static function base64UrlDecode($str)
+  private static function base64UrlDecode(string $str): string
   {
     $base64 = str_replace(['-', '_'], ['+', '/'], $str);
     $pad = strlen($base64) % 4;

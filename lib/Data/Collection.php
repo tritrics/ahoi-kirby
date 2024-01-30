@@ -3,7 +3,6 @@
 namespace Tritrics\AflevereApi\v1\Data;
 
 use ArrayIterator;
-use Exception;
 use IteratorAggregate;
 
 /**
@@ -14,12 +13,12 @@ class Collection implements IteratorAggregate
   /**
    * The wrapped data
    * 
-   * @var Array
+   * @var array
    */
   protected $data = [];
 
   /**
-   * @param Mixed optionally give initial data
+   * optionally give initial data
    */
   public function __construct ()
   {
@@ -30,20 +29,14 @@ class Collection implements IteratorAggregate
 
   /**
    * Delegate function calls to $data.
-   * 
-   * @param Mixed $method 
-   * @param Mixed $args 
-   * @return Mixed 
    */
-  final public function __call ($method, $args)
+  final public function __call (mixed $method, mixed $args): mixed
   {
     return call_user_func_array([$this->data, $method], $args);
   }
 
   /**
    * Make this class an iterator class.
-   * 
-   * @return ArrayIterator 
    */
   final public function getIterator() : ArrayIterator
   {
@@ -52,11 +45,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Find a (sub-)node with given key(s).
-   * 
-   * @param Array $keys
-   * @return Collection
    */
-  final public function node (...$keys)
+  final public function node (...$keys): Collection
   {
     $key = array_shift($keys);
     if ($this->has($key)) {
@@ -73,10 +63,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Set the value of this node. Adds new Collections if given value is an array.
-   * 
-   * @param Mixed $mixed
    */
-  final public function set ($mixed)
+  final public function set (mixed $mixed): void
   {
     if (is_array($mixed)) {
       if ( ! $this->isCollection()) {
@@ -94,17 +82,13 @@ class Collection implements IteratorAggregate
    * Adds a new node to array, optionally set value with second argument.
    * Method fails if data isn't an array. Giving an array with keys will
    * add nesting nodes.
-   * 
-   * @param String|integer|array $keys
-   * @param Mixed the value for the new node
-   * @return Collection
    */
-  final public function add ($keys /*, mixed */)
+  final public function add (mixed $keys): ?Collection
   {
     // $keys is an array of keys -> nested adding
     $key = is_array($keys) ? array_shift($keys) : $keys;
     if ( ! $this->isCollection() || ! $this->isKey($key)) {
-      return;
+      return null;
     }
 
     // more keys left, so create node and call this function again with
@@ -134,11 +118,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Same like add() + set(), but for numerical index.
-   * 
-   * @param Mixed $mixed the value of the new node
-   * @return Collection
   */
-  final public function push ($mixed)
+  final public function push (mixed $mixed): Collection
   {
     if ( ! $this->isCollection()) {
       $this->data = [];
@@ -149,10 +130,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Merge a Collection into $data (not a deep merge, simply top-level keys)
-   * 
-   * @param Collection $Collection
    */
-  final public function merge (Collection $data)
+  final public function merge (Collection $data): void
   {
     if ($this->isCollection() && $data->isCollection()) {
       foreach ($data as $key => $value) {
@@ -161,17 +140,18 @@ class Collection implements IteratorAggregate
     }
   }
 
-  final public function first()
+  /**
+   * Get the first element of an array.
+   */
+  final public function first(): Collection
   {
     return $this->node(0);
   }
 
   /**
    * Get value from $data
-   * 
-   * @return Mixed
    */
-  final public function get () : array|string|int|float|null
+  final public function get () : mixed
   {
     // $data is an array
     if ($this->isCollection()) {
@@ -195,22 +175,16 @@ class Collection implements IteratorAggregate
 
   /**
    * Check if a key in $data exists.
-   * 
-   * @param String|integer $key
-   * @return Booleanean
    */
-  final public function has ($key)
+  final public function has (string|int $key): bool
   {
     return $this->isCollection() && $this->isKey($key) && isset($this->data[$key]);
   }
 
   /**
    * Unset/delete a subnode of $data.
-   * 
-   * @param Mixed $key 
-   * @return Void
    */
-  final public function unset ($key)
+  final public function unset (string|int $key): void
   {
     if ($this->isCollection() && isset($this->data[$key])) {
       unset ($this->data[$key]);
@@ -219,11 +193,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Compare $data with a given value.
-   * 
-   * @param Mixed $compare 
-   * @return Boolean 
    */
-  final public function is ($compare)
+  final public function is (mixed $compare): bool
   {
     if (!$this->isCollection()) {
       return $this->data === $compare;
@@ -233,10 +204,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Return the keys of $data.
-   * 
-   * @return int[]|string[]|null 
    */
-  final public function keys ()
+  final public function keys (): ?array
   {
     $data = $this->get();
     if(is_array($data)) {
@@ -247,30 +216,24 @@ class Collection implements IteratorAggregate
 
   /**
    * Check if $data is empty.
-   * 
-   * @return Boolean 
    */
-  final public function isEmpty ()
+  final public function isEmpty (): bool
   {
     return $this->data === [];
   }
 
   /**
    * Check, if $data is an array
-   * 
-   * @return Boolean
    */
-  final public function isCollection ()
+  final public function isCollection (): bool
   {
     return is_array($this->data);
   }
 
   /**
    * Check, if $data is a numeric array
-   * 
-   * @return Boolean
    */
-  final public function isNumeric ()
+  final public function isNumeric (): bool
   {
     if (!$this->isCollection()) {
       return false;
@@ -280,10 +243,8 @@ class Collection implements IteratorAggregate
 
   /**
    * Get count of $data, if it's an array.
-   * 
-   * @return Boolean
    */
-  final public function count ()
+  final public function count (): bool
   {
     if ($this->isCollection()) {
       return count($this->data);
@@ -293,11 +254,9 @@ class Collection implements IteratorAggregate
 
   /**
    * Checks, if the given $key valid (string or integer).
-   * 
-   * @param Mixed $key
-   * @return Boolean
    */
-  private function isKey ($check) {
+  private function isKey (mixed $check): bool
+  {
     return ((is_string($check) && strlen($check) > 0) || (is_int($check) && $check >= 0));
   }
 }

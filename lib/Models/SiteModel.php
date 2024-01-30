@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
 
@@ -16,17 +16,15 @@ class SiteModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties (): Collection
   {
     $res = new Collection();
     $meta = $res->add('meta');
     $meta->add('host', $this->model->url($this->lang));
     if ($this->lang !== null) {
       $meta->add('lang', $this->lang);
-      $meta->add('locale', LanguagesService::getLocale($this->lang));
+      $meta->add('locale', LanguagesHelper::getLocale($this->lang));
     }
     $meta->add('title', $this->model->title()->get());
     $meta->add('modified',  date('c', $this->model->modified()));
@@ -42,7 +40,7 @@ class SiteModel extends Model
 
     $page = $this->model->homePage();
     $res->add('home', LinkHelper::getPage(
-      LanguagesService::getUrl($this->lang, $page->uri($this->lang))
+      LanguagesHelper::getUrl($this->lang, $page->uri($this->lang))
     ));
     return $res;
   }
@@ -50,9 +48,6 @@ class SiteModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Void
    */
-  protected function getValue () {
-  }
+  protected function getValue (): void {}
 }

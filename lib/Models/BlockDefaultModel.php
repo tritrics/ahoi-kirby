@@ -13,17 +13,15 @@ class BlockDefaultModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var Boolean
+   * @var bool
    */
   protected $hasChildFields = true;
 
   /**
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
-   * 
-   * @return String 
    */
-  protected function getType ()
+  protected function getType (): string
   {
     return 'block';
   }
@@ -31,10 +29,8 @@ class BlockDefaultModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties()
+  protected function getProperties(): Collection
   {
     $res = new Collection();
     $res->add('block', $this->model->type());
@@ -44,10 +40,8 @@ class BlockDefaultModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return String|number|Boolean
    */
-  protected function getValue ()
+  protected function getValue (): mixed
   {
     return $this->fields;
   }

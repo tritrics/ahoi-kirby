@@ -2,33 +2,27 @@
 
 namespace Tritrics\AflevereApi\v1\Helper;
 
-use Tritrics\AflevereApi\v1\Actions\EmailAction;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 
 /**
  * Validation input data
  */
 class ValidationHelper
 {
-  public static function validate($action, $data)
+  public static function validate(string $action, array $data): mixed
   {
     return 0;
   }
 
-
-
   /**
    * Sanitize input, strip everything but stings and numbers.
-   * 
-   * @param Array $data 
-   * @return Array 
    */
-  public static function sanitizeData($data)
+  public static function sanitizeData(array $data): array
   {
     $res = [];
-    $stripTags =        GlobalHelper::getConfig('form-security.strip-tags', true);
-    $stripBackslashes = GlobalHelper::getConfig('form-security.strip-backslashes', true);
-    $stripUrls =        GlobalHelper::getConfig('form-security.strip-urls', true);
+    $stripTags =        ConfigHelper::getConfig('form-security.strip-tags', true);
+    $stripBackslashes = ConfigHelper::getConfig('form-security.strip-backslashes', true);
+    $stripUrls =        ConfigHelper::getConfig('form-security.strip-urls', true);
     foreach ($data as $key => $value) {
 
       // $value is string or number here @see validateData()

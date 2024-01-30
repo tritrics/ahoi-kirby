@@ -2,11 +2,12 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Models\PageModel;
 use Tritrics\AflevereApi\v1\Models\SiteModel;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
 use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
 use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
@@ -18,17 +19,13 @@ class PageService
   /**
    * Main method to respond to "page" action.
    * 
-   * @param Page|Site $node
-   * @param String $lang
-   * @param String|Array $fields
-   * @return Array 
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get ($node, $lang, $fields)
+  public static function get (Page|Site $node, ?string $lang, array|string $fields): array
   {
     $blueprint = BlueprintHelper::getBlueprint($node);
-    $res = GlobalHelper::initResponse();
+    $res = ResponseHelper::getHeader();
     if ($node instanceof Site) {
       $body = new SiteModel($node, $blueprint, $lang);
     } else {

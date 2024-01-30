@@ -2,8 +2,10 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
+use Kirby\Cms\Response;
 use Tritrics\AflevereApi\v1\Helper\TokenHelper;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
 use Tritrics\AflevereApi\v1\Helper\ValidationHelper;
 use Tritrics\AflevereApi\v1\Actions\EmailAction;
 
@@ -12,6 +14,11 @@ use Tritrics\AflevereApi\v1\Actions\EmailAction;
  */
 class ActionService
 {
+  /**
+   * Error messages, only stored to error-log, not published.
+   * 
+   * @var array
+   */
   private static $errors = [
 
     // Fatal errors
@@ -37,14 +44,10 @@ class ActionService
 
   /**
    * Getting a token.
-   * 
-   * @param String|null $lang 
-   * @param String $action 
-   * @return Array 
    */
-  public static function token ($action)
+  public static function token (string $action): array
   {
-    $res = GlobalHelper::initResponse();
+    $res = ResponseHelper::getHeader();
     $body = $res->add('body');
     $body->add('action', $action);
     $body->add('token', TokenHelper::get($action));
@@ -54,16 +57,11 @@ class ActionService
   /**
    * Main function to submit (execute) a given action.
    * Token is already checked by controller.
-   * 
-   * @param String|null $lang 
-   * @param String $action 
-   * @param Array $data 
-   * @return Array
    */
-  public static function submit($lang, $action, $data)
+  public static function submit(string $lang, string $action, array $data): array
   {
     // init response
-    $res = GlobalHelper::initResponse();
+    $res = ResponseHelper::getHeader();
     $body = $res->add('body');
     $body->add('action', $action);
     $errno = $body->add('errno', 0);
@@ -75,7 +73,7 @@ class ActionService
     $body->add('data', $data);
 
     // read config data
-    $actions = GlobalHelper::getConfig('actions');
+    $actions = ConfigHelper::getConfig('actions');
 
     // @errno10: Configuration is missing or incomplete in config.php. 
     // actions.[action] is not existing or is not an array
@@ -126,13 +124,8 @@ class ActionService
 
   /**
    * Log errors to PHP error log.
-   * 
-   * @param String $action 
-   * @param Integer $errno 
-   * @param Array $parse 
-   * @return void 
    */
-  private static function logError($action, $errno, $parse = [])
+  private static function logError(string $action, int $errno, ?array $parse = []): void
   {
     $message = isset(self::$errors[$errno]) ? self::$errors[$errno] : self::$errors[1];
     if (is_array($parse)) {
@@ -140,6 +133,6 @@ class ActionService
         $message = str_replace('%' . $key, $value, $message);
       }
     }
-    error_log(GlobalHelper::getPluginName() . ': Error ' . $errno . ' on excecuting /action/' . $action . ' (' . $message . ')');
+    error_log(ConfigHelper::getPluginName() . ': Error ' . $errno . ' on excecuting /action/' . $action . ' (' . $message . ')');
   }
 }

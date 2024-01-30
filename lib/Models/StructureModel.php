@@ -14,10 +14,8 @@ class StructureModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Collection 
    */
-  protected function getValue ()
+  protected function getValue (): Collection
   {
     $res = new Collection();
     foreach ($this->model->toStructure() as $entry) {

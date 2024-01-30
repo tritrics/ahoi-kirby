@@ -6,6 +6,7 @@ use Exception;
 use Throwable;
 use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 
 /**
  * Sending E-Mails
@@ -15,14 +16,14 @@ class EmailAction
   /**
    * Sending emails defined in $presets.
    * 
-   * @param Array $emails configuration from config actions.emails
-   * @param Array $data the form data to be parsed into the email template
-   * @param String $lang 2-char lang code
-   * @return Array result protocol 
    * @throws Exception 
    */
-  public static function send($presets, $data, $lang, $checkInbound = false)
-  {
+  public static function send(
+    array $presets,
+    array $data,
+    string $lang,
+    bool $checkInbound = false
+  ): array {
     $res = [
       'total' => 0,
       'success' => 0,
@@ -30,7 +31,7 @@ class EmailAction
       'errno' => 0,
     ];
 
-    $hosts = GlobalHelper::getHosts($lang);
+    $hosts = RequestHelper::getHosts($lang);
 
     // Computing Meta
     $meta = [];
@@ -101,15 +102,14 @@ class EmailAction
    * Helper to get a list with objects of email configuration, same structure
    * like it would be configures in config.php email.presets.
    * https://getkirby.com/docs/guide/emails
-   * 
-   * @param Array $emails configuration from config actions.emails
-   * @param String $lang 2-char lang code
-   * @param Array $data the form data to be parsed into the email template
-   * @param Array $hosts
-   * @return Array the checked and completed mails to send, sorted by in and out 
    */
-  private static function getEmails($presets, $lang, $formdata, $metadata, $hosts)
-  {
+  private static function getEmails(
+    array $presets,
+    string $lang,
+    array $formdata,
+    array $metadata,
+    array $hosts
+  ): array {
     $res = [];
     foreach ($presets as $preset) {
 
@@ -258,11 +258,8 @@ class EmailAction
    * If to, cc or bcc have at least one valid email address in config,
    * the mail is considered to be inbound. Mail actions which don't send
    * any inbound mails are in some cases skipped.
-   * 
-   * @param String|Array $addresses
-   * @return Boolean 
    */
-  private static function isInbound($addresses)
+  private static function isInbound(string|array $addresses): bool
   {
     if (!is_array($addresses)) {
       $addresses = [$addresses];
@@ -278,12 +275,8 @@ class EmailAction
   /**
    * Check if addresses are valid mail adresses or a field name,
    * so the mail adress is taken from data.
-   * 
-   * @param String|Array $addresses 
-   * @param Array $data 
-   * @return Null|String|Array 
    */
-  private static function getAddresses($addresses, $data)
+  private static function getAddresses(string|array $addresses, array $data): mixed
   {
     if (!is_array($addresses)) {
       $addresses = [$addresses];
@@ -315,13 +308,10 @@ class EmailAction
    * Read a template an parse data in.
    * Supports both text and html templates.
    * 
-   * @param String $template 
-   * @param Array $data 
-   * @return String|null 
    * @throws Throwable 
    * @throws LogicException 
    */
-  private static function parseTemplate($template, $data)
+  private static function parseTemplate(string $template, array $data): mixed
   {
     $html = kirby()->template('emails/' . $template, 'html', 'text');
     $text = kirby()->template('emails/' . $template, 'text', 'text');
@@ -340,11 +330,8 @@ class EmailAction
 
   /**
    * Simple list with values as mail body in case a template is missing.
-   * 
-   * @param mixed $data 
-   * @return string 
    */
-  private static function buildInTemplate($data)
+  private static function buildInTemplate(array $data = []): string
   {
     $meta = '';
     $body = '';
@@ -372,11 +359,8 @@ class EmailAction
    * Check if attachment file is existing.
    * Given paths must be abolute or relative inside Kirby root. All non-existing files are
    * stripped, because otherwise PHPMailer will fail to send the mail.
-   * 
-   * @param Array $paths 
-   * @return Array
    */
-  private static function checkAttachments($paths)
+  private static function checkAttachments(array $paths): array
   {
     $root = rtrim(kirby()->root(), '/') . '/';
     $res = [];

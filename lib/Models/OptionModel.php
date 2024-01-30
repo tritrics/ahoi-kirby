@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: radio, select, toggles
@@ -14,10 +14,8 @@ class OptionModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties (): Collection
   {
     $res = new Collection();
     if ($this->blueprint->node('api', 'labels')->is(true)) {
@@ -29,11 +27,9 @@ class OptionModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return String|Number 
    */
-  protected function getValue ()
+  protected function getValue (): string|int|float
   {
-    return GlobalHelper::typecast($this->model->value());
+    return TypeHelper::auto($this->model->value());
   }
 }

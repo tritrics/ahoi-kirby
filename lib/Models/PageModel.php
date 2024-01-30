@@ -4,39 +4,20 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 
 /**
  * Model for Kirby's page object
  */
 class PageModel extends Model
 {
-  /** */
-  private $add_details;
-
-  /**
-   * Constructor with additional property $add_details
-   * 
-   * @param Mixed $model 
-   * @param Mixed $blueprint 
-   * @param Mixed $lang 
-   * @param Boolean $add_details 
-   * @return Void 
-   */
-  public function __construct ($model, $blueprint, $lang, $add_details = false)
-  {
-    $this->add_details = $add_details;
-    parent::__construct($model, $blueprint, $lang);
-  }
-
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties (): Collection
   {
     $content = $this->model->content($this->lang);
 
@@ -48,7 +29,7 @@ class PageModel extends Model
     $meta->add('slug',$this->model->slug($this->lang));
     if ($this->lang !== null) {
       $meta->add('lang', $this->lang);
-      $meta->add('locale', LanguagesService::getLocale($this->lang));
+      $meta->add('locale', LanguagesHelper::getLocale($this->lang));
     }
     $meta->add('title', $content->title()->get());
     $meta->add('status', $this->model->status());
@@ -66,16 +47,16 @@ class PageModel extends Model
     }
 
     $res->add('link', LinkHelper::getPage(
-      LanguagesService::getUrl($this->lang, $this->model->uri($this->lang))
+      LanguagesHelper::getUrl($this->lang, $this->model->uri($this->lang))
     ));
 
-    if ($this->add_details && LanguagesService::isMultilang()) {
+    if ($this->addDetails && ConfigHelper::isMultilang()) {
       $translations = $res->add('translations');
-      foreach(LanguagesService::list() as $code => $data) {
+      foreach(LanguagesHelper::list() as $code => $data) {
         $lang = $translations->add($code);
         $lang->add('type', 'url');
         $lang->add('link', LinkHelper::getPage(
-          LanguagesService::getUrl($code, $this->model->uri($code))
+          LanguagesHelper::getUrl($code, $this->model->uri($code))
         ));
         $lang->add('value', $data->node('name')->get());
       }
@@ -86,15 +67,15 @@ class PageModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return Void
    */
-  protected function getValue () {}
+  protected function getValue (): void {}
 
-  /** */
-  private function getParentUrl ($lang) : string
+  /**
+   * Get url of parent model
+   */
+  private function getParentUrl (?string $lang) : string
   {
-    $langSlug = LanguagesService::getSlug($lang);
+    $langSlug = LanguagesHelper::getSlug($lang);
     $parent = $this->model->parent();
     if ($parent) {
       return '/' . ltrim($langSlug . '/' . $parent->uri($lang), '/');

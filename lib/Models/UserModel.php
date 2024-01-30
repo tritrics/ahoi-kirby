@@ -13,17 +13,15 @@ class UserModel extends Model
   /**
    * Marker if this model has child fields.
    * 
-   * @var Boolean
+   * @var bool
    */
   protected $hasChildFields = true;
 
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties ()
+  protected function getProperties (): Collection
   {
     $meta = new Collection();
     $meta->add('id', md5($this->model->id()));
@@ -38,10 +36,8 @@ class UserModel extends Model
    * Mandatory method.
    * For security-reasons we don't expose user's build-in values like
    * name, email, role, avatar. We only expose possibly extra-fields.
-   * 
-   * @return Collection|String|Number|Boolean
    */
-  protected function getValue ()
+  protected function getValue (): Collection
   {
     return $this->fields;
   }

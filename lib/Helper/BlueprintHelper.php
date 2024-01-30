@@ -9,7 +9,6 @@ use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Exception\NotFoundException;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
 
 /**
  * Reads a Kirby blueprint and translates it for internal needs.
@@ -19,25 +18,22 @@ class BlueprintHelper
   /**
    * Cache Kirby's blueprint-files.
    * 
-   * @var Array
+   * @var array
    */
   private static $files = [];
 
   /**
    * Cache parsed blueprints.
    * 
-   * @var Array
+   * @var array
    */
   private static $map = [];
 
   /**
    * Get the blueprint either from intern map or compute.
    * Map is used to avoid repetition, which may occour for files, users and pages.
-   * 
-   * @param Object $model
-   * @return Collection
    */
-  public static function getBlueprint ($model)
+  public static function getBlueprint (object $model): Collection
   {
     if ($model instanceof Page) {
       $path = 'pages/' . $model->intendedTemplate();
@@ -62,12 +58,8 @@ class BlueprintHelper
 
   /**
    * Get an instace of Collection with the relevant blueprint-information.
-   * 
-   * @param Mixed $path 
-   * @param Mixed $add_title_field 
-   * @return Collection 
    */
-  private static function parse ($path, $add_title_field)
+  private static function parse (string $path, bool $add_title_field): Collection
   {
     $res = new Collection();
     $res->add('name', $path);
@@ -84,18 +76,15 @@ class BlueprintHelper
 
   /**
    * Get raw blueprint/fragment, avoid Exceptions.
-   * 
-   * @param String $path 
-   * @return Array 
    */
-  private static function getBlueprintFile ($path)
+  private static function getBlueprintFile (string $path): array
   {
     $name = trim(str_replace('/', '_', $path), '_');
     if (!isset(self::$files[$name])) {
       try {
         $blueprint = Blueprint::find($path);
         $blueprint = self::extend($blueprint);
-        self::$files[$name] = GlobalHelper::normaliseArray($blueprint, ['api', 'type', 'extends']);
+        self::$files[$name] = TypeHelper::array($blueprint, ['api', 'type', 'extends']);
       } catch (NotFoundException $e) {
         self::$files[$name] = [];
       }
@@ -105,11 +94,8 @@ class BlueprintHelper
 
   /**
    * Recursive function to extend and normalise blueprint.
-   * 
-   * @param Array $nodes 
-   * @return Array 
    */
-  private static function extend ($nodes)
+  private static function extend (mixed $nodes): mixed
   {
     // rewrite fieldsets of block, which can be notated like:
     // fieldsets:
@@ -154,15 +140,13 @@ class BlueprintHelper
 
   /**
    * Recursivly extracts all field definitions from blueprint array.
-   * 
-   * @param Array $nodes 
-   * @param Boolean $publish 
-   * @param Boolean $add_title_field 
-   * @param Boolean $toplevel 
-   * @return Array 
    */
-  private static function getFields ($nodes, $publish, $add_title_field = false, $toplevel = false)
-  {
+  private static function getFields (
+    array $nodes,
+    bool $publish,
+    bool $add_title_field = false,
+    bool $toplevel = false
+  ): array {
     $res = [];
     if ($toplevel && $add_title_field) {
       $res['title'] = [
@@ -263,12 +247,8 @@ class BlueprintHelper
    *   api: publish -or-
    *   api:
    *     publish: true
-   * 
-   * @param Array $def 
-   * @param Boolean $publish_default 
-   * @return Boolean 
    */
-  private static function isPublished ($def, $publish_default)
+  private static function isPublished (array $def, bool $publish_default): bool
   {
     if (is_array($def) && isset($def['api'])) {
       if (is_bool($def['api'])) {
@@ -286,12 +266,8 @@ class BlueprintHelper
 
   /**
    * Check field defintion for applied publish-settings.
-   * 
-   * @param Array $def 
-   * @param Boolean $publish_default 
-   * @return Boolean 
    */
-  private static function isPublishedApplied ($def, $publish_default)
+  private static function isPublishedApplied (array $def, bool $publish_default): bool
   {
     if (
       is_array($def) &&

@@ -3,7 +3,7 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Model;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: hidden
@@ -13,10 +13,8 @@ class HiddenModel extends Model
   /**
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
-   * 
-   * @return String 
    */
-  protected function getType ()
+  protected function getType (): string
   {
     $value = $this->getValue();
     if (is_numeric($value)) {
@@ -30,11 +28,9 @@ class HiddenModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return String|Number
    */
-  protected function getValue ()
+  protected function getValue (): mixed
   {
-    return GlobalHelper::typecast($this->model->value());
+    return TypeHelper::auto($this->model->value());
   }
 }

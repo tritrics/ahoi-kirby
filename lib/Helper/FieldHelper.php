@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Helper;
 use Kirby\Cms\Field as KirbyField;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Factories\ModelFactory;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 
 /**
  * Reads all Kirby fields of a blueprint and translates it to collection of models.
@@ -15,24 +15,16 @@ class FieldHelper
   /**
    * Recoursive function to add field data to the given $resultObj object
    * includeFields only work for top-level fields, not for nested fields in structure or objects
-   * 
-   * @param Collection $resultObj Collection of the result data
-   * @param Fields $allFields Kirby field object which contains the data
-   * @param Collection $blueprint the blueprint definitions of the fields
-   * @param String $lang two char language code
-   * @param Integer $level interation count of recoursive
-   * @param Array $excludeFields explicit exclude fields from result data (for special case)
-   * @return Void
    */
   public static function addFields (
-    Collection $resultObj,
-    $allFields,
-    $blueprint,
-    $lang,
+    Collection $resultObj, //  Collection of the result data
+    array $allFields,
+    Collection $blueprint,
+    ?string $lang,
     string|array $fields = 'all'
-  ) {
+  ): void {
 
-    $separator = GlobalHelper::getconfig('field-name-separator', '');
+    $separator = ConfigHelper::getconfig('field-name-separator', '');
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
@@ -55,35 +47,12 @@ class FieldHelper
   }
 
   /**
-   * Creates a Kirby Field out of given values.
-   * 
-   * @param String $type can be any of Field-Classes of $models
-   * @param String $key the field name
-   * @param Mixed $value the field value
-   * @param Collection $blueprint the field definition, can be null
-   * @param String $lang the 2-digit language code
-   * @return Object|Void 
-   */
-  public static function factory ($type, $key, $value, $blueprint = null, $lang = null)
-  {
-    $model = GlobalHelper::getconfig('models.' . $type);
-    if ($model) {
-      $kirbyField = new KirbyField(null, $key, $value);
-      return new $model($kirbyField, $blueprint, $lang);
-    }
-  }
-
-  /**
    * Check, if field is hidden in layout (conditional field).
    * Do not expose hidden fields, because they may contain data, which
    * is not intended by the user to be published. Also empty fields
    * pollute the result set.
-   * 
-   * @param Collection $blueprint 
-   * @param Array $fields 
-   * @return Boolean 
    */
-  private static function isConditionalField($blueprint, $fields)
+  private static function isConditionalField(Collection $blueprint, array $fields): bool
   {
     if ($blueprint->has('when')) {
       $conditions = $blueprint->node('when')->get();
@@ -91,12 +60,12 @@ class FieldHelper
         $key = strtolower($key);
         $condField = $fields[$key];
         if (isset($fields[$key])) {
-          $condValue = GlobalHelper::typecastBool($condField->value(), null);
+          $condValue = TypeHelper::bool($condField->value(), null);
           if (is_bool($condValue)) {
-            $value = GlobalHelper::typecastBool($value, null);
+            $value = TypeHelper::bool($value, null);
           } else {
-            $value = GlobalHelper::typecast($value, true, true);
-            $condValue = GlobalHelper::typecast($condField->value(), true, true);
+            $value = TypeHelper::auto($value, true, true);
+            $condValue = TypeHelper::auto($condField->value(), true, true);
           }
           if ($value !== $condValue) {
             return true;

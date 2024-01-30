@@ -17,11 +17,8 @@ class FileService
 {
   /**
    * Extend PHP's pathinfo
-   * 
-   * @param Mixed $path 
-   * @return String|Array
    */
-  public static function getPathinfo($path)
+  public static function getPathinfo(string $path): array
   {
     // Kirby confuses jpeg an jpg on images. FileService only works with jpg!
     $pathinfo = pathinfo($path);
@@ -43,18 +40,17 @@ class FileService
    * - greyscale (default false)
    * - quality (default 90)
    * 
-   * @param String $path 
-   * @param Array $arguments 
-   * @param String $pattern 
-   * @param Array $options 
-   * @return Void 
    * @throws NotFoundException 
    * @throws InvalidArgumentException 
    * @throws LogicException 
    * @throws Exception 
    */
-  public static function getImage ($path, $arguments, $pattern, $options = [])
-  {
+  public static function getImage (
+    string $path,
+    array $arguments,
+    string $pattern,
+    ?array $options = []
+  ): void {
     $pathinfo = pathinfo($path);
     $filename = $pathinfo['basename'];
     $preg = "/^(.*?)(-(\d*)x(\d*))?(-crop-(top-left|top|top-right|left|center|right|bottom-left|bottom|bottom-right)+)?(-blur(\d+))?(-bw)?(-q(\d+))?\.(jpg|png)$/i";

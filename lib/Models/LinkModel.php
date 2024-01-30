@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
+use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
 use Tritrics\AflevereApi\v1\Services\FileService;
 
 /**
@@ -16,21 +16,18 @@ class LinkModel extends Model
   /**
    * Linktype, intern use
    * 
-   * @var String [http, https, page, file, email, tel, anchor, custom]
+   * @var string [http, https, page, file, email, tel, anchor, custom]
    */
   private $linktype;
 
   /**
    * Constructor with additional initialization.
-   * 
-   * @param Mixed $model 
-   * @param Mixed $blueprint 
-   * @param Mixed $lang 
-   * @param Boolean $add_details 
-   * @return Void 
    */
-  public function __construct($model, $blueprint, $lang)
-  {
+  public function __construct(
+    mixed $model,
+    ?Collection $blueprint,
+    ?string $lang
+  ) {
     $value = $model->value();
     if (str_starts_with($value, '#')) {
       $this->linktype = 'anchor';
@@ -57,10 +54,8 @@ class LinkModel extends Model
   /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
-   * 
-   * @return Collection 
    */
-  protected function getProperties()
+  protected function getProperties(): Collection
   {
     $res = new Collection();
     switch($this->linktype) {
@@ -76,7 +71,7 @@ class LinkModel extends Model
         break;
       case 'page':
         $res->add('link', LinkHelper::getPage(
-          LanguagesService::getUrl($this->lang, $this->model->uri($this->lang)))
+          LanguagesHelper::getUrl($this->lang, $this->model->uri($this->lang)))
         );
         break;
       case 'tel':
@@ -95,10 +90,8 @@ class LinkModel extends Model
   /**
    * Get the value of model as it's returned in response.
    * Mandatory method.
-   * 
-   * @return String
    */
-  protected function getValue()
+  protected function getValue(): string
   {
     switch ($this->linktype) {
       case 'anchor':

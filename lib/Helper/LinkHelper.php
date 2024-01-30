@@ -2,9 +2,6 @@
 
 namespace Tritrics\AflevereApi\v1\Helper;
 
-use Tritrics\AflevereApi\v1\Services\LanguagesService;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
-
 /**
  * Service for any kind of links (texts, page, file, user) to produce consistant output.
  */
@@ -13,7 +10,7 @@ class LinkHelper
   /**
    * 2-digit language code
    * 
-   * @var String
+   * @var string
    */
   private static $lang;
 
@@ -21,7 +18,7 @@ class LinkHelper
   /**
    * Detected slugs with starting slash.
    * 
-   * @var Array
+   * @var array
    */
   private static $slugs = [
     'home' => null, // /home
@@ -31,26 +28,25 @@ class LinkHelper
 
   /**
    * Detects the linktype from a given $href.
-   * 
-   * @param String $lang 
-   * @param String $href
-   * @param String $title
-   * @param Boolean $target
-   * @return Array 
    */
-  public static function getInline($lang, $href, $title = null, $target = false)
-  {
+  public static function getInline(
+    ?string $lang,
+    string $href,
+    ?string $title = null,
+    bool $target = false
+  ): array {
+
     // Initialization
     // do only once
     if (self::$lang !== $lang) {
       self::$lang = $lang;
-      $home = GlobalHelper::parseUrl(site()->homePage()->uri(self::$lang));
+      $home = self::parseUrl(site()->homePage()->uri(self::$lang));
       self::$slugs['home'] = $home['path'];
-      $media = GlobalHelper::parseUrl(kirby()->url('media'));
+      $media = self::parseUrl(kirby()->url('media'));
       self::$slugs['media'] = $media['path'];
-      self::$slugs['lang'] = '/' . LanguagesService::getSlug(self::$lang);
+      self::$slugs['lang'] = '/' . LanguagesHelper::getSlug(self::$lang);
     }
-    $hosts = GlobalHelper::getHosts(self::$lang);
+    $hosts = RequestHelper::getHosts(self::$lang);
 
     // rewrite intern page and file links, which start with
     // /@/page and /@/file
@@ -60,7 +56,7 @@ class LinkHelper
       if ($page->exists()) {
         $href = $page->url();
       } else {
-        return;
+        return [];
       }
     } else if (str_starts_with($href, '/@/file/')) {
       $uuid = str_replace('/@/file/', 'file://', $href);
@@ -68,12 +64,12 @@ class LinkHelper
       if ($file->exists()) {
         $href = $file->url();
       } else {
-        return;
+        return [];
       }
     }
 
     // working with splitted url
-    $parts = GlobalHelper::parseUrl($href);
+    $parts = self::parseUrl($href);
 
     // email and tel
     if (isset($parts['scheme']) && isset($parts['path'])) {
@@ -98,7 +94,7 @@ class LinkHelper
         } else {
           unset($parts['port']);
         }
-        return self::getFile(GlobalHelper::buildUrl($parts), $title, $target);
+        return self::getFile(self::buildUrl($parts), $title, $target);
       } 
     }
 
@@ -109,20 +105,15 @@ class LinkHelper
     }
 
     // all other links
-    return self::getUrl(GlobalHelper::buildUrl($parts), $title, $target);
+    return self::getUrl(self::buildUrl($parts), $title, $target);
   }
 
   /**
    * Get extern link.
-   * 
-   * @param String $lang 
-   * @param Mixed $href 
-   * @param String $title 
-   * @return Array 
    */
-  public static function getUrl($href, $title = null, $blank = false)
+  public static function getUrl(string $href, ?string $title = null, bool $blank = false): array
   {
-    $url = GlobalHelper::parseUrl($href);
+    $url = self::parseUrl($href);
     $res = [
       'type' => 'url',
       'href' => $href,
@@ -139,20 +130,15 @@ class LinkHelper
 
   /**
    * Get page (intern) link.
-   * 
-   * @param String $lang 
-   * @param String $path 
-   * @param String $title 
-   * @return Array 
    */
-  public static function getPage($path, $title = null, $blank = false)
+  public static function getPage(string $path, ?string $title = null, bool $blank = false ): array
   {
     // check and correct links to home page(s)
-    $parts = GlobalHelper::parseUrl($path);
+    $parts = self::parseUrl($path);
 
     // path is empty, set path to homepage, optional with prepending lang
     if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {
-      if (LanguagesService::isMultilang()) {
+      if (ConfigHelper::isMultilang()) {
         $parts['path'] = self::$slugs['lang'] . self::$slugs['home'];
       } else {
         $parts['path'] = self::$slugs['home'];
@@ -160,11 +146,11 @@ class LinkHelper
     }
     
     // path is not empty in a multilang installation
-    else if (LanguagesService::isMultilang()) {
+    else if (ConfigHelper::isMultilang()) {
       $slugs = array_values(array_filter(explode('/', $parts['path'])));
       $lang = count($slugs) > 0 ? $slugs[0] : null;
       $langSettings = null;
-      foreach (LanguagesService::list() as $settings) {
+      foreach (LanguagesHelper::list() as $settings) {
         if($settings->node('slug')->get() === $lang) {
           $langSettings = $settings;
         }
@@ -195,13 +181,8 @@ class LinkHelper
 
   /**
    * Get file (download) link.
-   * 
-   * @param String $lang 
-   * @param String $path 
-   * @param String $title 
-   * @return Array 
    */
-  public static function getFile($path, $title = null, $blank = false)
+  public static function getFile(string $path, ?string $title = null, bool $blank = false): array
   {
     $res = [
       'type' => 'file',
@@ -218,13 +199,8 @@ class LinkHelper
 
   /**
    * Get email link.
-   * 
-   * @param String $lang 
-   * @param Mixed $email 
-   * @param String $title 
-   * @return Array
    */
-  public static function getEmail($email, $title = null)
+  public static function getEmail(string $email, ?string $title = null): array
   {
     $res = [
       'type' => 'email',
@@ -238,13 +214,8 @@ class LinkHelper
 
   /**
    * Get telephone link.
-   * 
-   * @param String $lang 
-   * @param Mixed $tel 
-   * @param String $title 
-   * @return Array
    */
-  public static function getTel($tel, $title = null)
+  public static function getTel(string $tel, ?string $title = null): array
   {
     $tel = preg_replace('/^[+]{1,}/', '00', $tel);
     $tel = preg_replace('/[^0-9]/', '', $tel);
@@ -260,13 +231,8 @@ class LinkHelper
 
   /**
    * Get anchor.
-   * 
-   * @param String $lang 
-   * @param Mixed $anchor 
-   * @param String $title 
-   * @return Array
    */
-  public static function getAnchor($anchor, $title = null)
+  public static function getAnchor(string $anchor, bool $title = null): array
   {
     if (!str_starts_with($anchor, '#')) {
       $anchor = '#' . $anchor;
@@ -283,12 +249,8 @@ class LinkHelper
 
   /**
    * Get custom link.
-   * 
-   * @param String $lang
-   * @param String $title 
-   * @return Array
    */
-  public static function getCustom($link, $title = null)
+  public static function getCustom(string $link, ?string $title = null): array
   {
     $res = [
       'type' => 'custom',
@@ -302,13 +264,10 @@ class LinkHelper
 
   /**
    * Build the path, ignoring all host-parts.
-   * 
-   * @param Array $parts 
-   * @return String 
    */
-  private static function buildPath($parts)
+  private static function buildPath(array $parts): string
   {
-    return
+    return '' .
       (isset($parts['path']) ? "{$parts['path']}" : '') .
       (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
       (isset($parts['query']) ? "?{$parts['query']}" : '');
@@ -316,12 +275,8 @@ class LinkHelper
 
   /**
    * Compare two hosts and ports.
-   * 
-   * @param Array $parts 
-   * @param Array $compare 
-   * @return Boolean 
    */
-  private static function isInternLink($parts, $compare)
+  private static function isInternLink(array $parts, array $compare): bool
   {
     $host = isset($parts['host']) ? $parts['host'] : null;
     if ($host === null) {
@@ -334,5 +289,65 @@ class LinkHelper
     $port = isset($parts['port']) ? $parts['port'] : null;
     $portCompare = isset($compare['port']) ? $compare['port'] : null;
     return $port === $portCompare;
+  }
+
+  /**
+   * Parsing url in parts.
+   */
+  public static function parseUrl(string $href): array
+  {
+    $parts = parse_url($href);
+
+    // doing some normalization
+    if (isset($parts['scheme'])) {
+      $parts['scheme'] = strtolower($parts['scheme']);
+    }
+    if (isset($parts['host'])) {
+      $parts['host'] = strtolower($parts['host']);
+    }
+    if (isset($parts['port'])) {
+      $parts['port'] = (int) $parts['port'];
+    }
+    if (isset($parts['path'])) {
+      $parts['path'] = trim(strtolower($parts['path']), '/');
+      if (!isset($parts['scheme']) || !in_array($parts['scheme'], ['mailto', 'tel'])) {
+        $parts['path'] = '/' . $parts['path'];
+      }
+    }
+    if (isset($parts['fragment'])) {
+      if (strpos($parts['fragment'], '?') === false) {
+        $hash = $parts['fragment'];
+        $query = null;
+      } else {
+        $hash = substr($parts['fragment'], 0, strpos($parts['fragment'], '?') - 1);
+        $query = substr($parts['fragment'], strpos($parts['fragment'], '?'));
+      }
+      if (!empty($hash)) {
+        $parts['hash'] = $hash;
+      }
+      if (!empty($query)) {
+        $parts['query'] = $query;
+      }
+      unset($parts['fragment']);
+    }
+    return $parts;
+  }
+
+  /**
+   * Build the url, reverse of parseUrl().
+   */
+  public static function buildUrl(array $parts): string
+  {
+    return '' .
+    (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .
+      ((isset($parts['user']) || isset($parts['host'])) ? '//' : '') .
+      (isset($parts['user']) ? "{$parts['user']}" : '') .
+      (isset($parts['pass']) ? ":{$parts['pass']}" : '') .
+      (isset($parts['user']) ? '@' : '') .
+      (isset($parts['host']) ? "{$parts['host']}" : '') .
+      (isset($parts['port']) ? ":{$parts['port']}" : '') .
+      (isset($parts['path']) ? "{$parts['path']}" : '') .
+      (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
+      (isset($parts['query']) ? "?{$parts['query']}" : '');
   }
 }
