@@ -3,13 +3,12 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: checkboxes, multiselect, tags
  */
-class OptionsModel extends Model
+class OptionsModel extends BaseModel
 {
   /**
    * Get the value of model as it's returned in response.
@@ -42,7 +41,7 @@ class OptionsModel extends Model
   private function splitSelectedOptions (string|int|float $value): array
   {
     return array_map(function ($option) {
-      return TypeHelper::auto($option, true);
+      return TypeHelper::toChar($option, true);
     }, explode(',', $value));
   }
 }

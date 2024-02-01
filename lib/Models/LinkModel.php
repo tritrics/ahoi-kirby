@@ -3,7 +3,7 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
+
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
 use Tritrics\AflevereApi\v1\Services\FileService;
@@ -11,7 +11,7 @@ use Tritrics\AflevereApi\v1\Services\FileService;
 /**
  * Model for Kirby's fields: link
  */
-class LinkModel extends Model
+class LinkModel extends BaseModel
 {
   /**
    * Linktype, intern use

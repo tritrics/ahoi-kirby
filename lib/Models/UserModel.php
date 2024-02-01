@@ -3,12 +3,11 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 
 /**
  * Model for Kirby's user object
  */
-class UserModel extends Model
+class UserModel extends BaseModel
 {
   /**
    * Marker if this model has child fields.

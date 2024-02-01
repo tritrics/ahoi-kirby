@@ -3,13 +3,12 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
 /**
  * Model for Kirby's fields: structure
  */
-class StructureModel extends Model
+class StructureModel extends BaseModel
 {
   /**
    * Get the value of model as it's returned in response.

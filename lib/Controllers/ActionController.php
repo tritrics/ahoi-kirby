@@ -18,13 +18,6 @@ use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 class ActionController
 {
   /**
-   * Valid actions like implemented in ActionController::submit().
-   * 
-   * @var array
-   */
-  var $valid_actions = [ 'default' ];
-
-  /**
    * Get a token for submit action.
    */
   public function token(?string $action): Response
@@ -37,7 +30,7 @@ class ActionController
       if (!ConfigHelper::isEnabledAction()) {
         return ResponseHelper::disabled();
       }
-      $action = RequestHelper::getAction($action, $this->valid_actions);
+      $action = RequestHelper::getAction($action);
       if ($action === null) {
         return ResponseHelper::badRequest();
       }
@@ -67,7 +60,7 @@ class ActionController
       if ($lang === null) {
         return ResponseHelper::invalidLang();
       }
-      $action = RequestHelper::getAction($action, $this->valid_actions);
+      $action = RequestHelper::getAction($action);
       if ($action === null) {
         return ResponseHelper::badRequest();
       }

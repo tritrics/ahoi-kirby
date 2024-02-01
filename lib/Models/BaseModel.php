@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Data;
+namespace Tritrics\AflevereApi\v1\Models;
 
 use Kirby\Cms\Languages;
 use Kirby\Cms\Language;
@@ -10,12 +10,14 @@ use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Content\Field;
 use Kirby\Cms\Block;
+use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Helper\FieldHelper;
 
 /**
- * Inherits from Collection and adds some model functions. Base class for all models.
+ * Basic model for Kirby Fields and Models.
+ * Inherits from Collection and adds some model functions.
  */
-abstract class Model extends Collection
+abstract class BaseModel extends Collection
 {
   /**
    * the Kirby model instance

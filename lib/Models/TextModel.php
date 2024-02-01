@@ -9,7 +9,6 @@ use \DOMCdataSection;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
 /**
@@ -42,7 +41,7 @@ use Tritrics\AflevereApi\v1\Helper\LinkHelper;
  * field-buttons contains the block-elements headline and lists. These blocks are
  * stripped out by inline() which only makes sense, when the buttons are configured without.
  */
-class TextModel extends Model
+class TextModel extends BaseModel
 {
   /**
    * Type retured in response.

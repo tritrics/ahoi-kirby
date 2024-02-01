@@ -2,12 +2,10 @@
 
 namespace Tritrics\AflevereApi\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Model;
-
 /**
  * Model for Kirby's fields: number, range
  */
-class NumberModel extends Model
+class NumberModel extends BaseModel
 {
   /**
    * Get the value of model as it's returned in response.

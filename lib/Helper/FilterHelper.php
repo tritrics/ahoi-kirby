@@ -60,9 +60,9 @@ class FilterHelper
    */
   public static function compare(mixed $value, string $operator, mixed $compare): bool
   {
-    $value = TypeHelper::auto($value, true, true);
-    $operator = TypeHelper::string($operator, true, true);
-    $compare = TypeHelper::auto($compare, true, true);
+    $value = TypeHelper::toChar($value, true, true);
+    $operator = TypeHelper::toString($operator, true, true);
+    $compare = TypeHelper::toChar($compare, true, true);
     if ($value === null || $operator === null || $compare === null) {
       return false;
     }

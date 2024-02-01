@@ -3,12 +3,11 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 
 /**
  * Model for Kirby's fields: color
  */
-class ColorModel extends Model
+class ColorModel extends BaseModel
 {
   /**
    * Get additional field data (besides type and value)

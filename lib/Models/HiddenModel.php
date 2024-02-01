@@ -2,13 +2,12 @@
 
 namespace Tritrics\AflevereApi\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: hidden
  */
-class HiddenModel extends Model
+class HiddenModel extends BaseModel
 {
   /**
    * Get type of this model as it's returned in response.
@@ -31,6 +30,6 @@ class HiddenModel extends Model
    */
   protected function getValue (): mixed
   {
-    return TypeHelper::auto($this->model->value());
+    return TypeHelper::toChar($this->model->value());
   }
 }

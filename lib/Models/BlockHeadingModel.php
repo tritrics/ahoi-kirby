@@ -2,13 +2,12 @@
 
 namespace Tritrics\AflevereApi\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Data\Collection;
 
 /**
  * Model for Kirby's block: headline
  */
-class BlockHeadingModel extends Model
+class BlockHeadingModel extends BaseModel
 {
   /**
    * Marker if this model has child fields.

@@ -3,7 +3,6 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
 use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 
@@ -11,7 +10,7 @@ use Tritrics\AflevereApi\v1\Helper\LinkHelper;
 /**
  * Model for Kirby's site object
  */
-class SiteModel extends Model
+class SiteModel extends BaseModel
 {
   /**
    * Get additional field data (besides type and value)

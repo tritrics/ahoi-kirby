@@ -60,12 +60,18 @@ class FieldHelper
         $key = strtolower($key);
         $condField = $fields[$key];
         if (isset($fields[$key])) {
-          $condValue = TypeHelper::bool($condField->value(), null);
+          $condValue =
+            TypeHelper::isBool($condField->value())
+              ? TypeHelper::toBool($condField->value())
+              : null;
           if (is_bool($condValue)) {
-            $value = TypeHelper::bool($value, null);
+            $value =
+              TypeHelper::isBool($value)
+                ? TypeHelper::toBool($value)
+                : null;
           } else {
-            $value = TypeHelper::auto($value, true, true);
-            $condValue = TypeHelper::auto($condField->value(), true, true);
+            $value = TypeHelper::toChar($value, true, true);
+            $condValue = TypeHelper::toChar($condField->value(), true, true);
           }
           if ($value !== $condValue) {
             return true;

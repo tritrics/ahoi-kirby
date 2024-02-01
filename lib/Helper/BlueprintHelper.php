@@ -84,12 +84,33 @@ class BlueprintHelper
       try {
         $blueprint = Blueprint::find($path);
         $blueprint = self::extend($blueprint);
-        self::$files[$name] = TypeHelper::array($blueprint, ['api', 'type', 'extends']);
+        self::$files[$name] = self::normalizeValues($blueprint, ['api', 'type', 'extends']);
       } catch (NotFoundException $e) {
         self::$files[$name] = [];
       }
     }
     return self::$files[$name];
+  }
+
+  /**
+   * Helper to convert toChar() for given $nodes in $arr.
+   */
+  public static function normalizeValues(array $arr, array|bool $keys = false): array {
+    $res = [];
+    foreach ($arr as $key => $value) {
+      $key = TypeHelper::toChar($key, true, true);
+      if (is_array($value)) {
+        $res[$key] = self::normalizeValues(
+          $value,
+          (is_array($keys) && in_array($key, $keys)) ? true : $keys
+        );
+      } elseif ($keys === true || (is_array($keys) && in_array($key, $keys))) {
+        $res[$key] = TypeHelper::toChar($value, true, true);
+      } else {
+        $res[$key] = $value;
+      }
+    }
+    return $res;
   }
 
   /**

@@ -3,12 +3,11 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 
 /**
  * Model for Kirby's languages object
  */
-class LanguagesModel extends Model
+class LanguagesModel extends BaseModel
 {
   /**
    * Get additional field data (besides type and value)

@@ -56,7 +56,7 @@ class ActionService
 
   /**
    * Main function to submit (execute) a given action.
-   * Token is already checked by controller.
+   * Token and action are already checked by controller.
    */
   public static function submit(string $lang, string $action, array $data): array
   {
@@ -65,8 +65,9 @@ class ActionService
     $body = $res->add('body');
     $body->add('action', $action);
     $errno = $body->add('errno', 0);
-
-    // check for secret
+    
+    // validate data against configurations
+    list($errors, $data) = ValidationHelper::checkDataTypes($action, $data);
 
     // strip everything out that might be harmful
     $data = ValidationHelper::sanitizeData($data);

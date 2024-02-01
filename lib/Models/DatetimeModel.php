@@ -3,12 +3,11 @@
 namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Data\Model;
 
 /**
  * Model for Kirby's fields: date, time
  */
-class DatetimeModel extends Model
+class DatetimeModel extends BaseModel
 {
   /**
    * Get type of this model as it's returned in response.

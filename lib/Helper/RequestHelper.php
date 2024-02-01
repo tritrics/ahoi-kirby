@@ -15,7 +15,7 @@ class RequestHelper
    */
   public static function getLang (mixed $val): ?string
   {
-    $lang = TypeHelper::string($val, true, true);
+    $lang = TypeHelper::toString($val, true, true);
     if (!LanguagesHelper::isValid($lang)) {
       return null;
     }
@@ -25,10 +25,11 @@ class RequestHelper
   /**
    * Normalize and check Action
    */
-  public static function getAction(mixed $val, array $valid_actions): ?string
+  public static function getAction(mixed $val): ?string
   {
-    $action = TypeHelper::string($val, true, true);
-    return strlen($action) && in_array($action, $valid_actions) ? $action : null;
+    $action = TypeHelper::toString($val, true, true);
+    $valid_actions = ConfigHelper::getConfig('actions');
+    return strlen($action) && isset($valid_actions[$action]) ? $action : null;
   }
 
   /**
@@ -36,7 +37,7 @@ class RequestHelper
    */
   public static function getPage (Request $request): int
   {
-    $val = TypeHelper::int($request->get('page'));
+    $val = TypeHelper::toInt($request->get('page'));
     return ($val || $val <= 0) ? 1 : $val;
   }
 
@@ -45,7 +46,7 @@ class RequestHelper
    */
   public static function getLimit (Request $request): int
   {
-    $val = TypeHelper::int($request->get('limit'));
+    $val = TypeHelper::toInt($request->get('limit'));
     return ($val || $val <= 0) ? 10 : $val;
   }
 
@@ -54,7 +55,7 @@ class RequestHelper
    */
   public static function getOrder (Request$request): string
   {
-    $val = TypeHelper::string($request->get('order'), true, true);
+    $val = TypeHelper::toString($request->get('order'), true, true);
     if (in_array($val, ['asc', 'desc'])) {
       return $val;
     }
@@ -67,14 +68,14 @@ class RequestHelper
   public static function getFields (Request $request): string|array
   {
     $val  = $request->get('fields');
-    if (is_string($val) && TypeHelper::string($val, true, true) === 'all') {
+    if (is_string($val) && TypeHelper::toString($val, true, true) === 'all') {
       return 'all';
     }
     if (!is_array($val) || count($val) === 0) {
       return [];
     }
     $val = array_map(function ($entry) {
-      return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::string($entry, true, true)); 
+      return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString($entry, true, true)); 
     }, $val);
     $val = array_filter($val, function ($entry) {
       return (is_string($entry) && strlen($entry) > 0);
@@ -103,8 +104,8 @@ class RequestHelper
         continue;
       }
       $res[] = [
-        preg_replace("/[^a-z0-9_-]/", "", TypeHelper::string(array_shift($query), true, true)),
-        preg_replace("/[^a-z]/", "", TypeHelper::string(array_shift($query), true, true)),
+        preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString(array_shift($query), true, true)),
+        preg_replace("/[^a-z]/", "", TypeHelper::toString(array_shift($query), true, true)),
         implode('.', $query)
       ];
     }
