@@ -2,12 +2,14 @@
 
 namespace Tritrics\AflevereApi\v1\Services;
 
-use Kirby\Cms\Response;
+use Tritrics\AflevereApi\v1\Data\SimpleCollection;
 use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
-use Tritrics\AflevereApi\v1\Helper\ValidationHelper;
+use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 use Tritrics\AflevereApi\v1\Actions\EmailAction;
+use Tritrics\AflevereApi\v1\Post\PostData;
+use Tritrics\AflevereApi\v1\Post\BaseValue;
 
 /**
  * Handling actions (post-data)
@@ -26,9 +28,10 @@ class ActionService
     // 20 - 29 EmailAction
     // 30 - 99 unused
     1 => 'An unknown error occured.',
-    10 => 'Configuration is missing or incomplete in config.',
+    10 => 'Action configuration is missing or incomplete in config.php.',
     11 => 'Security token is missing in config or doesn\'t match the requirements.',
-    15 => 'Action was declined due to security concerns.', // not used so far
+    //15 => 'Action was declined due to security concerns.',
+    17 => 'Post-input configuration is missing or incomplete in config.php.',
     19 => 'Submitted data was not saved because all sub-actions failed.',
     20 => 'All mail configurations in config.php are invalid, nothing to send.',
     21 => 'No valid inbound mail action configured in config.php.',
@@ -39,6 +42,10 @@ class ActionService
     // 200 - 299 EmailAction
     // 300 - 999 unused
     100 => 'Error in one or more sub-actions.',
+    110 => 'Submitted post data failed validation.',
+    120 => 'Field is of wrong data type.',
+    121 => 'Field is required.',
+    122 => 'Value is not matching the required min/max.',
     200 => 'Error on sending %fail from %total mails.',
   ];
 
@@ -65,15 +72,20 @@ class ActionService
     $body = $res->add('body');
     $body->add('action', $action);
     $errno = $body->add('errno', 0);
-    
-    // validate data against configurations
-    list($errors, $data) = ValidationHelper::checkDataTypes($action, $data);
+    $protocol = $body->add('result');
 
-    // strip everything out that might be harmful
-    $data = ValidationHelper::sanitizeData($data);
-    $body->add('data', $data);
+    // read post data and validate
+    $post = new PostData($action, $data);
+    $protocol->add('data', $post->getResult(
+      ConfigHelper::getConfig('form-security.return-post-values', false)
+    ));
+    if ($post->hasError()) {
+      $errno->set($post->getError());
+      self::logError($action, $post->getError());
+      return $res->get();
+    }
 
-    // read config data
+    // read actions config
     $actions = ConfigHelper::getConfig('actions');
 
     // @errno10: Configuration is missing or incomplete in config.php. 
@@ -93,12 +105,13 @@ class ActionService
     // At least one action which saves the data must be successfull.
     $isSaved = false;
     $subActionFailed = false;
-    $protocol = $body->add('result');
+    $meta = new SimpleCollection(self::getMeta($lang));
+    $data = new SimpleCollection($post->get());
 
     // ... other actions, evtl. set $isSaved = true
 
     if (isset($actions[$action]['email'])) {
-      $resEmail = EmailAction::send($actions[$action]['email'], $data, $lang, !$isSaved);
+      $resEmail = EmailAction::send($actions[$action]['email'], $meta, $data, $lang, !$isSaved);
       if ($resEmail['errno'] > 0) {
         $subActionFailed = true;
         self::logError($action, $resEmail['errno'], $resEmail);
@@ -121,6 +134,21 @@ class ActionService
       self::logError($action, 100);
     }
     return $res->get();
+  }
+
+  /**
+   * Compute some meta values for use in actions.
+   */
+  private static function getMeta(?string $lang): array
+  {
+    $hosts = RequestHelper::getHosts($lang);
+    return [
+      'date' => new BaseValue(date('Y-m-d')),
+      'time' => new BaseValue(date('H:i:s')),
+      'host' => new BaseValue($hosts['referer']['host']),
+      'ip' => new BaseValue($hosts['referer']['ip']),
+      'lang' => new BaseValue($lang),
+    ];
   }
 
   /**

@@ -29,9 +29,9 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
     'form-security' => [
       'secret' => null,
       'token-validity' => 10,
+      'return-post-values' => false,
       'strip-tags' => true,
       'strip-backslashes' => true,
-      'strip-urls' => true,
     ],
   ],
   'hooks' => [

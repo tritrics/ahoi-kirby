@@ -9,7 +9,7 @@ use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 /**
  * Wrapper for post data with sanitizing and validation functions.
  */
-abstract class PostData extends Collection
+class PostData
 {
   /**
    * The action
@@ -19,13 +19,6 @@ abstract class PostData extends Collection
   private $action;
 
   /**
-   * 2-digit Language-code
-   * 
-   * @var ?string
-   */
-  protected $lang;
-
-  /**
    * The field definitions for the action from config.php
    * 
    * @var array
@@ -33,16 +26,14 @@ abstract class PostData extends Collection
   private $def;
 
   /**
-   * The original post data
+   * The post data, whereas only those values are read, which
+   * are defined in $def. Structure:
+   * 
+   * [
+   *   key => instance of value class
+   * ]
    * 
    * @var array
-   */
-  private $post;
-
-  /**
-   * The sanitized, evaluated post data
-   * 
-   * @var Collection
    */
   private $fields;
 
@@ -54,28 +45,37 @@ abstract class PostData extends Collection
    */
   private $errno = 0;
 
-  private $fieldTypes = [
-    'string', // without linebreaks
-    'text',   // with linebreaks
-    'number', // integers or floats
-    'email',
-    'url',
-    'bool',   // 0, 1, '0', '1', 'false', 'true', converts to bool
+  /**
+   * Availabe fieldtypes with corresponding classes.
+   * 
+   * @var array
+   */
+  private $valueClasses = [
+    'string'  => '\Post\StringValue', // without linebreaks
+    'text'    => '\Post\TextValue',   // with linebreaks
+    'number'  => '\Post\NumberValue', // integers or floats
+    'email'   => '\Post\EmailValue',
+    'url'     => '\Post\UrlValue',
+    'bool'    => '\Post\BoolValue',   // 0, 1, '0', '1', 'false', 'true', converts to bool
   ];
 
   /**
    */
-  public function __construct (string $action, array $post)
+  public function __construct (string $action, array $data)
   {
-    $this->action = $action;
-    $this->post = $post;
-    if (strlen($action)) {
-      $this->def = ConfigHelper::getConfig('actions.' . $action . '.input');
+    $this->readDef($action);
+    if (!$this->hasError()) {
+      $this->readData($data);
+      $this->validate();
     }
-    if (!is_array($this->def)) {
-      $this->errno = 45;
-    }
-    $this->readData();
+  }
+
+  /**
+   * Get Fields for use in templates.
+   */
+  public function get(): array
+  {
+    return $this->fields;
   }
 
   /**
@@ -94,10 +94,36 @@ abstract class PostData extends Collection
     return $this->errno;
   }
 
-  public function validate()
+  /**
+   * Get result object with fields, values and errors
+   */
+  public function getResult (bool $addValues): Collection
   {
-    if ($this->hasError()) {
-      return;
+    $res = new Collection();
+    foreach ($this->fields as $key => $class) {
+      $field = $res->add($key);
+      if ($addValues) {
+        $field->add('type', $class->getType());
+        $field->add('value', $class->get());
+      }
+      $field->add('errno', $class->getError());
+    }
+    return $res;
+  }
+
+  /**
+   * Read field definitions from config.php.
+   */
+  private function readDef(string $action): void
+  {
+    $this->action = TypeHelper::toString($action, true, true);
+    if (strlen($this->action)) {
+      $def = ConfigHelper::getConfig('actions.' . $this->action . '.input');
+    }
+    if (!is_array($def)) {
+      $this->errno = 17;
+    } else {
+      $this->def = $def;
     }
   }
 
@@ -105,53 +131,67 @@ abstract class PostData extends Collection
    * Take those fields from $post to $fields, that are defined in $def
    * and skip all the rest. Sanitize values first and validate after.
    */
-  private function readData(): void
+  private function readData (array $data): void
   {
-    $stripTags =        ConfigHelper::getConfig('form-security.strip-tags', true);
-    $stripBackslashes = ConfigHelper::getConfig('form-security.strip-backslashes', true);
-    $stripUrls =        ConfigHelper::getConfig('form-security.strip-urls', true);
-    foreach($this->data as $key => $value) {
+    // sanitize field names, collect valid fields
+    $fields = [];
+    foreach ($data as $key => $value) {
       $key = TypeHelper::toString($key, true, true);
-
-      if (!$this->isValidField($key)) {
-        continue;
+      if ($this->isValidField($key)) {
+        $fields[$key] = $value;
       }
-      if (is_array($value))
     }
 
-    if ($this->isString($value)) {
-      if ($stripTags) {
-        $value = strip_tags($value);
+    // create classes for every field in def and pass post-value
+    foreach ($this->def as $key => $def) {
+      $type = $this->def[$key]['type'];
+      $value = $fields[$key];
+      if (substr($type, -2) === '[]') {
+      } else {
+        $class = ConfigHelper::getNamespace() . $this->valueClasses[$type];
+        $this->fields[$key] = new $class($value, $this->def[$key]);
       }
-      if ($stripBackslashes) {
-        $value = str_replace('\\', '', $value);
-      }
-      if ($stripUrls) {
-        $value = preg_replace('/(https?:\/\/([-\w\.]+[-\w])+(:\d+)?(\/([\w\/_\.#-]*(\?\S+)?[^\.\s])?)?)/', '[link removed]', $value);
-      }
-      $value = trim($value);
     }
-    $res[$key] = $value;
   }
 
-  private function readField ($value) {
-    if (is_array($value)) {
-      return '';
+  /**
+   * Check values for validation error and set $errno.
+   */
+  private function validate (): void
+  {
+    foreach ($this->fields as $key => $class) {
+      if ($class->hasError()) {
+        $this->errno = 110;
+      }
     }
-
   }
 
+  /**
+   * Check if a field (key in post-data) is defined.
+   */
   private function isValidField (string $key): bool
   {
     if (
       !isset($this->def[$key]) ||
       !is_array($this->def[$key]) ||
       !isset($this->def[$key]['type']) ||
-      !$this->isString($this->def[$key]['type'])
+      !is_string($this->def[$key]['type'])
     ) {
       return false;
     }
-      in_array($this->def[$key]['type'], $this->fieldtypes);
+    return isset($this->valueClasses[$this->def[$key]['type']]);
+  }
+
+  /**
+   * For debugging purposes.
+   */
+  public function __toString(): string
+  {
+    $res = [];
+    foreach ($this->fields as $key => $class) {
+      $res[] = $key . ': ' . $class->__toString();
+    }
+    return implode("\n", $res);
   }
 }
     

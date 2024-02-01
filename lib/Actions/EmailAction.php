@@ -5,7 +5,7 @@ namespace Tritrics\AflevereApi\v1\Actions;
 use Exception;
 use Throwable;
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Helper\GlobalHelper;
+use Tritrics\AflevereApi\v1\Data\SimpleCollection;
 use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 
 /**
@@ -20,7 +20,8 @@ class EmailAction
    */
   public static function send(
     array $presets,
-    array $data,
+    SimpleCollection $meta,
+    SimpleCollection $data,
     string $lang,
     bool $checkInbound = false
   ): array {
@@ -31,20 +32,8 @@ class EmailAction
       'errno' => 0,
     ];
 
-    $hosts = RequestHelper::getHosts($lang);
-
-    // Computing Meta
-    $meta = [];
-    $meta['__date__'] = date('Y-m-d');
-    $meta['__time__'] = date('H:i:s');
-    $meta['__host__'] = $hosts['referer']['host'];
-    $meta['__ip__']   = $hosts['referer']['ip'];
-    if (is_string($lang)) {
-      $meta['__lang__'] = $lang;
-    }
-
     // computing the mails from $presets
-    $emails = self::getEmails($presets, $lang, $data, $meta, $hosts);
+    $emails = self::getEmails($presets,$lang, $meta, $data);
     $res['total'] = is_array($emails) ? count($emails) : 0;
 
     // @errno20: All mail configurations in config.php are invalid, nothing to send.
@@ -106,22 +95,12 @@ class EmailAction
   private static function getEmails(
     array $presets,
     string $lang,
-    array $formdata,
-    array $metadata,
-    array $hosts
+    SimpleCollection $meta,
+    SimpleCollection $data
   ): array {
     $res = [];
+    $hosts = RequestHelper::getHosts($lang);
     foreach ($presets as $preset) {
-
-      // first compute data
-      // form data overwrites preset data overwrites meta data
-      $data = $metadata;
-      if (isset($preset['data']) && is_array($preset['data'])) {
-        $data = array_merge($data, $preset['data']);
-      }
-      if (is_array($formdata)) {
-        $data = array_merge($data, $formdata);
-      }
 
       // build array with email config, like required by Kirby's mail function
       $email = [ 'inbound' => false ];
@@ -143,8 +122,8 @@ class EmailAction
         strlen($preset['fromName']) > 0
       ) {
         $email['fromName'] =
-          isset($data[$preset['fromName']])
-          ? $data[$preset['fromName']]
+          $data->has($preset['fromName'])
+          ? $data->$preset['fromName']->get()
           : $preset['fromName'];
       }
 
@@ -230,7 +209,7 @@ class EmailAction
         is_string($preset['template-' . $lang]) &&
         strlen($preset['template-' . $lang]) > 0
       ) {
-        $email['body'] = self::parseTemplate($preset['template-' . $lang], $data);
+        $email['body'] = self::parseTemplate($preset['template-' . $lang], $meta, $data);
       }
       if (
         $email['body'] === null &&
@@ -238,10 +217,10 @@ class EmailAction
         is_string($preset['template']) &&
         strlen($preset['template']) > 0
       ) {
-        $email['body'] = self::parseTemplate($preset['template'], $data);
+        $email['body'] = self::parseTemplate($preset['template'], $meta, $data);
       }
       if ($email['body'] === null) {
-        $email['body'] = self::buildInTemplate($data);
+        $email['body'] = self::buildInTemplate($meta, $data);
       }
 
       // attachments, optional
@@ -276,8 +255,10 @@ class EmailAction
    * Check if addresses are valid mail adresses or a field name,
    * so the mail adress is taken from data.
    */
-  private static function getAddresses(string|array $addresses, array $data): mixed
-  {
+  private static function getAddresses(
+    string|array $addresses,
+    SimpleCollection $data
+  ): mixed {
     if (!is_array($addresses)) {
       $addresses = [$addresses];
     }
@@ -289,10 +270,10 @@ class EmailAction
       if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
         $res[] = $address;
       } else if (
-        isset($data[$address]) &&
-        filter_var($data[$address], FILTER_VALIDATE_EMAIL)
+        $data->has($address) &&
+        filter_var($data->$address->get(), FILTER_VALIDATE_EMAIL)
       ) {
-        $res[] = $data[$address];
+        $res[] = $data->$address->get();
       }
     }
     if (count($res) === 0) {
@@ -311,19 +292,23 @@ class EmailAction
    * @throws Throwable 
    * @throws LogicException 
    */
-  private static function parseTemplate(string $template, array $data): mixed
-  {
+  private static function parseTemplate(
+    string $template,
+    SimpleCollection $meta,
+    SimpleCollection $data
+  ): mixed {
     $html = kirby()->template('emails/' . $template, 'html', 'text');
     $text = kirby()->template('emails/' . $template, 'text', 'text');
+    $templateData = [ 'meta' => $meta, 'data' => $data ]; // will be deconstructed to $meta and $data in template
     if ($html->exists()) {
       $body = [];
-      $body['html'] = $html->render($data);
+      $body['html'] = $html->render($templateData);
       if ($text->exists()) {
-        $body['text'] = $text->render($data);
+        $body['text'] = $text->render($templateData);
       }
       return $body;
     } elseif ($text->exists()) {
-      return $text->render($data);
+      return $text->render($templateData);
     }
     return null;
   }
@@ -331,26 +316,15 @@ class EmailAction
   /**
    * Simple list with values as mail body in case a template is missing.
    */
-  private static function buildInTemplate(array $data = []): string
+  private static function buildInTemplate(SimpleCollection $meta, SimpleCollection $data): string
   {
-    $meta = '';
-    $body = '';
-    foreach ($data as $key => $value) {
-      preg_match('/__([a-zA-Z0-9]+)__/', $key, $found);
-      if (count($found) === 2) {
-        $meta .= ucfirst($found[1]) . ": " . $value . "\n";
-      } else if (strstr($value, PHP_EOL)) {
-        $body .= $key . ": ¬\n\n" . $value . "\n\n";
-      } else {
-        $body .= $key . ": " . $value . "\n";
-      }
+    $res = "Automatically generated email\n\n";
+    foreach ($meta as $key => $model) {
+      $res .= $key . ': ' . $model->get() . "\n";
     }
-    $res = "Automatically generated email\n";
-    if ($meta) {
-      $res .= "\n" . $meta;
-    }
-    if ($body) {
-      $res .= "\n" . $body;
+    $res .= "\n";
+    foreach ($data as $key => $model) {
+      $res .= $key . ': ' . $model->get() . "\n";
     }
     return $res . "\n";
   }
