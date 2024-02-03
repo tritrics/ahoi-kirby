@@ -17,7 +17,7 @@ class ModelFactory
    * 
    * @var array
    */
-  private static $buildIn = [
+  private static $classMap = [
     'block-default' => '\Models\BlockDefaultModel',
     'block-heading' => '\Models\BlockHeadingModel',
     'blocks'        => '\Models\BlocksModel',
@@ -84,7 +84,7 @@ class ModelFactory
    */
   public static function has (string $type): bool
   {
-    return $type === 'link' || isset(self::$added[$type]) || isset(self::$buildIn[$type]);
+    return $type === 'link' || isset(self::$added[$type]) || isset(self::$classMap[$type]);
   }
 
   /**
@@ -99,10 +99,10 @@ class ModelFactory
     $key = $type;
     if (isset(self::$added[$key])) {
       $class = self::$added[$key];
-    } elseif (isset(self::$buildIn[$key])) {
-      $class = ConfigHelper::getNamespace() . self::$buildIn[$key];
+    } elseif (isset(self::$classMap[$key])) {
+      $class = ConfigHelper::getNamespace() . self::$classMap[$key];
     } else {
-      $class = ConfigHelper::getNamespace() . self::$buildIn['text'];
+      $class = ConfigHelper::getNamespace() . self::$classMap['text'];
     }
     return new $class($field, $def, $lang);
   }
@@ -119,10 +119,10 @@ class ModelFactory
     $key = 'block-' . $type;
     if (isset(self::$added[$key])) {
       $class = self::$added[$key];
-    } elseif (isset(self::$buildIn[$key])) {
-      $class = ConfigHelper::getNamespace() . self::$buildIn[$key];
+    } elseif (isset(self::$classMap[$key])) {
+      $class = ConfigHelper::getNamespace() . self::$classMap[$key];
     } else {
-      $class = ConfigHelper::getNamespace() . self::$buildIn['block-default'];
+      $class = ConfigHelper::getNamespace() . self::$classMap['block-default'];
     }
     return new $class($block, $def, $lang);
   }

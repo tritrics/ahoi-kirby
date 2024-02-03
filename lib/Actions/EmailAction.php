@@ -3,10 +3,9 @@
 namespace Tritrics\AflevereApi\v1\Actions;
 
 use Exception;
-use Throwable;
-use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Data\SimpleCollection;
+use Tritrics\AflevereApi\v1\Exceptions\PayloadException;
 use Tritrics\AflevereApi\v1\Helper\RequestHelper;
+use Tritrics\AflevereApi\v1\Post\PostValues;
 
 /**
  * Sending E-Mails
@@ -16,12 +15,13 @@ class EmailAction
   /**
    * Sending emails defined in $presets.
    * 
-   * @throws Exception 
+   * @throws Exception
+   * @throws PayloadException
    */
   public static function send(
     array $presets,
-    SimpleCollection $meta,
-    SimpleCollection $data,
+    PostValues $meta,
+    PostValues $data,
     string $lang,
     bool $checkInbound = false
   ): array {
@@ -36,13 +36,12 @@ class EmailAction
     $emails = self::getEmails($presets,$lang, $meta, $data);
     $res['total'] = is_array($emails) ? count($emails) : 0;
 
-    // @errno20: All mail configurations in config.php are invalid, nothing to send.
+    // no valid configurations
     if ($res['total'] === 0) {
       $res['errno'] = 20;
-      return $res;
+      throw new PayloadException('All mail configurations in config.php are invalid, nothing to send.', 20, $res); // @errno20
     }
 
-    // @errno21: No valid inbound mail action configured in config.php.
     if ($checkInbound) {
       $count = 0;
       foreach($emails as $email) {
@@ -52,7 +51,7 @@ class EmailAction
       }
       if ($count === 0) {
         $res['errno'] = 21;
-        return $res;
+        throw new PayloadException('No valid inbound mail action configured in config.php.', 20, $res); // @errno21
       }
     }
 
@@ -73,17 +72,16 @@ class EmailAction
       }
     }
 
-    // @errno22: Sending failed for all inbound mails.
+    // no inbound mails successful, which means data is not "stored".
     if ($inboundSent === 0) {
       $res['errno'] = 22;
+      throw new PayloadException('Sending failed for all inbound mails.', 20, $res); // @errno22
     }
 
-    // @errno200: Error on sending %fail from %total mails.
+    // non-fatal error: Error on sending %fail from %total mails.
     else if ($res['fail'] > 0) {
-      $res['errno'] = 200;
+      $res['errno'] = 200; // @errno200
     }
-
-    // OK
     return $res;
   }
 
@@ -95,8 +93,8 @@ class EmailAction
   private static function getEmails(
     array $presets,
     string $lang,
-    SimpleCollection $meta,
-    SimpleCollection $data
+    PostValues $meta,
+    PostValues $data
   ): array {
     $res = [];
     $hosts = RequestHelper::getHosts($lang);
@@ -257,7 +255,7 @@ class EmailAction
    */
   private static function getAddresses(
     string|array $addresses,
-    SimpleCollection $data
+    PostValues $data
   ): mixed {
     if (!is_array($addresses)) {
       $addresses = [$addresses];
@@ -289,13 +287,12 @@ class EmailAction
    * Read a template an parse data in.
    * Supports both text and html templates.
    * 
-   * @throws Throwable 
-   * @throws LogicException 
+   * @throws Exception 
    */
   private static function parseTemplate(
     string $template,
-    SimpleCollection $meta,
-    SimpleCollection $data
+    PostValues $meta,
+    PostValues $data
   ): mixed {
     $html = kirby()->template('emails/' . $template, 'html', 'text');
     $text = kirby()->template('emails/' . $template, 'text', 'text');
@@ -316,8 +313,10 @@ class EmailAction
   /**
    * Simple list with values as mail body in case a template is missing.
    */
-  private static function buildInTemplate(SimpleCollection $meta, SimpleCollection $data): string
-  {
+  private static function buildInTemplate(
+    PostValues $meta,
+    PostValues $data
+  ): string {
     $res = "Automatically generated email\n\n";
     foreach ($meta as $key => $model) {
       $res .= $key . ': ' . $model->get() . "\n";
