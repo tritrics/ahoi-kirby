@@ -3,6 +3,7 @@
 namespace Tritrics\AflevereApi\v1\Actions;
 
 use Exception;
+use Kirby\Cms\Page;
 use Tritrics\AflevereApi\v1\Exceptions\PayloadException;
 use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 use Tritrics\AflevereApi\v1\Post\PostValues;
@@ -18,13 +19,7 @@ class EmailAction
    * @throws Exception
    * @throws PayloadException
    */
-  public static function send(
-    array $presets,
-    PostValues $meta,
-    PostValues $data,
-    string $lang,
-    bool $checkInbound = false
-  ): array {
+  public static function send(array $presets, Page $page, string $lang): array {
     $res = [
       'total' => 0,
       'success' => 0,

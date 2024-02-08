@@ -31,6 +31,7 @@ class BlueprintHelper
 
   /**
    * Get the blueprint either from intern map or compute.
+   * Return only fields with api-node = true.
    * Map is used to avoid repetition, which may occour for files, users and pages.
    */
   public static function getBlueprint (object $model): Collection

@@ -110,4 +110,12 @@ class TokenHelper
     $base64 .= str_repeat('=', $pad);
     return base64_decode($base64);
   }
+
+  /**
+   * Generate an id from input
+   */
+  public static function generateId(string $input): string
+  {
+    return self::base64UrlEncode(hash('sha256', $input, true));
+  }
 }

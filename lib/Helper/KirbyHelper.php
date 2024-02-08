@@ -37,6 +37,11 @@ class KirbyHelper
     }
   }
 
+  public static function findPage(?string $slug): Page
+  {
+    return kirby()->site()->find($slug);
+  }
+
   /**
    * Helper: Find a page by translated slug
    * (Kirby can only find by default slug)
@@ -68,5 +73,25 @@ class KirbyHelper
       }
     }
     return null;
+  }
+
+  public static function createPage (array $params): Page
+  {
+    return kirby()->impersonate(
+      'kirby',
+      function () use ($params) {
+        return Page::create($params);
+      }
+    );
+  }
+
+  public static function deletePage(Page $page): void
+  {
+    kirby()->impersonate(
+      'kirby',
+      function () use ($page) {
+        $page->delete();
+      }
+    );
   }
 }
