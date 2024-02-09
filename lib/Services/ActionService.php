@@ -4,7 +4,9 @@ namespace Tritrics\AflevereApi\v1\Services;
 
 use Exception;
 use Kirby\Cms\Page;
+use Kirby\Toolkit\Str;
 use Throwable;
+use Tritrics\AflevereApi\v1\Data\Collection;
 use Tritrics\AflevereApi\v1\Exceptions\PayloadException;
 use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
@@ -38,11 +40,26 @@ use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
  * 300 - 999 unused
  * 
  * 100 Error in one or more sub-actions.
- * 120 Field value failed validation.
+ * 120 Field value failed validation (the Kirby error message from error.validation is added)
  * 200 Error on sending %fail from %total mails.
  */
 class ActionService
 {
+  private static $unhandledFieldTypes = [
+    'blocks',
+    'files',
+    'gap',
+    'headline',
+    'info',
+    'layout',
+    'line',
+    'list',
+    'object',
+    'pages',
+    'structure',
+    'users'
+  ];
+
   /**
    * Getting a token.
    */
@@ -66,7 +83,7 @@ class ActionService
     $body = $res->add('body');
     $body->add('action', $action);
     $errno = $body->add('errno', 0);
-    $protocol = $body->add('result');
+    $result = $body->add('result');
 
     // read actions config
     $actions = ConfigHelper::getConfig('actions');
@@ -94,15 +111,9 @@ class ActionService
 
     // write post data to result
     if (ConfigHelper::getConfig('form-security.return-post-values', false)) {
-      $input = [];
-      foreach( $page->content()->data() as $key => $value) {
-        if ($key === 'uuid') continue;
-        $input[$key] = [ 'value' => $value, 'errno' => 0 ];
-      }
-      foreach ($page->errors() as $key => $error) {
-        $input[$key]['errno'] = 120;
-      };
-      $protocol->add('input', $input);
+      $result->add('created', true);
+      $result->add('id', $page->slug());
+      $result->add('data', self::getInputData($action, $page));
     }
 
     // Error in field validation
@@ -113,21 +124,19 @@ class ActionService
       return $res->get();
     }
 
-    return $res->get();
-
     // Executing additional actions
     $subActionFailed = false;
     if (isset($actions[$action]['email'])) {
       try {
         $resEmail = EmailAction::send($actions[$action]['email'], $page, $lang);
-        $protocol->add('email', $resEmail);
+        $result->add('email', $resEmail);
         if ($resEmail['errno'] === 200) {
           self::logError($action, 'Error on sending %fail from %total mails.', 200, $resEmail);
         }
       } catch (Exception $E) {
         $subActionFailed = true;
         if ($E instanceof PayloadException) {
-          $protocol->add('email', $E->getPayload());
+          $result->add('email', $E->getPayload());
         }
         self::logError($action, $E->getMessage(), $E->getCode());
       }
@@ -152,33 +161,38 @@ class ActionService
   private static function createPage(string $lang, string $action, array $data): Page
   {
     $now = time();
+    $uuid = Str::lower(Str::random(16, 'base32hex'));
     $hosts = RequestHelper::getHosts();
     $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
 
     // get Content
     // create a dummy page to get blueprint-fields
-    $dummy = new Page(['slug' => 'dummy', 'template' => $template]);
     $content = [];
-    foreach ($dummy->blueprint()->fields() as $key => $def) {
+    foreach (self::getFormFields($action) as $key) {
       $content[$key] = $data[$key] ?? null;
     }
 
-    // add meta data to content, where content overwrites meta data in case of name conflicts
-    $add = [];
-    $add['title'] = str_replace(
-      ['%action', '%date', '%time', '%ip', '$host', '%lang'],
-      [$action, date('Y-m-d', $now), date('H:i:s', $now), $hosts['referer']['ip'], $hosts['referer']['host'], $lang],
-      ConfigHelper::getConfig('actions.' . $action . '.title', 'Submit %action $date $time')
-    );
-    $add['created'] = date('Y-m-d H:i:s');
-    $add['host']    = $hosts['referer']['host'];
-    $add['ip']      = $hosts['referer']['ip'];
-    $add['lang']    = $lang;
-    $content = array_merge($add, $content);
+    // add meta data to content
+    $content['title']   = ConfigHelper::getConfig('actions.' . $action . '.title', 'Incoming %created (action %action)');
+    $content['action']  = $action;
+    $content['created'] = date('Y-m-d H:i:s', $now);
+    $content['host']    = $hosts['referer']['host'];
+    $content['ip']      = $hosts['referer']['ip'];
+    $content['lang']    = $lang;
+    $content['uuid']    = $uuid;
+
+    foreach ($content as $key => $value) {
+      if ($key === 'title' || $key === 'uuid') {
+        continue;
+      }
+      if ((is_string($value) && !strstr($value, PHP_EOL)) || is_numeric($value)) {
+        $content['title'] = str_replace('%' . $key, $value, $content['title']);
+      }
+    }
 
     // get config
     $params = [];
-    $params['slug'] = TokenHelper::generateId($now . '-' . rand(100, 999));
+    $params['slug'] = $uuid;
     $params['template'] = $template;
     if (strlen($params['template']) === 0) {
       throw new Exception('Action configuration is missing or incomplete in config.php.', 17); // @errno17
@@ -190,10 +204,52 @@ class ActionService
         throw new Exception('Action configuration is missing or incomplete in config.php.', 17); // @errno17
       }
     }
-    $params['isDraft'] = ConfigHelper::getConfig('actions.' . $action . '.isDraft', false);
+    $params['num'] = 0; // is ignored, if status = draft
     $params['content'] = $content;
+    return KirbyHelper::createPage(
+      $params, ConfigHelper::getConfig('actions.' . $action . '.status', 'unlisted')
+    );
+  }
 
-    return KirbyHelper::createPage($params);
+  /**
+   * Get a list of field names from template, which have a proper type.
+   * Optionally add build in fields.
+   */
+  private static function getFormFields (string $action, $add_build_in = false): array
+  {
+    $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
+    $dummy = new Page(['slug' => 'dummy', 'template' => $template]);
+    $res = $add_build_in ? ['title', 'action', 'created', 'host', 'ip', 'lang'] : [];
+    foreach ($dummy->blueprint()->fields() as $key => $def) {
+      if (!in_array($def['type'], self::$unhandledFieldTypes) && !in_array($key, $res)) {
+        $res[] = $key;
+      }
+    }
+    return $res;
+  }
+
+  /**
+   * Helper to get the field-data out of Page model and add error codes.
+   */
+  private static function getInputData (string $action, Page $page): Collection
+  {
+    $res = new Collection();
+    $errors = $page->errors();
+    foreach (self::getFormFields($action) as $key) {
+      $field = $res->add($key);
+      $field->add('value', $page->$key()->value());
+      if (isset($errors[$key])) {
+        $field->add('errno', 120);
+        if (isset($errors[$key]['message']) && count($errors[$key]['message']) > 0) {
+          $field->add('errmsg', array_key_first($errors[$key]['message']));
+        } else {
+          $field->add('errmsg', 'unknown');
+        }
+      } else {
+        $field->add('errno', 0);
+      }
+    }
+    return $res;
   }
 
   /**
@@ -202,7 +258,7 @@ class ActionService
   private static function logError(
     string $action,
     ?string $message = '',
-    ?int $errno = 1,
+    mixed $errno = 1,
     ?array $parse = []
   ): void {
     if (!strlen($message)) {

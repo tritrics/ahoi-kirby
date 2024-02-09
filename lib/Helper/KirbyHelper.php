@@ -75,12 +75,15 @@ class KirbyHelper
     return null;
   }
 
-  public static function createPage (array $params): Page
+  public static function createPage (array $params, string $status = 'draft'): Page
   {
+    $status = in_array($status, ['draft', 'listed', 'unlisted']) ? $status : 'draft';
     return kirby()->impersonate(
       'kirby',
-      function () use ($params) {
-        return Page::create($params);
+      function () use ($params, $status) {
+        $page = Page::create($params);
+        $page->changeStatus($status);
+        return $page;
       }
     );
   }
