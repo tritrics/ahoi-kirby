@@ -18,14 +18,13 @@ class PostFactory
 {
   /**
    * commented types: @todo
-   * not listed types: unhandled data structure
+   * not listed types: pseudo fields or unhandled data structure
    */
-  private static $validFieldTypes = [
+  public static $validFieldTypes = [
     //'checkboxes',
     'color',
     'date',
     'email',
-    'hidden',
     'link',
     //'multiselect',
     'number',
@@ -117,14 +116,14 @@ class PostFactory
   /**
    * Get a list of field names from template, which have a proper type.
    */
-  private static function fields(string $action): array
+  public static function fields(string $action): array
   {
     // create a dummy page to get blueprint-fields
     $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
     $dummy = new Page(['slug' => 'dummy', 'template' => $template]);
     $res = [];
     foreach ($dummy->blueprint()->fields() as $key => $def) {
-      if (in_array($def['type'], self::$validFieldTypes) && !in_array($key, $res)) {
+      if (in_array($def['type'], self::$validFieldTypes)) {
         $res[$key] = TypeHelper::toString($def['type'], true, true);
       }
     }
@@ -151,7 +150,7 @@ class PostFactory
       $res = TypeHelper::toString($value, true, false);
 
       // remove linebreaks in none-multiline strings
-      if ($type !== 'textarea' || $type !== 'writer') {
+      if ($type !== 'textarea' && $type !== 'writer') {
         $res = preg_replace('/\s+/', ' ', $res);
       }
       if ($stripTags) {

@@ -31,9 +31,8 @@ class KirbyHelper
     );
   }
 
-        
   /**
-   * Create a Page with given status.
+   * Create a Page.
    */
   public static function createPage(array $params): Page
   {

@@ -153,9 +153,9 @@ class ActionService
   {
     $res = new Collection();
     $errors = $page->errors();
-    foreach ($page->content()->data() as $key => $value) {
+    foreach (PostFactory::fields($action) as $key => $type) {
       $field = $res->add($key);
-      $field->add('value', $value);
+      $field->add('value', $page->$key()->value());
       if (isset($errors[$key])) {
         $field->add('errno', 120);
         if (isset($errors[$key]['message']) && count($errors[$key]['message']) > 0) {
