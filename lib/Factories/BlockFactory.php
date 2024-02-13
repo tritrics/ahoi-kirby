@@ -18,7 +18,6 @@ class BlockFactory extends ModelFactory
   ];
 
   /**
-   * 
    * Create an instance of a block-model class defined by type.
    */
   public static function create(

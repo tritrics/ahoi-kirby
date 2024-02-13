@@ -19,32 +19,6 @@ class TypeHelper
   }
 
   /**
-   * Checks a date.
-   * 2024-01-10
-   */
-  public static function isDate(mixed $value): bool
-  {
-    if (!is_string($value)) {
-      return false;
-    }
-    $date = \DateTime::createFromFormat('Y-m-d', $value);
-    return $date !== false && $date->format('Y-m-d') === $value;
-  }
-
-  /**
-   * Checks a datetime.
-   * 2024-10-10 12:15:00
-   */
-  public static function isDateTime(mixed $value): bool
-  {
-    if (!is_string($value)) {
-      return false;
-    }
-    $datetime = \DateTime::createFromFormat('Y-m-d H:i:s', $value);
-    return $datetime->format('Y-m-d H:i:s') === $value;
-  }
-
-  /**
    * Check if $value is a false.
    */
   public static function isFalse(mixed $value): bool
@@ -128,24 +102,6 @@ class TypeHelper
       return self::toNumber($value);
     }
     return self::toString($value, $trim, $lower);
-  }
-
-  /**
-   * Converts date string to Date object.
-   * 2024-01-10
-   */
-  public static function toDate(mixed $value): \DateTime
-  {
-    return \DateTime::createFromFormat('Y-m-d', $value);
-  }
-
-  /**
-   * Converts datetime string to Date object.
-   * 2024-10-10 12:15:00
-   */
-  public static function toDateTime(mixed $value): \DateTime
-  {
-    return \DateTime::createFromFormat('Y-m-d H:i:s', $value);
   }
 
   /**

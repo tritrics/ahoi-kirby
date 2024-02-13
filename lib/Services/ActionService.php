@@ -3,20 +3,16 @@
 namespace Tritrics\AflevereApi\v1\Services;
 
 use Exception;
-use Kirby\Filesystem\F;
 use Kirby\Cms\Page;
-use Kirby\Toolkit\Str;
-use Throwable;
 use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\AflevereApi\v1\Factories\PostFactory;
 use Tritrics\AflevereApi\v1\Exceptions\PayloadException;
 use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
 use Tritrics\AflevereApi\v1\Actions\EmailAction;
-use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
 use Tritrics\AflevereApi\v1\Helper\DebugHelper;
-use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 
 /**
  * Handling actions (post-data)
@@ -49,217 +45,6 @@ use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 class ActionService
 {
   /**
-   * commented types: @todo
-   * not listed types: unhandled data structure
-   */
-  private static $validFieldTypes = [
-    //'checkboxes',
-    'color',
-    'date',
-    'datetime', // Kirby date field with time-option
-    'email',
-    'hidden',
-    'link',
-    //'multiselect',
-    'number',
-    //'radio',
-    'range',
-    //'select',
-    'slug',
-    //'tags',
-    'tel',
-    'text',
-    'textarea',
-    //'time',
-    //'toggle',
-    //'toggles',
-    'url',
-    'writer',
-  ];
-
-  /**
-   * Creates as page from post data
-   *
-   * @throws Exception 
-   * @throws Throwable 
-   */
-  private static function createPage(string $lang, string $action, array $data): Page
-  {
-    $uuid = Str::lower(Str::random(16, 'base32hex'));
-    $hosts = RequestHelper::getHosts();
-
-    // Template
-    $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
-    $file = rtrim(kirby()->root('blueprints'), '/') . '/pages/' . $template . '.yml';
-    if (!F::exists($file)) {
-      throw new Exception('Template configuration is missing or wrong in config.php.', 17); // @errno17
-    };
-
-    // Parent, ignored needed if page is not saved
-    $parent = false;
-    if (ConfigHelper::getConfig('actions.' . $action . '.save', true)) {
-      $parent = KirbyHelper::findPage(ConfigHelper::getConfig('actions.' . $action . '.parent', null));
-      if (!$parent instanceof Page) {
-        throw new Exception('Parent configuration is missing or wrong in config.php.', 17); // @errno17
-      }
-    }
-
-    // get Content
-    $stripTags = ConfigHelper::getConfig('form-security.strip-tags', true);
-    $stripBackslashes = ConfigHelper::getConfig('form-security.strip-backslashes', true);
-    $content = [
-      'title' => ConfigHelper::getConfig('actions.' . $action . '.title', 'Incoming %created (action %action)'),
-      'uuid' => $uuid,
-    ];
-    foreach (self::getFormFields($action) as $key => $type) {
-      switch ($key) {
-        case 'title':
-        case 'uuid':
-          continue 2; // don't allow overwrite
-        case 'action':
-           $content[$key] = $action;
-          break;
-        case 'created':
-           $content[$key] = date('Y-m-d H:i:s');
-          break;
-        case 'host':
-           $content[$key] = $hosts['referer']['host'];
-          break;
-        case 'ip':
-           $content[$key] = $hosts['referer']['ip'];
-          break;
-        case 'lang':
-           $content[$key] = $lang;
-          break;
-        default:
-          $content[$key] = self::filterInput($data[$key] ?? '', $type, $stripTags, $stripBackslashes);
-      }
-      $content['title'] = str_replace('%' . $key, (string) $content[$key], $content['title']);
-    }
-
-    // create Page
-    $config = [
-      'slug' => $uuid,
-      'template' => $template,
-      'content' => $content,
-      'isDraft' => true,
-    ];
-    if ($parent) {
-      $config['parent'] = $parent;
-    }
-    return KirbyHelper::createPage($config);
-  }
-
-  /**
-   * 
-   */
-  private static function filterInput(
-    mixed $value,
-    string $type,
-    bool $stripTags,
-    bool $stripBackslashes
-  ): string|int|float|null {
-    $res = '';
-    switch ($type) {
-
-      // text, one-line
-      case 'color':
-      case 'email':
-      case 'hidden':
-      case 'link':
-      case 'slug':
-      case 'tel':
-      case 'text':
-      case 'url':
-        if (TypeHelper::isString($value)) {
-          $res = TypeHelper::toString($value, true, false);
-          $res = preg_replace('/\s+/', ' ', $res);
-          $res = $stripTags ? strip_tags($res) : $res;
-          $res = $stripBackslashes ? stripslashes($res) : $res;
-        }
-        break;
-
-      // date like 2024-10-10
-      case 'date':
-        if (TypeHelper::isDate($value)) {
-          $res = TypeHelper::toDate($value)->format('Y-m-d');
-        }
-        break;
-
-      // date like 2024-10-10 12:15:00
-      case 'datetime':
-        error_log('datetime ' . $value);
-        if (TypeHelper::isDateTime($value)) {
-          $res = TypeHelper::toDateTime($value)->format('Y-m-d H:i:s');
-        }
-        break;
-
-      // number
-      case 'number':
-      case 'range':
-        if (TypeHelper::isNumber($value)) {
-          $res = TypeHelper::toNumber($value);
-        }
-        break;
-
-      // text multiline
-      case 'textarea':
-      case 'writer':
-        if (TypeHelper::isString($value)) {
-          $res = TypeHelper::toString($value, true, false);
-          $res = $stripTags ? strip_tags($res) : $res;
-          $res = $stripBackslashes ? stripslashes($res) : $res;
-        }
-        break;
-    }
-    return $res;
-  }
-
-  /**
-   * Get a list of field names from template, which have a proper type.
-   */
-  private static function getFormFields(string $action): array
-  {
-    // create a dummy page to get blueprint-fields
-    $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
-    $dummy = new Page(['slug' => 'dummy', 'template' => $template]);
-    $res = [];
-    foreach ($dummy->blueprint()->fields() as $key => $def) {
-      if (in_array($def['type'], self::$validFieldTypes) && !in_array($key, $res)) {
-        $res[$key] = TypeHelper::toString($def['type'], true, true);
-        if ($res[$key] === 'date' && isset($def['time'])) {
-          $res[$key] = 'datetime';
-        }
-      }
-    }
-    return $res;
-  }
-
-  /**
-   * Helper to get the field-data out of Page model and add error codes.
-   */
-  private static function getInputData(string $action, Page $page): Collection
-  {
-    $res = new Collection();
-    $errors = $page->errors();
-    foreach (self::getFormFields($action) as $key => $type) {
-      $field = $res->add($key);
-      $field->add('value', $page->$key()->value());
-      if (isset($errors[$key])) {
-        $field->add('errno', 120);
-        if (isset($errors[$key]['message']) && count($errors[$key]['message']) > 0) {
-          $field->add('errmsg', array_key_first($errors[$key]['message']));
-        } else {
-          $field->add('errmsg', 'unknown');
-        }
-      } else {
-        $field->add('errno', 0);
-      }
-    }
-    return $res;
-  }
-
-  /**
    * Main function to submit (execute) a given action.
    * Token and action are already checked by controller.
    */
@@ -289,7 +74,7 @@ class ActionService
 
     // read post data and validate
     try {
-      $page = self::createPage($lang, $action, $data);
+      $page = PostFactory::create($lang, $action, $data);
     } catch (Exception $E) {
       $errno->set($E->getCode());
       DebugHelper::logActionError($action, $E->getMessage(), $E->getCode());
@@ -359,5 +144,29 @@ class ActionService
     $body->add('action', $action);
     $body->add('token', TokenHelper::get($action));
     return $res->get();
+  }
+
+  /**
+   * Helper to get the field-data out of Page model and add error codes.
+   */
+  private static function getInputData(string $action, Page $page): Collection
+  {
+    $res = new Collection();
+    $errors = $page->errors();
+    foreach ($page->content()->data() as $key => $value) {
+      $field = $res->add($key);
+      $field->add('value', $value);
+      if (isset($errors[$key])) {
+        $field->add('errno', 120);
+        if (isset($errors[$key]['message']) && count($errors[$key]['message']) > 0) {
+          $field->add('errmsg', array_key_first($errors[$key]['message']));
+        } else {
+          $field->add('errmsg', 'unknown');
+        }
+      } else {
+        $field->add('errno', 0);
+      }
+    }
+    return $res;
   }
 }
