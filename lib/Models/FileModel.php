@@ -19,15 +19,6 @@ class FileModel extends BaseModel
   protected $hasChildFields = true;
 
   /**
-   * Get type of this model as it's returned in response.
-   * Method called by setModelData()
-   */
-  protected function getType(): string
-  {
-    return $this->model->type();
-  }
-
-  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -56,6 +47,15 @@ class FileModel extends BaseModel
     $res->add('meta', $meta);
     $res->add('link', LinkHelper::getFile($pathinfo['path']));
     return $res;
+  }
+
+  /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   */
+  protected function getType(): string
+  {
+    return $this->model->type();
   }
 
   /**

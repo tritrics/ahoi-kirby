@@ -2,11 +2,13 @@
 
 namespace Tritrics\AflevereApi\v1\Helper;
 
+use Exception;
 use Kirby\Cms\Page;
 use Kirby\Cms\Pages;
 use Kirby\Cms\Language;
 use Kirby\Cms\Languages;
 use Kirby\Exception\LogicException;
+use Throwable;
 
 /**
  * Functions which get data from Kirby.
@@ -14,32 +16,54 @@ use Kirby\Exception\LogicException;
 class KirbyHelper
 {
   /**
-   * Get all languages as Kirby object.
+   * Change status of a given page.
+   * 
+   * @throws Throwable 
    */
-  public static function getLanguages(): ?Languages
+  public static function changeStatus (Page $page, string $status): Page
   {
-    try {
-      return kirby()->languages();
-    } catch (LogicException $E) {
-      return null;
-    }
+    $status = in_array($status, ['draft', 'listed', 'unlisted']) ? $status : 'draft';
+    return kirby()->impersonate(
+      'kirby',
+      function () use ($page, $status) {
+        return $page->changeStatus($status);
+      }
+    );
+  }
+
+        
+  /**
+   * Create a Page with given status.
+   */
+  public static function createPage(array $params): Page
+  {
+    return kirby()->impersonate(
+      'kirby',
+      function () use ($params) {
+        return Page::create($params);
+      }
+    );
   }
 
   /**
-   * Get a single language as Kirby object defined by $code.
+   * Delete a given Page.
    */
-  public static function getLanguage(?string $code): ?Language
+  public static function deletePage(Page $page): void
   {
-    try {
-      return kirby()->language($code);
-    } catch (LogicException $E) {
-      return null;
-    }
+    kirby()->impersonate(
+      'kirby',
+      function () use ($page) {
+        $page->delete();
+      }
+    );
   }
 
-  public static function findPage(?string $slug): Page
+  /**
+   * Find a page by slug.
+   */
+  public static function findPage(string|null $slug = null): Page|null
   {
-    return kirby()->site()->find($slug);
+    return $slug === null ? null : kirby()->site()->find($slug);
   }
 
   /**
@@ -75,26 +99,27 @@ class KirbyHelper
     return null;
   }
 
-  public static function createPage (array $params, string $status = 'draft'): Page
+  /**
+   * Get a single language as Kirby object defined by $code.
+   */
+  public static function getLanguage(?string $code): ?Language
   {
-    $status = in_array($status, ['draft', 'listed', 'unlisted']) ? $status : 'draft';
-    return kirby()->impersonate(
-      'kirby',
-      function () use ($params, $status) {
-        $page = Page::create($params);
-        $page->changeStatus($status);
-        return $page;
-      }
-    );
+    try {
+      return kirby()->language($code);
+    } catch (LogicException $E) {
+      return null;
+    }
   }
 
-  public static function deletePage(Page $page): void
+  /**
+   * Get all languages as Kirby object.
+   */
+  public static function getLanguages(): ?Languages
   {
-    kirby()->impersonate(
-      'kirby',
-      function () use ($page) {
-        $page->delete();
-      }
-    );
+    try {
+      return kirby()->languages();
+    } catch (LogicException $E) {
+      return null;
+    }
   }
 }

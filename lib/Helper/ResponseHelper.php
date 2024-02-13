@@ -10,43 +10,6 @@ use Tritrics\AflevereApi\v1\Data\Collection;
  */
 class ResponseHelper
 {
-  /**
-   * Init response with basic properties.
-   */
-  public static function getHeader(int $status = 200, string $msg = 'OK'): Collection
-  {
-    $Request = kirby()->request();
-    $res = new Collection();
-    $res->add('ok', $status === 200);
-    $res->add('status', $status);
-    $res->add('msg', $msg);
-    $res->add('url', $Request->url()->toString());
-    return $res;
-  }
-
-  /**
-   * Return a json response with array. 
-   */
-  public static function json(array $data = []): Response
-  {
-    return Response::json($data);
-  }
-
-  /**
-   * Response: OK
-   */
-  public static function ok(string $msg = 'OK'): Response
-  {
-    return self::json(self::getHeader(200, $msg)->get(), 200);
-  }
-
-  /**
-   * Reponse: Invalid language.
-   */
-  public static function invalidLang(): Response
-  {
-    return self::badRequest('Given language is not valid');
-  }
 
   /**
    * Response: Bad Request.
@@ -65,11 +28,41 @@ class ResponseHelper
   }
 
   /**
-   * Response: Not found.
+   * Response: Internal Server Error.
    */
-  public static function notFound(string $msg = 'Page is not found'): Response
+  public static function fatal(string $msg = 'Internal Server Error'): Response
   {
-    return self::json(self::getHeader(404, $msg)->get(), 404);
+    return self::json(self::getHeader(500, $msg)->get(), 500);
+  }
+
+  /**
+   * Init response with basic properties.
+   */
+  public static function getHeader(int $status = 200, string $msg = 'OK'): Collection
+  {
+    $Request = kirby()->request();
+    $res = new Collection();
+    $res->add('ok', $status === 200);
+    $res->add('status', $status);
+    $res->add('msg', $msg);
+    $res->add('url', $Request->url()->toString());
+    return $res;
+  }
+
+  /**
+   * Reponse: Invalid language.
+   */
+  public static function invalidLang(): Response
+  {
+    return self::badRequest('Given language is not valid');
+  }
+
+  /**
+   * Return a json response with array. 
+   */
+  public static function json(array $data = []): Response
+  {
+    return Response::json($data);
   }
 
   /**
@@ -81,18 +74,26 @@ class ResponseHelper
   }
 
   /**
-   * Response: Internal Server Error.
+   * Response: Not found.
    */
-  public static function fatal(string $msg = 'Internal Server Error'): Response
+  public static function notFound(string $msg = 'Page is not found'): Response
   {
-    return self::json(self::getHeader(500, $msg)->get(), 500);
+    return self::json(self::getHeader(404, $msg)->get(), 404);
   }
 
   /**
    * Response: Not implemented.
    */
-  public static function notimplemented(string $msg = 'Not Implemented or misconfigured'): Response
+  public static function notImplemented(string $msg = 'Not Implemented or misconfigured'): Response
   {
     return self::json(self::getHeader(501, $msg)->get(), 501);
+  }
+
+  /**
+   * Response: OK
+   */
+  public static function ok(string $msg = 'OK'): Response
+  {
+    return self::json(self::getHeader(200, $msg)->get(), 200);
   }
 }

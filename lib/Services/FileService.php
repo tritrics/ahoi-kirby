@@ -16,19 +16,6 @@ use Kirby\Exception\LogicException;
 class FileService
 {
   /**
-   * Extend PHP's pathinfo
-   */
-  public static function getPathinfo(string $path): array
-  {
-    // Kirby confuses jpeg an jpg on images. FileService only works with jpg!
-    $pathinfo = pathinfo($path);
-    $pathinfo['extension'] = strtolower($pathinfo['extension']) === 'jpeg' ? 'jpg' : strtolower($pathinfo['extension']);
-    $pathinfo['file'] = $pathinfo['filename'] . '.' . $pathinfo['extension'];
-    $pathinfo['path'] = $pathinfo['dirname'] . '/' . $pathinfo['file'];
-    return $pathinfo;
-  }
-
-  /**
    * Create a thumb so that it can be called by the given path.
    * Options given by filename:
    * filename[-(width)x(height)][-crop-(option)][-blur(integer)][-bw][-q(integer)].extension
@@ -123,5 +110,18 @@ class FileService
       F::move($thumb->root(), F::dirname($thumb->root()) . '/' . $filename, true);
     }
     exit;
+  }
+  
+  /**
+   * Extend PHP's pathinfo
+   */
+  public static function getPathinfo(string $path): array
+  {
+    // Kirby confuses jpeg an jpg on images. FileService only works with jpg!
+    $pathinfo = pathinfo($path);
+    $pathinfo['extension'] = strtolower($pathinfo['extension']) === 'jpeg' ? 'jpg' : strtolower($pathinfo['extension']);
+    $pathinfo['file'] = $pathinfo['filename'] . '.' . $pathinfo['extension'];
+    $pathinfo['path'] = $pathinfo['dirname'] . '/' . $pathinfo['file'];
+    return $pathinfo;
   }
 }

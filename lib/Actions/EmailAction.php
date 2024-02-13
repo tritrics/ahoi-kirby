@@ -14,47 +14,74 @@ use Tritrics\AflevereApi\v1\Helper\RequestHelper;
 class EmailAction
 {
   /**
-   * Sending emails defined in $presets.
-   * 
-   * @throws Exception
-   * @throws PayloadException
+   * Simple list with values as mail body in case a template is missing.
    */
-  public static function send(array $presets, Page $page, string $lang): array {
-    $res = [
-      'total' => 0,
-      'success' => 0,
-      'fail' => 0,
-      'errno' => 0,
-    ];
-
-    // computing the mails from $presets
-    $emails = self::getEmails($presets, $lang, $page);
-    $res['total'] = is_array($emails) ? count($emails) : 0;
-
-    // no valid configurations
-    if ($res['total'] === 0) {
-      $res['errno'] = 20;
-      throw new PayloadException('All mail configurations in config.php are invalid, nothing to send.', 20, $res); // @errno20
+  private static function buildInTemplate(Page $page): string
+  {
+    $res = "Automatically generated email\n\n";
+    foreach ($page->content()->data() as $key => $value) {
+      $res .= $key . ': ' .  Str::esc((string) $value ?? '') . "\n";
     }
+    return $res . "\n";
+  }
 
-    // sending
-    foreach ($emails as $email) {
-      try {
-        if (kirby()->email($email)->isSent()) {
-          $res['success']++;
-        } else {
-          $res['fail']++;
-        }
-      } catch(Exception $E) {
-        $res['fail']++;
+  /**
+   * Check if attachment file is existing.
+   * Given paths must be abolute or relative inside Kirby root. All non-existing files are
+   * stripped, because otherwise PHPMailer will fail to send the mail.
+   */
+  private static function checkAttachments(array $paths): array
+  {
+    $root = rtrim(kirby()->root(), '/') . '/';
+    $res = [];
+    foreach ($paths as $path) {
+
+      // we don't support Models or anything else
+      if (!is_string($path) || strlen($path) === 0) {
+        continue;
+      }
+
+      // relative path, must be inside Kirby root
+      if (substr($path, 0, 1) !== '/') {
+        $path = $root . $path;
+      }
+      if (is_file($path)) {
+        $res[] = $path;
       }
     }
-
-    // non-fatal error: Error on sending %fail from %total mails.
-    if ($res['fail'] > 0) {
-      $res['errno'] = 200; // @errno200
-    }
     return $res;
+  }
+
+  /**
+   * Check if addresses are valid mail adresses or a field name,
+   * so the mail adress is taken from data.
+   */
+  private static function getAddresses(string|array $addresses, Page $page): mixed
+  {
+    if (!is_array($addresses)) {
+      $addresses = [$addresses];
+    }
+    $res = [];
+    foreach ($addresses as $address) {
+      if (!is_string($address) || strlen($address) === 0) {
+        continue;
+      }
+      if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
+        $res[] = $address;
+      } else if (
+        $page->content()->has($address) &&
+        filter_var($page->$address()->value(), FILTER_VALIDATE_EMAIL)
+      ) {
+        $res[] = $page->$address()->value();
+      }
+    }
+    if (count($res) === 0) {
+      return null;
+    } else if (count($res) === 1) {
+      return $res[0];
+    } else {
+      return $res;
+    }
   }
 
   /**
@@ -191,38 +218,6 @@ class EmailAction
   }
 
   /**
-   * Check if addresses are valid mail adresses or a field name,
-   * so the mail adress is taken from data.
-   */
-  private static function getAddresses(string|array $addresses, Page $page): mixed
-  {
-    if (!is_array($addresses)) {
-      $addresses = [$addresses];
-    }
-    $res = [];
-    foreach ($addresses as $address) {
-      if (!is_string($address) || strlen($address) === 0) {
-        continue;
-      }
-      if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
-        $res[] = $address;
-      } else if (
-        $page->content()->has($address) &&
-        filter_var($page->$address()->value(), FILTER_VALIDATE_EMAIL)
-      ) {
-        $res[] = $page->$address()->value();
-      }
-    }
-    if (count($res) === 0) {
-      return null;
-    } else if (count($res) === 1) {
-      return $res[0];
-    } else {
-      return $res;
-    }
-  }
-
-  /**
    * Read a template an parse data in.
    * Supports both text and html templates.
    * 
@@ -233,7 +228,7 @@ class EmailAction
     $html = kirby()->template('emails/' . $template, 'html', 'text');
     $text = kirby()->template('emails/' . $template, 'text', 'text');
     $data = $page->content()->data();
-    array_walk($data, function(&$value) {
+    array_walk($data, function (&$value) {
       $value = Str::esc((string)$value ?? '');
     });
     if ($html->exists()) {
@@ -250,40 +245,45 @@ class EmailAction
   }
 
   /**
-   * Simple list with values as mail body in case a template is missing.
+   * Sending emails defined in $presets.
+   * 
+   * @throws Exception
+   * @throws PayloadException
    */
-  private static function buildInTemplate(Page $page): string
-  {
-    $res = "Automatically generated email\n\n";
-    foreach ($page->content()->data() as $key => $value) {
-      $res .= $key . ': ' .  Str::esc((string) $value ?? '') . "\n";
+  public static function send(array $presets, Page $page, string $lang): array {
+    $res = [
+      'total' => 0,
+      'success' => 0,
+      'fail' => 0,
+      'errno' => 0,
+    ];
+
+    // computing the mails from $presets
+    $emails = self::getEmails($presets, $lang, $page);
+    $res['total'] = is_array($emails) ? count($emails) : 0;
+
+    // no valid configurations
+    if ($res['total'] === 0) {
+      $res['errno'] = 20;
+      throw new PayloadException('All mail configurations in config.php are invalid, nothing to send.', 20, $res); // @errno20
     }
-    return $res . "\n";
-  }
 
-  /**
-   * Check if attachment file is existing.
-   * Given paths must be abolute or relative inside Kirby root. All non-existing files are
-   * stripped, because otherwise PHPMailer will fail to send the mail.
-   */
-  private static function checkAttachments(array $paths): array
-  {
-    $root = rtrim(kirby()->root(), '/') . '/';
-    $res = [];
-    foreach ($paths as $path) {
+    // sending
+    foreach ($emails as $email) {
+      try {
+        if (kirby()->email($email)->isSent()) {
+          $res['success']++;
+        } else {
+          $res['fail']++;
+        }
+      } catch(Exception $E) {
+        $res['fail']++;
+      }
+    }
 
-      // we don't support Models or anything else
-      if (!is_string($path) || strlen($path) === 0) {
-        continue;
-      }
-
-      // relative path, must be inside Kirby root
-      if (substr($path, 0, 1) !== '/') {
-        $path = $root . $path;
-      }
-      if (is_file($path)) {
-        $res[] = $path;
-      }
+    // non-fatal error: Error on sending %fail from %total mails.
+    if ($res['fail'] > 0) {
+      $res['errno'] = 200; // @errno200
     }
     return $res;
   }

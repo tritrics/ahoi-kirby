@@ -18,22 +18,83 @@ use Tritrics\AflevereApi\v1\Helper\TokenHelper;
 class ActionController
 {
   /**
+   * Create
+   */
+  public function create(?string $lang, ?string $action, ?string $token): Response
+  {
+    if($response = $this->isInvalidRequest($lang, $action, $token)) {
+      return $response;
+    };
+    try {
+      $data = kirby()->request()->data() ?? [];
+      return Response::json(ActionService::create($lang, $action, $data));
+    } catch (Exception $e) {
+      return ResponseHelper::fatal($e->getMessage());
+    }
+  }
+
+  /**
+   * Delete
+   */
+  public function delete(): Response
+  {
+    return ResponseHelper::notImplemented();
+  }
+
+  /**
+   * Get
+   */
+  public function get(): Response
+  {
+    return ResponseHelper::notImplemented();
+  }
+
+  /**
+   * Validate parameter, check config.
+   */
+  private function isInvalidRequest(?string $lang, ?string $action, ?string $token): Response|bool
+  {
+    if (!ConfigHelper::isEnabledAction()) {
+      return ResponseHelper::disabled();
+    }
+    $lang = RequestHelper::getLang($lang);
+    if ($lang === null) {
+      return ResponseHelper::invalidLang();
+    }
+    $action = RequestHelper::getAction($action);
+    if ($action === null) {
+      return ResponseHelper::badRequest();
+    }
+    if (!TokenHelper::check($action, $token)) {
+      return ResponseHelper::badRequest();
+    }
+    return false;
+  }
+
+  /**
+   * Options
+   */
+  public function options(?string $lang, ?string $action, ?string $token): Response
+  {
+    if ($response = $this->isInvalidRequest($lang, $action, $token)) {
+      return $response;
+    };
+    return ResponseHelper::ok();
+  }
+
+  /**
    * Get a token for submit action.
    */
   public function token(?string $action): Response
   {
-    $request = kirby()->request();
-    if ($request->method() === 'OPTIONS') {
-      return ResponseHelper::ok();
+    if (!ConfigHelper::isEnabledAction()) {
+      return ResponseHelper::disabled();
+    }
+    $action = RequestHelper::getAction($action);
+    if ($action === null) {
+      return ResponseHelper::badRequest();
     }
     try {
-      if (!ConfigHelper::isEnabledAction()) {
-        return ResponseHelper::disabled();
-      }
-      $action = RequestHelper::getAction($action);
-      if ($action === null) {
-        return ResponseHelper::badRequest();
-      }
       return Response::json(ActionService::token($action));
     } catch (Exception $e) {
       return ResponseHelper::fatal($e->getMessage());
@@ -41,36 +102,10 @@ class ActionController
   }
 
   /**
-   * Submit an action
+   * Update
    */
-  public function submit(
-    ?string $lang,
-    ?string $action,
-    ?string $token
-  ): Response {
-    $request = kirby()->request();
-    if ($request->method() === 'OPTIONS') {
-      return ResponseHelper::ok();
-    }
-    try {
-      if (!ConfigHelper::isEnabledAction()) {
-        return ResponseHelper::disabled();
-      }
-      $lang = RequestHelper::getLang($lang);
-      if ($lang === null) {
-        return ResponseHelper::invalidLang();
-      }
-      $action = RequestHelper::getAction($action);
-      if ($action === null) {
-        return ResponseHelper::badRequest();
-      }
-      if (!TokenHelper::check($action, $token)) {
-        return ResponseHelper::badRequest();
-      }
-      $data = $request->data() ?? [];
-      return Response::json(ActionService::submit($lang, $action, $data));
-    } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
-    }
+  public function update(): Response
+  {
+    return ResponseHelper::notImplemented();
   }
 }

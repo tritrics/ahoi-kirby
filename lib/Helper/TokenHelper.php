@@ -8,28 +8,23 @@ namespace Tritrics\AflevereApi\v1\Helper;
 class TokenHelper
 {
   /**
-   * Getting a form token which is x sec valid.
-   * @see: https://dev.to/robdwaller/how-to-create-a-json-web-token-using-php-3gml
-   * @see: https://github.com/RobDWaller/ReallySimpleJWT
+   * Helper to decode url encoded base64 string.
    */
-  public static function get(string $action): ?string
+  private static function base64UrlDecode(string $str): string
   {
-    // Payload
-    $payload = json_encode([
-      'exp' => time() + ConfigHelper::getConfig('form-security.token-validity', 10),
-      'act' => $action,
-    ]);
-    $payloadEnc = self::base64UrlEncode($payload);
+    $base64 = str_replace(['-', '_'], ['+', '/'], $str);
+    $pad = strlen($base64) % 4;
+    $base64 .= str_repeat('=', $pad);
+    return base64_decode($base64);
+  }
 
-    // Signature
-    $signature = self::getSignature($payloadEnc);
-    if ($signature === null) {
-      return null;
-    }
-    $signatureEnc = self::base64UrlEncode($signature);
-
-    // Token
-    return $payloadEnc . '.' . $signatureEnc;
+  /**
+   * Helper to encode url encoded base64 string.
+   */
+  private static function base64UrlEncode(string $str): string
+  {
+    $base64 = base64_encode($str);
+    return str_replace(['+', '/', '='], ['-', '_', ''], $base64);
   }
 
   /**
@@ -58,6 +53,31 @@ class TokenHelper
   }
 
   /**
+   * Getting a form token which is x sec valid.
+   * @see: https://dev.to/robdwaller/how-to-create-a-json-web-token-using-php-3gml
+   * @see: https://github.com/RobDWaller/ReallySimpleJWT
+   */
+  public static function get(string $action): ?string
+  {
+    // Payload
+    $payload = json_encode([
+      'exp' => time() + ConfigHelper::getConfig('form-security.token-validity', 10),
+      'act' => $action,
+    ]);
+    $payloadEnc = self::base64UrlEncode($payload);
+
+    // Signature
+    $signature = self::getSignature($payloadEnc);
+    if ($signature === null) {
+      return null;
+    }
+    $signatureEnc = self::base64UrlEncode($signature);
+
+    // Token
+    return $payloadEnc . '.' . $signatureEnc;
+  }
+
+  /**
    * Get the secret from config.
    * min. 12 chars, containing upper, lower, numbers and #?!@$%^&*-
    */
@@ -69,14 +89,6 @@ class TokenHelper
       return $secret;
     }
     return null;
-  }
-
-  /**
-   * Check if config has valid secret.
-   */
-  public static function hasSecret(): bool
-  {
-    return self::getSecret() !== null;
   }
 
   /**
@@ -92,22 +104,10 @@ class TokenHelper
   }
 
   /**
-   * Helper to encode url encoded base64 string.
+   * Check if config has valid secret.
    */
-  private static function base64UrlEncode(string $str): string
+  public static function hasSecret(): bool
   {
-    $base64 = base64_encode($str);
-    return str_replace(['+', '/', '='], ['-', '_', ''], $base64);
-  }
-
-  /**
-   * Helper to decode url encoded base64 string.
-   */
-  private static function base64UrlDecode(string $str): string
-  {
-    $base64 = str_replace(['-', '_'], ['+', '/'], $str);
-    $pad = strlen($base64) % 4;
-    $base64 .= str_repeat('=', $pad);
-    return base64_decode($base64);
+    return self::getSecret() !== null;
   }
 }

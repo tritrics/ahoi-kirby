@@ -17,15 +17,6 @@ class BlockHeadingModel extends BaseModel
   protected $hasChildFields = true;
 
   /**
-   * Get type of this model as it's returned in response.
-   * Method called by setModelData()
-   */
-  protected function getType(): string
-  {
-    return 'block';
-  }
-
-  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -34,6 +25,15 @@ class BlockHeadingModel extends BaseModel
     $res = new Collection();
     $res->add('block', 'heading');
     return $res;
+  }
+
+  /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   */
+  protected function getType(): string
+  {
+    return 'block';
   }
 
   /**

@@ -17,9 +17,7 @@ class ModelFactory
    * 
    * @var array
    */
-  private static $classMap = [
-    'block-default' => '\Models\BlockDefaultModel',
-    'block-heading' => '\Models\BlockHeadingModel',
+  protected static $classMap = [
     'blocks'        => '\Models\BlocksModel',
     'checkboxes'    => '\Models\OptionsModel',
     'color'         => '\Models\ColorModel',
@@ -59,7 +57,35 @@ class ModelFactory
    * 
    * @var array
    */
-  private static $added = [];
+  protected static $added = [];
+
+  /**
+   * Create an instance of a model class defined by type.
+   */
+  public static function create(
+    string $type,
+    Field|Block $field,
+    Collection $def,
+    ?string $lang
+  ): object {
+    $key = $type;
+    if (isset(self::$added[$key])) {
+      $class = self::$added[$key];
+    } elseif (isset(self::$classMap[$key])) {
+      $class = ConfigHelper::getNamespace() . self::$classMap[$key];
+    } else {
+      $class = ConfigHelper::getNamespace() . self::$classMap['text'];
+    }
+    return new $class($field, $def, $lang);
+  }
+
+  /**
+   * Check if a filed type is existing.
+   */
+  public static function has(string $type): bool
+  {
+    return $type === 'link' || isset(self::$added[$type]) || isset(self::$classMap[$type]);
+  }
 
   /**
    * Interface to trigger the hooks
@@ -77,53 +103,5 @@ class ModelFactory
     if (is_string($type) && strlen($type) > 0 && class_exists($model)) {
       self::$added[$type] = $model;
     }
-  }
-
-  /**
-   * Check if a filed type is existing.
-   */
-  public static function has (string $type): bool
-  {
-    return $type === 'link' || isset(self::$added[$type]) || isset(self::$classMap[$type]);
-  }
-
-  /**
-   * Create an instance of a model class defined by type.
-   */
-  public static function create (
-    string $type,
-    Field $field,
-    Collection $def,
-    ?string $lang
-  ): object {
-    $key = $type;
-    if (isset(self::$added[$key])) {
-      $class = self::$added[$key];
-    } elseif (isset(self::$classMap[$key])) {
-      $class = ConfigHelper::getNamespace() . self::$classMap[$key];
-    } else {
-      $class = ConfigHelper::getNamespace() . self::$classMap['text'];
-    }
-    return new $class($field, $def, $lang);
-  }
-
-  /**
-   * Create an instance of a block-model class defined by type.
-   */
-  public static function createBlock(
-    string $type,
-    Block $block,
-    Collection $def,
-    ?string $lang
-  ): object {
-    $key = 'block-' . $type;
-    if (isset(self::$added[$key])) {
-      $class = self::$added[$key];
-    } elseif (isset(self::$classMap[$key])) {
-      $class = ConfigHelper::getNamespace() . self::$classMap[$key];
-    } else {
-      $class = ConfigHelper::getNamespace() . self::$classMap['block-default'];
-    }
-    return new $class($block, $def, $lang);
   }
 }

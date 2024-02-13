@@ -81,6 +81,65 @@ class TextModel extends BaseModel
   }
 
   /**
+   * Helper to convert DOMDocument to array.
+   * Credits to https://gist.github.com/yosko/6991691
+   * 
+   * @throws InvalidArgumentException 
+   * @throws LogicException 
+   */
+  function htmlToArray(DOMElement|DOMText|DOMCdataSection $root): array
+  {
+    // node with nodetype
+    if ($root->nodeType == XML_ELEMENT_NODE) {
+      $res = ['elem' => strtolower($root->nodeName)];
+      if ($root->hasChildNodes()) {
+        $res['value'] = [];
+        $children = $root->childNodes;
+        for ($i = 0; $i < $children->length; $i++) {
+          $child = $this->htmlToArray($children->item($i));
+          if (!empty($child)) {
+            $res['value'][] = $child;
+          }
+        }
+
+        // if it's only a block-element with simple text, then remove children
+        if (count($res['value']) === 1 && count($res['value'][0]) === 1 && isset($res['value'][0]['value'])) {
+          $res['value'] = $res['value'][0]['value'];
+        }
+      }
+
+      // add attributes as optional 3rd entry
+      if ($root->hasAttributes()) {
+        $res['attr'] = [];
+        foreach ($root->attributes as $attribute) {
+          $res['attr'][$attribute->name] = $attribute->value;
+        }
+
+        // change attributes, if it's a link
+        if ($res['elem'] === 'a') {
+          $res['attr'] = LinkHelper::getInline(
+            $this->lang,
+            $res['attr']['href'],
+            (isset($res['attr']['title']) ? $res['attr']['title'] : null),
+            (isset($res['attr']['target']) && $res['attr']['target'] === '_blank')
+          );
+        }
+      }
+      return $res;
+    }
+
+    // text node
+    if ($root->nodeType == XML_TEXT_NODE || $root->nodeType == XML_CDATA_SECTION_NODE) {
+      $value = $root->nodeValue;
+      if (!empty($value)) {
+        return [
+          'value' => $value
+        ];
+      }
+    }
+  }
+
+  /**
    * Get type of this model as it's returned in response.
    * Method called by setModelData()
    */
@@ -154,64 +213,5 @@ class TextModel extends BaseModel
       }
     }
     return $res;
-  }
-
-  /**
-   * Helper to convert DOMDocument to array.
-   * Credits to https://gist.github.com/yosko/6991691
-   * 
-   * @throws InvalidArgumentException 
-   * @throws LogicException 
-   */
-  function htmlToArray(DOMElement|DOMText|DOMCdataSection $root): array
-  {
-    // node with nodetype
-    if ($root->nodeType == XML_ELEMENT_NODE) {
-      $res = [ 'elem' => strtolower($root->nodeName) ];
-      if ($root->hasChildNodes()) {
-        $res['value'] = [];
-        $children = $root->childNodes;
-        for ($i = 0; $i < $children->length; $i++) {
-          $child = $this->htmlToArray($children->item($i));
-          if (!empty($child)) {
-            $res['value'][] = $child;
-          }
-        }
-
-        // if it's only a block-element with simple text, then remove children
-        if (count($res['value']) === 1 && count($res['value'][0]) === 1 && isset($res['value'][0]['value'])) {
-          $res['value'] = $res['value'][0]['value'];
-        }
-      }
-
-      // add attributes as optional 3rd entry
-      if ($root->hasAttributes()) {
-        $res['attr'] = [];
-        foreach ($root->attributes as $attribute) {
-          $res['attr'][$attribute->name] = $attribute->value;
-        }
-
-        // change attributes, if it's a link
-        if ($res['elem'] === 'a') {
-          $res['attr'] = LinkHelper::getInline(
-            $this->lang,
-            $res['attr']['href'],
-            (isset($res['attr']['title']) ? $res['attr']['title'] : null),
-            (isset($res['attr']['target']) && $res['attr']['target'] === '_blank')
-          );
-        }
-      }
-      return $res;
-    }
-
-    // text node
-    if ($root->nodeType == XML_TEXT_NODE || $root->nodeType == XML_CDATA_SECTION_NODE) {
-      $value = $root->nodeValue;
-      if (!empty($value)) {
-        return [
-          'value' => $value
-        ];
-      }
-    }
   }
 }

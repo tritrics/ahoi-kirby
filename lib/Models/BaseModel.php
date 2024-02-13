@@ -79,6 +79,78 @@ abstract class BaseModel extends Collection
   }
 
   /**
+   * Get the model value. Overwritten by child class.
+   */
+  abstract protected function getValue();
+
+  /**
+   * Get the corresponding label for the selected option.
+   */
+  protected function getLabel(mixed $value): mixed
+  {
+    $options = $this->blueprint->node('options');
+    if ($options instanceof Collection && $options->count() > 0) {
+      $options = $options->get(false);
+      $type = $this->getOpionsType($options);
+      if ($type === 'IS_STRING') {
+        return isset($options[$value]) ? $options[$value] : $value;
+      }
+      if ($type === 'IS_KEY_VALUE') {
+        foreach ($options as $entry) {
+          if ($entry['value'] == $value) {
+            return $entry['text'];
+          }
+        }
+      }
+    }
+    return '';
+  }
+
+  /**
+   * Helper for fields with option-node: Kirby allowes different type of options.
+   * (So far we can only handle static options.)
+   */
+  private function getOpionsType(array $options): ?string
+  {
+    $values = array_values($options);
+    if (isset($values[0])) {
+
+      // for numeric keys Kirby uses options-def like:
+      // - value: '100'
+      //   text: Design
+      // - value: '200'
+      //   text: Architecture
+      if (is_array($values[0]) && isset($values[0]['value']) && isset($values[0]['text'])) {
+        return 'IS_KEY_VALUE';
+      }
+
+      // string keys like
+      // - design: Design
+      // - architecture: Architecture
+      // or like
+      // - center
+      // - middle
+      else if (is_string($values[0])) {
+        return 'IS_STRING';
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Because Kirby sets multiple to true on default, we check for false here.
+   * max = 1 is NOT interpreted as multiple, because the setting multiple
+   * is explicitely designed for this.
+   */
+  protected function isMultiple(): bool
+  {
+    if ($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Check and set possible child fields.
    */
   private function setChildFields (): void
@@ -130,77 +202,5 @@ abstract class BaseModel extends Collection
     if ($type !== 'page') {
       $this->add('value', $this->getValue());
     }
-  }
-
-  /**
-   * Get the model value. Overwritten by child class.
-   */
-  abstract protected function getValue();
-
-  /**
-   * Get the corresponding label for the selected option.
-   */
-  protected function getLabel(mixed $value): mixed
-  {
-    $options = $this->blueprint->node('options');
-    if ($options instanceof Collection && $options->count() > 0) {
-      $options = $options->get(false);
-      $type = $this->checkOpionsType($options);
-      if ($type === 'IS_STRING') {
-        return isset($options[$value]) ? $options[$value] : $value;
-      }
-      if ($type === 'IS_KEY_VALUE') {
-        foreach ($options as $entry) {
-          if ($entry['value'] == $value) {
-            return $entry['text'];
-          }
-        }
-      }
-    }
-    return '';
-  }
-
-  /**
-   * Helper for fields with option-node: Kirby allowes different type of options.
-   * (So far we can only handle static options.)
-   */
-  protected function checkOpionsType (array $options): ?string
-  {
-    $values = array_values($options);
-    if (isset($values[0])) {
-
-      // for numeric keys Kirby uses options-def like:
-      // - value: '100'
-      //   text: Design
-      // - value: '200'
-      //   text: Architecture
-      if (is_array($values[0]) && isset($values[0]['value']) && isset($values[0]['text'])) {
-        return 'IS_KEY_VALUE';
-      }
-      
-      // string keys like
-      // - design: Design
-      // - architecture: Architecture
-      // or like
-      // - center
-      // - middle
-      else if (is_string($values[0])) {
-        return 'IS_STRING';
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Because Kirby sets multiple to true on default, we check for false here.
-   * max = 1 is NOT interpreted as multiple, because the setting multiple
-   * is explicitely designed for this.
-   */
-  protected function isMultiple(): bool
-  {
-    if ($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
-      return false;
-    }
-    return true;
   }
 }

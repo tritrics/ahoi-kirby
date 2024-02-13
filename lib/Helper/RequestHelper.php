@@ -10,10 +10,20 @@ use Kirby\Http\Request;
 class RequestHelper
 {
   /**
+   * Normalize and check Action
+   */
+  public static function getAction(mixed $val): ?string
+  {
+    $action = TypeHelper::toString($val, true, true);
+    $valid_actions = ConfigHelper::getConfig('actions');
+    return strlen($action) && isset($valid_actions[$action]) ? $action : null;
+  }
+  
+  /**
    * Normalize and check lang-code.
    * Returns empty string in a single-language installation. 
    */
-  public static function getLang (mixed $val): ?string
+  public static function getLang(mixed $val): ?string
   {
     $lang = TypeHelper::toString($val, true, true);
     if (!LanguagesHelper::isValid($lang)) {
@@ -23,43 +33,12 @@ class RequestHelper
   }
 
   /**
-   * Normalize and check Action
-   */
-  public static function getAction(mixed $val): ?string
-  {
-    $action = TypeHelper::toString($val, true, true);
-    $valid_actions = ConfigHelper::getConfig('actions');
-    return strlen($action) && isset($valid_actions[$action]) ? $action : null;
-  }
-
-  /**
-   * Get page parameter from Request, any number > 0, default 1.
-   */
-  public static function getPage (Request $request): int
-  {
-    $val = TypeHelper::toInt($request->get('page'));
-    return ($val || $val <= 0) ? 1 : $val;
-  }
-
-  /**
    * Get limit parameter from Request, any number > 0, default 10.
    */
   public static function getLimit (Request $request): int
   {
     $val = TypeHelper::toInt($request->get('limit'));
     return ($val || $val <= 0) ? 10 : $val;
-  }
-
-  /**
-   * Get order parameter from Request, asc or desc, default desc.
-   */
-  public static function getOrder (Request$request): string
-  {
-    $val = TypeHelper::toString($request->get('order'), true, true);
-    if (in_array($val, ['asc', 'desc'])) {
-      return $val;
-    }
-    return 'asc';
   }
 
   /**
@@ -113,40 +92,6 @@ class RequestHelper
   }
 
   /**
-   * Parse the given path and return language and node. In a multi language
-   * installation, the first part of the path must be a valid language (which
-   * is not validated here).
-   * 
-   * single language installation:
-   * "/" -> site
-   * "/some/page" -> page
-   * 
-   * multi language installation:
-   * "/en" -> english version of site
-   * "/en/some/page" -> english version of page "/some/path"
-   */
-  public static function parsePath(string $path, bool $multilang): array
-  {
-    $parts = array_filter(explode('/', $path));
-    $lang = $multilang ? array_shift($parts) : null;
-    $slug = count($parts) > 0 ? implode('/', $parts) : null;
-    return [$lang, $slug];
-  }
-
-  /**
-   * Parse the given path and return action.
-   * @see parsesPath()
-   */
-  public static function parseAction(string $path, bool $multilang): array
-  {
-    $parts = array_filter(explode('/', $path));
-    $lang = $multilang ? array_shift($parts) : null;
-    $action = array_shift($parts);
-    $token = count($parts) > 0 ? array_shift($parts) : null;
-    return [$lang, $action, $token];
-  }
-
-  /**
    * Get host inforamtion about API and frontend.
    */
   public static function getHosts(?string $lang = null): array
@@ -172,5 +117,60 @@ class RequestHelper
       $res['referer']['port'] = $res['self']['port'];
     }
     return $res;
+  }
+
+  /**
+   * Get order parameter from Request, asc or desc, default desc.
+   */
+  public static function getOrder(Request $request): string
+  {
+    $val = TypeHelper::toString($request->get('order'), true, true);
+    if (in_array($val, ['asc', 'desc'])) {
+      return $val;
+    }
+    return 'asc';
+  }
+
+  /**
+   * Get page parameter from Request, any number > 0, default 1.
+   */
+  public static function getPage(Request $request): int
+  {
+    $val = TypeHelper::toInt($request->get('page'));
+    return ($val || $val <= 0) ? 1 : $val;
+  }
+
+  /**
+   * Parse the given path and return action.
+   * @see parsesPath()
+   */
+  public static function parseAction(string $path, bool $multilang): array
+  {
+    $parts = array_filter(explode('/', $path));
+    $lang = $multilang ? array_shift($parts) : null;
+    $action = array_shift($parts);
+    $token = count($parts) > 0 ? array_shift($parts) : null;
+    return [$lang, $action, $token];
+  }
+
+  /**
+   * Parse the given path and return language and node. In a multi language
+   * installation, the first part of the path must be a valid language (which
+   * is not validated here).
+   * 
+   * single language installation:
+   * "/" -> site
+   * "/some/page" -> page
+   * 
+   * multi language installation:
+   * "/en" -> english version of site
+   * "/en/some/page" -> english version of page "/some/path"
+   */
+  public static function parsePath(string $path, bool $multilang): array
+  {
+    $parts = array_filter(explode('/', $path));
+    $lang = $multilang ? array_shift($parts) : null;
+    $slug = count($parts) > 0 ? implode('/', $parts) : null;
+    return [$lang, $slug];
   }
 }

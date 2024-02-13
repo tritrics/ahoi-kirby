@@ -107,11 +107,11 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
       ];
     }
 
-    // a node
+    // a page
     if (ConfigHelper::isEnabledPage()) {
       $routes[] = [
         'pattern' => $slug . '/page/(:all?)',
-        'method' => 'GET|POST|OPTIONS',
+        'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
           $controller = new GetController();
@@ -120,11 +120,11 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
       ];
     }
 
-    // children of a node
+    // children of a page
     if (ConfigHelper::isEnabledPages()) {
       $routes[] = [
         'pattern' => $slug . '/pages/(:all?)',
-        'method' => 'GET|POST|OPTIONS',
+        'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
           $controller = new GetController();
@@ -133,12 +133,12 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
       ];
     }
 
-    // action (post-data) handling
+    // create (update, delete) pages, send emails etc.
     if (ConfigHelper::isEnabledAction()) {
 
-      // get a token, needed to submit an action
+      // GET > return a token, needed to submit an action
       $routes[] = [
-        'pattern' => $slug . '/action/token/(:all?)',
+        'pattern' => $slug . '/token/(:all?)',
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $action, $token) = RequestHelper::parseAction($resource, $multilang);
@@ -147,15 +147,57 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
         }
       ];
 
+      // GET > get an entry
       $routes[] = [
-        'pattern' => $slug . '/action/submit/(:all?)',
-        'method' => 'GET|POST|OPTIONS',
+        'pattern' => $slug . '/action/(:all?)',
+        'method' => 'GET',
+        'action' => function () {
+          $controller = new ActionController();
+          return $controller->get();
+        }
+      ];
+
+      // OPTIONS > pre-flight
+      $routes[] = [
+        'pattern' => $slug . '/action/(:all?)',
+        'method' => 'OPTIONS',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $action, $token) = RequestHelper::parseAction($resource, $multilang);
           $controller = new ActionController();
-          return $controller->submit($lang, $action, $token);
+          return $controller->options($lang, $action, $token);
         }
       ];
+
+      // POST > create
+      $routes[] = [
+        'pattern' => $slug . '/action/(:all?)',
+        'method' => 'POST',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $action, $token) = RequestHelper::parseAction($resource, $multilang);
+          $controller = new ActionController();
+          return $controller->create($lang, $action, $token);
+        }
+      ];
+
+      // PUT > update (PATCH > partial update)
+      $routes[] = [
+        'pattern' => $slug . '/action/(:all?)',
+        'method' => 'PUT',
+        'action' => function () {
+          $controller = new ActionController();
+          return $controller->update();
+        }
+      ];
+
+      // DELETE > delete
+      $routes[] = [
+          'pattern' => $slug . '/action/(:all?)',
+          'method' => 'DELETE',
+          'action' => function () {
+            $controller = new ActionController();
+            return $controller->delete();
+          }
+        ];
     }
     return $routes;
   }

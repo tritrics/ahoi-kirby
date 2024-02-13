@@ -12,23 +12,14 @@ use Tritrics\AflevereApi\v1\Data\Collection;
 class LanguagesHelper
 {
   /**
-   * List availabe languages for intern use.
+   * Get the language count if it's a multilang installation.
    */
-  public static function list(): Collection
+  public static function count(): int
   {
-    $home = kirby()->site()->homePage();
-    $res = new Collection();
-    foreach (KirbyHelper::getLanguages() as $language) {
-      $res->add($language->code(), [
-        'name' => $language->name(),
-        'slug' => self::getSlug($language->code()),
-        'default' => $language->isDefault(),
-        'locale' => self::getLocale($language->code()),
-        'direction' => $language->direction(),
-        'homeslug' => $home->uri($language->code())
-      ]);
+    if (!ConfigHelper::isMultilang()) {
+      return 0;
     }
-    return $res;
+    return KirbyHelper::getLanguages()->count();
   }
 
   /**
@@ -43,28 +34,16 @@ class LanguagesHelper
   }
 
   /**
-   * Get the language count if it's a multilang installation.
+   * Get the locale for a given language.
    */
-  public static function count(): int
+  public static function getLocale(?string $code): string
   {
-    if (!ConfigHelper::isMultilang()) {
-      return 0;
+    if (!self::isValid($code)) {
+      return '';
     }
-    return KirbyHelper::getLanguages()->count();
-  }
-
-  /**
-   * Check if a given language code is valid.
-   * empty string or null in non-multilang installation -> true
-   * valid language code in multilang installation -> true
-   * rest -> false
-   */
-  public static function isValid(?string $code): bool
-  {
-    if (!$code && !ConfigHelper::isMultilang()) {
-      return true;
-    }
-    return KirbyHelper::getLanguages()->has($code);
+    $language = KirbyHelper::getLanguage($code);
+    $php_locale = $language->locale(LC_ALL);
+    return str_replace('_', '-', $php_locale);
   }
 
   /**
@@ -87,23 +66,44 @@ class LanguagesHelper
   }
 
   /**
-   * Get the locale for a given language.
-   */
-  public static function getLocale(?string $code): string
-  {
-    if (!self::isValid($code)) {
-      return '';
-    }
-    $language = KirbyHelper::getLanguage($code);
-    $php_locale = $language->locale(LC_ALL);
-    return str_replace('_', '-', $php_locale);
-  }
-
-  /**
    * Get the url for a given language.
    */
   public static function getUrl(string $code, string $slug): string
   {
     return '/' . trim(self::getSlug($code) . '/' . $slug, '/');
+  }
+
+  /**
+   * Check if a given language code is valid.
+   * empty string or null in non-multilang installation -> true
+   * valid language code in multilang installation -> true
+   * rest -> false
+   */
+  public static function isValid(?string $code): bool
+  {
+    if (!$code && !ConfigHelper::isMultilang()) {
+      return true;
+    }
+    return KirbyHelper::getLanguages()->has($code);
+  }
+
+  /**
+   * List availabe languages for intern use.
+   */
+  public static function list(): Collection
+  {
+    $home = kirby()->site()->homePage();
+    $res = new Collection();
+    foreach (KirbyHelper::getLanguages() as $language) {
+      $res->add($language->code(), [
+        'name' => $language->name(),
+        'slug' => self::getSlug($language->code()),
+        'default' => $language->isDefault(),
+        'locale' => self::getLocale($language->code()),
+        'direction' => $language->direction(),
+        'homeslug' => $home->uri($language->code())
+      ]);
+    }
+    return $res;
   }
 }

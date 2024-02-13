@@ -30,94 +30,9 @@ class BlueprintHelper
   private static $map = [];
 
   /**
-   * Get the blueprint either from intern map or compute.
-   * Return only fields with api-node = true.
-   * Map is used to avoid repetition, which may occour for files, users and pages.
-   */
-  public static function getBlueprint (object $model): Collection
-  {
-    if ($model instanceof Page) {
-      $path = 'pages/' . $model->intendedTemplate();
-      $add_title_field = true;
-    } elseif ($model instanceof Site) {
-      $path = 'site';
-      $add_title_field = false;
-    } elseif ($model instanceof File) {
-      $path = 'files/' . $model->template();
-      $add_title_field = true;
-    } elseif ($model instanceof User) {
-      $path = 'users/' . $model->role();
-      $add_title_field = false;
-    }
-
-    $name = trim(str_replace('/', '_', $path), '_');
-    if (!isset(self::$map[$name])) {
-      self::$map[$name] = self::parse($path, $add_title_field);
-    }
-    return self::$map[$name];
-  }
-
-  /**
-   * Get an instace of Collection with the relevant blueprint-information.
-   */
-  private static function parse (string $path, bool $add_title_field): Collection
-  {
-    $res = new Collection();
-    $res->add('name', $path);
-
-    // find blueprint-file by path
-    $blueprint = self::getBlueprintFile($path);
-    if (isset($blueprint['api']) && is_array($blueprint['api'])) {
-      $res->add('api', $blueprint['api']);
-    }
-    $fields = self::getFields($blueprint, false, $add_title_field, true);
-    $res->add('fields', $fields);
-    return $res;
-  }
-
-  /**
-   * Get raw blueprint/fragment, avoid Exceptions.
-   */
-  private static function getBlueprintFile (string $path): array
-  {
-    $name = trim(str_replace('/', '_', $path), '_');
-    if (!isset(self::$files[$name])) {
-      try {
-        $blueprint = Blueprint::find($path);
-        $blueprint = self::extend($blueprint);
-        self::$files[$name] = self::normalizeValues($blueprint, ['api', 'type', 'extends']);
-      } catch (NotFoundException $e) {
-        self::$files[$name] = [];
-      }
-    }
-    return self::$files[$name];
-  }
-
-  /**
-   * Helper to convert toChar() for given $nodes in $arr.
-   */
-  public static function normalizeValues(array $arr, array|bool $keys = false): array {
-    $res = [];
-    foreach ($arr as $key => $value) {
-      $key = TypeHelper::toChar($key, true, true);
-      if (is_array($value)) {
-        $res[$key] = self::normalizeValues(
-          $value,
-          (is_array($keys) && in_array($key, $keys)) ? true : $keys
-        );
-      } elseif ($keys === true || (is_array($keys) && in_array($key, $keys))) {
-        $res[$key] = TypeHelper::toChar($value, true, true);
-      } else {
-        $res[$key] = $value;
-      }
-    }
-    return $res;
-  }
-
-  /**
    * Recursive function to extend and normalise blueprint.
    */
-  private static function extend (mixed $nodes): mixed
+  private static function extend(mixed $nodes): mixed
   {
     // rewrite fieldsets of block, which can be notated like:
     // fieldsets:
@@ -161,9 +76,55 @@ class BlueprintHelper
   }
 
   /**
+   * Get the blueprint either from intern map or compute.
+   * Return only fields with api-node = true.
+   * Map is used to avoid repetition, which may occour for files, users and pages.
+   */
+  public static function getBlueprint(object $model): Collection
+  {
+    if ($model instanceof Page) {
+      $path = 'pages/' . $model->intendedTemplate();
+      $add_title_field = true;
+    } elseif ($model instanceof Site) {
+      $path = 'site';
+      $add_title_field = false;
+    } elseif ($model instanceof File) {
+      $path = 'files/' . $model->template();
+      $add_title_field = true;
+    } elseif ($model instanceof User) {
+      $path = 'users/' . $model->role();
+      $add_title_field = false;
+    }
+
+    $name = trim(str_replace('/', '_', $path), '_');
+    if (!isset(self::$map[$name])) {
+      self::$map[$name] = self::parse($path, $add_title_field);
+    }
+    return self::$map[$name];
+  }
+
+  /**
+   * Get raw blueprint/fragment, avoid Exceptions.
+   */
+  private static function getBlueprintFile(string $path): array
+  {
+    $name = trim(str_replace('/', '_', $path), '_');
+    if (!isset(self::$files[$name])) {
+      try {
+        $blueprint = Blueprint::find($path);
+        $blueprint = self::extend($blueprint);
+        self::$files[$name] = self::normalizeValues($blueprint, ['api', 'type', 'extends']);
+      } catch (NotFoundException $e) {
+        self::$files[$name] = [];
+      }
+    }
+    return self::$files[$name];
+  }
+
+  /**
    * Recursivly extracts all field definitions from blueprint array.
    */
-  private static function getFields (
+  private static function getFields(
     array $nodes,
     bool $publish,
     bool $add_title_field = false,
@@ -186,7 +147,7 @@ class BlueprintHelper
       if ($key === 'fields') {
 
         // loop fields
-        foreach($node as $fieldname => $fielddef) {
+        foreach ($node as $fieldname => $fielddef) {
 
           // check if it is published or invalid, otherwise skip
           if (!self::isPublished($fielddef, $publish) || !isset($fielddef['type'])) {
@@ -199,16 +160,16 @@ class BlueprintHelper
             $res[$fieldname] = [];
 
             // loop block properties
-            foreach($fielddef as $property => $setting) {
+            foreach ($fielddef as $property => $setting) {
 
               // fieldsets = blocks
               if ($property === 'fieldsets' && is_array($setting)) {
                 $res[$fieldname]['blocks'] = [];
-                foreach($setting as $fieldset => $block) {
+                foreach ($setting as $fieldset => $block) {
 
                   // grouped blocks
                   if (isset($block['type']) && $block['type'] === 'group' && isset($block['fieldsets'])) {
-                    foreach($block['fieldsets'] as $fieldset2 => $block2) {
+                    foreach ($block['fieldsets'] as $fieldset2 => $block2) {
                       if (!self::isPublished($block2, $publish)) {
                         continue;
                       }
@@ -219,7 +180,7 @@ class BlueprintHelper
                       $res[$fieldname]['blocks'][$fieldset2]['fields'] = self::getFields($block2, $publish);
                     }
                   }
-                  
+
                   // ungrouped blocks
                   else {
                     if (!self::isPublished($block, $publish)) {
@@ -233,18 +194,18 @@ class BlueprintHelper
                   }
                 }
               }
-              
+
               // other block properties
               else {
                 $res[$fieldname][$property] = $setting;
               }
             }
           }
-          
+
           // Field
           else {
             $res[$fieldname] = [];
-            foreach($fielddef as $property => $setting) {
+            foreach ($fielddef as $property => $setting) {
               if (is_array($setting) && $property === 'fields') {
                 $res[$fieldname][$property] = self::getFields($fielddef, $publish);
               } else {
@@ -254,7 +215,7 @@ class BlueprintHelper
           }
         }
       }
-      
+
       // no fields, search deeper
       elseif (is_array($node)) {
         $res = array_merge($res, self::getFields($node, $publish));
@@ -270,7 +231,7 @@ class BlueprintHelper
    *   api:
    *     publish: true
    */
-  private static function isPublished (array $def, bool $publish_default): bool
+  private static function isPublished(array $def, bool $publish_default): bool
   {
     if (is_array($def) && isset($def['api'])) {
       if (is_bool($def['api'])) {
@@ -289,7 +250,7 @@ class BlueprintHelper
   /**
    * Check field defintion for applied publish-settings.
    */
-  private static function isPublishedApplied (array $def, bool $publish_default): bool
+  private static function isPublishedApplied(array $def, bool $publish_default): bool
   {
     if (
       is_array($def) &&
@@ -301,5 +262,45 @@ class BlueprintHelper
       return !!$def['api']['apply'];
     }
     return $publish_default;
+  }
+
+  /**
+   * Helper to convert toChar() for given $nodes in $arr.
+   */
+  public static function normalizeValues(array $arr, array|bool $keys = false): array
+  {
+    $res = [];
+    foreach ($arr as $key => $value) {
+      $key = TypeHelper::toChar($key, true, true);
+      if (is_array($value)) {
+        $res[$key] = self::normalizeValues(
+          $value,
+          (is_array($keys) && in_array($key, $keys)) ? true : $keys
+        );
+      } elseif ($keys === true || (is_array($keys) && in_array($key, $keys))) {
+        $res[$key] = TypeHelper::toChar($value, true, true);
+      } else {
+        $res[$key] = $value;
+      }
+    }
+    return $res;
+  }
+
+  /**
+   * Get an instace of Collection with the relevant blueprint-information.
+   */
+  private static function parse (string $path, bool $add_title_field): Collection
+  {
+    $res = new Collection();
+    $res->add('name', $path);
+
+    // find blueprint-file by path
+    $blueprint = self::getBlueprintFile($path);
+    if (isset($blueprint['api']) && is_array($blueprint['api'])) {
+      $res->add('api', $blueprint['api']);
+    }
+    $fields = self::getFields($blueprint, false, $add_title_field, true);
+    $res->add('fields', $fields);
+    return $res;
   }
 }

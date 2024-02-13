@@ -4,7 +4,7 @@ namespace Tritrics\AflevereApi\v1\Models;
 
 use Tritrics\AflevereApi\v1\Data\Collection;
 
-use Tritrics\AflevereApi\v1\Factories\ModelFactory;
+use Tritrics\AflevereApi\v1\Factories\BlockFactory;
 
 /**
  * Model for Kirby's fields: blocks
@@ -22,7 +22,7 @@ class BlocksModel extends BaseModel
       $type = strtolower($block->type());
       $blueprint = $this->blueprint->node('blocks', $type);
       if ($blueprint->has('fields')) {
-        $model = ModelFactory::createBlock($type, $block, $blueprint, $this->lang);
+        $model = BlockFactory::create($type, $block, $blueprint, $this->lang);
         $res->push($model);
       }
     }

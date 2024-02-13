@@ -10,21 +10,6 @@ use Tritrics\AflevereApi\v1\Data\Collection;
 class DatetimeModel extends BaseModel
 {
   /**
-   * Get type of this model as it's returned in response.
-   * Method called by setModelData()
-   */
-  protected function getType(): string
-  {
-    if ($this->blueprint->node('type')->get() === 'time') {
-      return 'time';
-    } else if($this->blueprint->node('time')->is(true)) {
-      return 'datetime';
-    } else {
-      return 'date';
-    }
-  }
-
-  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -40,13 +25,28 @@ class DatetimeModel extends BaseModel
       $utc = [(int) date('Y', $time), (int) date('m', $time) - 1, (int) date('d', $time),(int) date('H', $time), (int) date('i', $time), (int) date('s', $time), 0];
     }
     $meta = new Collection();
-    $meta->add('datetime', date('c', $time));
-    $meta->add('jsdate', implode(',', $utc));
+    $meta->add('iso', date('c', $time));
+    // $meta->add('jsdate', implode(',', $utc)); JS: new Date(Date.UTC(...obj.meta.jsdate.split(','))),
     $meta->add('timezone', date_default_timezone_get());
 
     $res = new Collection();
     $res->add('meta', $meta);
     return $res;
+  }
+  
+  /**
+   * Get type of this model as it's returned in response.
+   * Method called by setModelData()
+   */
+  protected function getType(): string
+  {
+    if ($this->blueprint->node('type')->get() === 'time') {
+      return 'time';
+    } else if ($this->blueprint->node('time')->is(true)) {
+      return 'datetime';
+    } else {
+      return 'date';
+    }
   }
 
   /**

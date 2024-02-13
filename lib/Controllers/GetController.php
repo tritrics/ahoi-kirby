@@ -36,9 +36,6 @@ class GetController
   public function info (): Response
   {
     $request = kirby()->request();
-    if ($request->method() === 'OPTIONS') {
-      return ResponseHelper::ok();
-    }
     try {
       if ( !ConfigHelper::isEnabledInfo()) {
         return ResponseHelper::disabled();
@@ -78,7 +75,6 @@ class GetController
     if ($request->method() === 'OPTIONS') {
       return ResponseHelper::ok();
     }
-
     try {
       if ( !ConfigHelper::isEnabledPage()) {
         return ResponseHelper::disabled();

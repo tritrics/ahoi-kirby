@@ -11,6 +11,41 @@ use Kirby\Cms\Pages;
 class FilterHelper
 {
   /**
+   * Comparing values
+   */
+  public static function compare(mixed $value, string $operator, mixed $compare): bool
+  {
+    $value = TypeHelper::toChar($value, true, true);
+    $operator = TypeHelper::toString($operator, true, true);
+    $compare = TypeHelper::toChar($compare, true, true);
+    if ($value === null || $operator === null || $compare === null) {
+      return false;
+    }
+    switch ($operator) {
+      case 'eq':
+        return $value === $compare;
+        break;
+      case 'nt':
+        return $value !== $compare;
+        break;
+      case 'gt':
+        return $value > $compare;
+        break;
+      case 'gte':
+        return $value >= $compare;
+        break;
+      case 'lt':
+        return $value < $compare;
+        break;
+      case 'lte':
+        return $value <= $compare;
+        break;
+        // ... more like startswith, contains, endswith
+    }
+    return true;
+  }
+
+  /**
    * Filter children by criteria like fieldname.eq.value
    * 
    * @TODO: Convert the different value-types (number, string, date) and make them comparable
@@ -53,40 +88,5 @@ class FilterHelper
       }
     );
     return $children;
-  }
-
-  /**
-   * Comparing values
-   */
-  public static function compare(mixed $value, string $operator, mixed $compare): bool
-  {
-    $value = TypeHelper::toChar($value, true, true);
-    $operator = TypeHelper::toString($operator, true, true);
-    $compare = TypeHelper::toChar($compare, true, true);
-    if ($value === null || $operator === null || $compare === null) {
-      return false;
-    }
-    switch ($operator) {
-      case 'eq':
-        return $value === $compare;
-        break;
-      case 'nt':
-        return $value !== $compare;
-        break;
-      case 'gt':
-        return $value > $compare;
-        break;
-      case 'gte':
-        return $value >= $compare;
-        break;
-      case 'lt':
-        return $value < $compare;
-        break;
-      case 'lte':
-        return $value <= $compare;
-        break;
-        // ... more like startswith, contains, endswith
-    }
-    return true;
   }
 }

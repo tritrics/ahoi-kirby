@@ -27,6 +27,68 @@ class LinkHelper
   ];
 
   /**
+   * Build the path, ignoring all host-parts.
+   */
+  private static function buildPath(array $parts): string
+  {
+    return '' .
+    (isset($parts['path']) ? "{$parts['path']}" : '') .
+      (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
+      (isset($parts['query']) ? "?{$parts['query']}" : '');
+  }
+
+  /**
+   * Build the url, reverse of parseUrl().
+   */
+  public static function buildUrl(array $parts): string
+  {
+    return '' .
+    (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .
+      ((isset($parts['user']) || isset($parts['host'])) ? '//' : '') .
+      (isset($parts['user']) ? "{$parts['user']}" : '') .
+      (isset($parts['pass']) ? ":{$parts['pass']}" : '') .
+      (isset($parts['user']) ? '@' : '') .
+      (isset($parts['host']) ? "{$parts['host']}" : '') .
+      (isset($parts['port']) ? ":{$parts['port']}" : '') .
+      (isset($parts['path']) ? "{$parts['path']}" : '') .
+      (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
+      (isset($parts['query']) ? "?{$parts['query']}" : '');
+  }
+
+  /**
+   * Get anchor.
+   */
+  public static function getAnchor(string $anchor, bool $title = null): array
+  {
+    if (!str_starts_with($anchor, '#')) {
+      $anchor = '#' . $anchor;
+    }
+    $res = [
+      'type' => 'anchor',
+      'href' => $anchor
+    ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
+    return $res;
+  }
+
+  /**
+   * Get custom link.
+   */
+  public static function getCustom(string $link, ?string $title = null): array
+  {
+    $res = [
+      'type' => 'custom',
+      'href' => $link
+    ];
+    if (!empty($title)) {
+      $res['title'] = $title;
+    }
+    return $res;
+  }
+
+  /**
    * Detects the linktype from a given $href.
    */
   public static function getInline(
@@ -109,72 +171,16 @@ class LinkHelper
   }
 
   /**
-   * Get extern link.
+   * Get email link.
    */
-  public static function getUrl(string $href, ?string $title = null, bool $blank = false): array
+  public static function getEmail(string $email, ?string $title = null): array
   {
-    $url = self::parseUrl($href);
     $res = [
-      'type' => 'url',
-      'href' => $href,
-      'host' => isset($url['host']) ? $url['host'] : '',
+      'type' => 'email',
+      'href' => 'mailto:' . $email
     ];
     if (!empty($title)) {
       $res['title'] = $title;
-    }
-    if ($blank) {
-      $res['target'] = '_blank';
-    }
-    return $res;
-  }
-
-  /**
-   * Get page (intern) link.
-   */
-  public static function getPage(string $path, ?string $title = null, bool $blank = false ): array
-  {
-    // check and correct links to home page(s)
-    $parts = self::parseUrl($path);
-
-    // path is empty, set path to homepage, optional with prepending lang
-    if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {
-      if (ConfigHelper::isMultilang()) {
-        $parts['path'] = self::$slugs['lang'] . self::$slugs['home'];
-      } else {
-        $parts['path'] = self::$slugs['home'];
-      }
-    }
-    
-    // path is not empty in a multilang installation
-    else if (ConfigHelper::isMultilang()) {
-      $slugs = array_values(array_filter(explode('/', $parts['path'])));
-      $lang = count($slugs) > 0 ? $slugs[0] : null;
-      $langSettings = null;
-      foreach (LanguagesHelper::list() as $settings) {
-        if($settings->node('slug')->get() === $lang) {
-          $langSettings = $settings;
-        }
-      }
-
-      // prepend current language, if path doesn't begin with a valid lang
-      if ($langSettings === null) {
-        $parts['path'] = rtrim(self::$slugs['lang'] . '/' . implode('/', $slugs), '/');
-      }
-      
-      // rewrite simple lang-path like /en to /en/home
-      else if (count($slugs) === 1) {
-        $parts['path'] = '/' . $lang . '/' . $langSettings->node('homeslug')->get();
-      }
-    }
-    $res = [
-      'type' => 'page',
-      'href' => self::buildPath($parts)
-    ];
-    if (!empty($title)) {
-      $res['title'] = $title;
-    }
-    if ($blank) {
-      $res['target'] = '_blank';
     }
     return $res;
   }
@@ -198,16 +204,52 @@ class LinkHelper
   }
 
   /**
-   * Get email link.
+   * Get page (intern) link.
    */
-  public static function getEmail(string $email, ?string $title = null): array
+  public static function getPage(string $path, ?string $title = null, bool $blank = false): array
   {
+    // check and correct links to home page(s)
+    $parts = self::parseUrl($path);
+
+    // path is empty, set path to homepage, optional with prepending lang
+    if (!isset($parts['path']) || empty($parts['path']) || $parts['path'] === '/') {
+      if (ConfigHelper::isMultilang()) {
+        $parts['path'] = self::$slugs['lang'] . self::$slugs['home'];
+      } else {
+        $parts['path'] = self::$slugs['home'];
+      }
+    }
+
+    // path is not empty in a multilang installation
+    else if (ConfigHelper::isMultilang()) {
+      $slugs = array_values(array_filter(explode('/', $parts['path'])));
+      $lang = count($slugs) > 0 ? $slugs[0] : null;
+      $langSettings = null;
+      foreach (LanguagesHelper::list() as $settings) {
+        if ($settings->node('slug')->get() === $lang) {
+          $langSettings = $settings;
+        }
+      }
+
+      // prepend current language, if path doesn't begin with a valid lang
+      if ($langSettings === null) {
+        $parts['path'] = rtrim(self::$slugs['lang'] . '/' . implode('/', $slugs), '/');
+      }
+
+      // rewrite simple lang-path like /en to /en/home
+      else if (count($slugs) === 1) {
+        $parts['path'] = '/' . $lang . '/' . $langSettings->node('homeslug')->get();
+      }
+    }
     $res = [
-      'type' => 'email',
-      'href' => 'mailto:' . $email
+      'type' => 'page',
+      'href' => self::buildPath($parts)
     ];
-    if(!empty($title)) {
+    if (!empty($title)) {
       $res['title'] = $title;
+    }
+    if ($blank) {
+      $res['target'] = '_blank';
     }
     return $res;
   }
@@ -230,47 +272,23 @@ class LinkHelper
   }
 
   /**
-   * Get anchor.
+   * Get extern link.
    */
-  public static function getAnchor(string $anchor, bool $title = null): array
+  public static function getUrl(string $href, ?string $title = null, bool $blank = false): array
   {
-    if (!str_starts_with($anchor, '#')) {
-      $anchor = '#' . $anchor;
-    }
+    $url = self::parseUrl($href);
     $res = [
-      'type' => 'anchor',
-      'href' => $anchor
+      'type' => 'url',
+      'href' => $href,
+      'host' => isset($url['host']) ? $url['host'] : '',
     ];
     if (!empty($title)) {
       $res['title'] = $title;
     }
-    return $res;
-  }
-
-  /**
-   * Get custom link.
-   */
-  public static function getCustom(string $link, ?string $title = null): array
-  {
-    $res = [
-      'type' => 'custom',
-      'href' => $link
-    ];
-    if (!empty($title)) {
-      $res['title'] = $title;
+    if ($blank) {
+      $res['target'] = '_blank';
     }
     return $res;
-  }
-
-  /**
-   * Build the path, ignoring all host-parts.
-   */
-  private static function buildPath(array $parts): string
-  {
-    return '' .
-      (isset($parts['path']) ? "{$parts['path']}" : '') .
-      (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
-      (isset($parts['query']) ? "?{$parts['query']}" : '');
   }
 
   /**
@@ -331,23 +349,5 @@ class LinkHelper
       unset($parts['fragment']);
     }
     return $parts;
-  }
-
-  /**
-   * Build the url, reverse of parseUrl().
-   */
-  public static function buildUrl(array $parts): string
-  {
-    return '' .
-    (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .
-      ((isset($parts['user']) || isset($parts['host'])) ? '//' : '') .
-      (isset($parts['user']) ? "{$parts['user']}" : '') .
-      (isset($parts['pass']) ? ":{$parts['pass']}" : '') .
-      (isset($parts['user']) ? '@' : '') .
-      (isset($parts['host']) ? "{$parts['host']}" : '') .
-      (isset($parts['port']) ? ":{$parts['port']}" : '') .
-      (isset($parts['path']) ? "{$parts['path']}" : '') .
-      (isset($parts['hash']) ? "#{$parts['hash']}" : '') .
-      (isset($parts['query']) ? "?{$parts['query']}" : '');
   }
 }

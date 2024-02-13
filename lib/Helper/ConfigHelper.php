@@ -17,11 +17,44 @@ class ConfigHelper
   private static $globals = [];
 
   /**
-   * Doing some initialization stuff.
+   * Compute the base slug like /public-api/v1 
    */
-  public static function init($globals): void
+  public static function getApiSlug(): string
   {
-    self::$globals = $globals;
+    $slug = trim(trim(self::getConfig('slug', ''), '/'));
+    if (is_string($slug) && strlen($slug) > 0) {
+      $slug = '/' . $slug;
+    }
+    return $slug . '/' . self::$globals['version'];
+  }
+
+  /**
+   * Get setting from plugins config.php
+   * example: tritrics.aflevere-api.v1.slug
+   */
+  public static function getConfig(string $node, mixed $default = null): mixed
+  {
+    $val = kirby()->option(str_replace('/', '.', self::$globals['plugin-name']) . '.' . $node, $default);
+    if ($default !== null && gettype($val) !== gettype($default)) {
+      return $default;
+    }
+    return $val;
+  }
+
+  /**
+   * Get the namespace for dynamic imports
+   */
+  public static function getNamespace(): string
+  {
+    return self::$globals['namespace'];
+  }
+
+  /**
+   * Get the version from composer.json
+   */
+  public static function getPluginName(): string
+  {
+    return self::$globals['plugin-name'];
   }
 
   /**
@@ -43,54 +76,29 @@ class ConfigHelper
   }
 
   /**
-   * Get the version from composer.json
+   * Doing some initialization stuff.
    */
-  public static function getPluginName(): string
+  public static function init($globals): void
   {
-    return self::$globals['plugin-name'];
+    self::$globals = $globals;
   }
 
   /**
-   * Get the namespace for dynamic imports
+   * Check, if API's functions are enabled.
    */
-  public static function getNamespace(): string
+  private static function isEnabled(string $method): bool
   {
-    return self::$globals['namespace'];
+    $global = self::getConfig('enabled', false);
+    $setting = self::getConfig('enabled.' . $method, false);
+    return $global === true || $setting === true;
   }
 
   /**
-   * Get setting from plugins config.php
-   * example: tritrics.aflevere-api.v1.slug
+   * Check if "form" action is enabled.
    */
-  public static function getConfig(string $node, mixed $default = null): mixed
+  public static function isEnabledAction(): bool
   {
-    $val = kirby()->option(str_replace('/', '.', self::$globals['plugin-name']) . '.' . $node, $default);
-    if ($default !== null && gettype($val) !== gettype($default)) {
-      return $default;
-    }
-    return $val;
-  }
-
-  /**
-   * Compute the base slug like /public-api/v1 
-   */
-  public static function getApiSlug(): string
-  {
-    $slug = trim(trim(self::getConfig('slug', ''), '/'));
-    if (is_string($slug) && strlen($slug) > 0) {
-      $slug = '/' . $slug;
-    }
-    return $slug . '/' . self::$globals['version'];
-  }
-
-  /**
-   * Check, if a slug the backend-user enters, has a conflict with the API-Route
-   */
-  public static function isProtectedSlug(string $slug): bool
-  {
-    $path = strtolower(self::getConfig('slug'));
-    $slugs = explode('/', $path);
-    return in_array(strtolower($slug), $slugs);
+    return self::isEnabled('action');
   }
 
   /**
@@ -126,14 +134,6 @@ class ConfigHelper
   }
 
   /**
-   * Check if "form" action is enabled.
-   */
-  public static function isEnabledAction(): bool
-  {
-    return self::isEnabled('action');
-  }
-
-  /**
    * Check if installation is multilang.
    * Multilang-site is defined in config.php: languages => true.
    */
@@ -145,12 +145,12 @@ class ConfigHelper
   }
 
   /**
-   * Check, if API's functions are enabled.
+   * Check, if a slug the backend-user enters, has a conflict with the API-Route
    */
-  private static function isEnabled(string $method): bool
+  public static function isProtectedSlug(string $slug): bool
   {
-    $global = self::getConfig('enabled', false);
-    $setting = self::getConfig('enabled.' . $method, false);
-    return $global === true || $setting === true;
+    $path = strtolower(self::getConfig('slug'));
+    $slugs = explode('/', $path);
+    return in_array(strtolower($slug), $slugs);
   }
 }
