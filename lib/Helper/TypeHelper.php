@@ -82,6 +82,17 @@ class TypeHelper
   }
 
   /**
+   * Helper to split and trim the options from Kirby.
+   * "one, to, three" > [ "one", "to", "three" ]
+   */
+  public static function optionsToArray(string|int|float $value): array
+  {
+    return array_map(function ($option) {
+      return self::toChar($option, true);
+    }, explode(',', $value));
+  }
+
+  /**
    * Normalize to bool.
    */
   public static function toBool(mixed $value): bool

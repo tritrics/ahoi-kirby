@@ -17,30 +17,31 @@ use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 class PostFactory
 {
   /**
-   * commented types: @todo
-   * not listed types: pseudo fields or unhandled data structure
+   * List of Kirby field type which can be used in forms
+   * with their corresponding native data type.
+   * Not listed types: pseudo fields or unhandled data structure.
    */
   public static $validFieldTypes = [
-    //'checkboxes',
-    'color',
-    'date',
-    'email',
-    'link',
-    //'multiselect',
-    'number',
-    //'radio',
-    'range',
-    //'select',
-    'slug',
-    //'tags',
-    'tel',
-    'text',
-    'textarea',
-    'time',
-    //'toggle',
-    //'toggles',
-    'url',
-    'writer',
+    'checkboxes'  => 'string[]',
+    'color'       => 'string',
+    'date'        => 'string',
+    'email'       => 'string',
+    'link'        => 'string',
+    'multiselect' => 'string[]',
+    'number'      => 'number',
+    'radio'       => 'string',
+    'range'       => 'number',
+    'select'      => 'string',
+    'slug'        => 'string',
+    'tags'        => 'string[]',
+    'tel'         => 'string',
+    'text'        => 'string',
+    'textarea'    => 'text',
+    'time'        => 'string',
+    'toggle'      => 'bool',
+    'toggles'     => 'string',
+    'url'         => 'string',
+    'writer'      => 'text',
   ];
 
   /**
@@ -123,8 +124,9 @@ class PostFactory
     $dummy = new Page(['slug' => 'dummy', 'template' => $template]);
     $res = [];
     foreach ($dummy->blueprint()->fields() as $key => $def) {
-      if (in_array($def['type'], self::$validFieldTypes)) {
-        $res[$key] = TypeHelper::toString($def['type'], true, true);
+      $type = $def['type'];
+      if (isset(self::$validFieldTypes[$type])) {
+        $res[$key] = TypeHelper::toString($type, true, true);
       }
     }
     return $res;
@@ -139,27 +141,65 @@ class PostFactory
     bool $stripTags,
     bool $stripBackslashes
   ): string|int|float|null {
+    if (isset(self::$validFieldTypes[$type])) {
+      switch (self::$validFieldTypes[$type]) {
+        case 'string[]':
+          if (!is_array($value)) {
+            $value = [ $value ];
+          }
+          $res = array_map(function ($option) use ($stripTags, $stripBackslashes) {
+            return self::sanitizeString($option, $stripTags, $stripBackslashes, true);
+          }, $value);
+          return implode(', ', $res);
+        case 'number':
+          return self::sanitizeNumber($value);
+        case 'string':
+          return self::sanitizeString($value, $stripTags, $stripBackslashes, true);
+        case 'text':
+          return self::sanitizeString($value, $stripTags, $stripBackslashes, false);
+        case 'bool':
+          return self::sanitizeBool($value);
+      }
+    }
+    return null;
+  }
 
-    // Numbers
+  /**
+   * Converts 1, true, "true", 0, false, "false" to boolean.
+   */
+  private static function sanitizeBool (mixed $value): bool|null
+  {
+    if (TypeHelper::isBool($value)) { // value is 1 | 0 | null
+      return TypeHelper::toBool($value); // Kirby works with boolean or string here
+    }
+    return null;
+  }
+
+  /**
+   * Converts numbers with data type string to integer or float.
+   */
+  private static function sanitizeNumber (mixed $value): int|float|null
+  {
     if (TypeHelper::isNumber($value)) {
       return TypeHelper::toNumber($value);
     }
+    return null;
+  }
 
-    // Strings
+  /**
+   * Converts to string and does some security sanitizations.
+   */
+  private static function sanitizeString (
+    mixed $value,
+    bool $stripTags,
+    bool $stripBackslashes,
+    bool $stripNL
+  ): string|null {
     if (TypeHelper::isString($value)) {
       $res = TypeHelper::toString($value, true, false);
-
-      // remove linebreaks in none-multiline strings
-      if ($type !== 'textarea' && $type !== 'writer') {
-        $res = preg_replace('/\s+/', ' ', $res);
-      }
-      if ($stripTags) {
-        $res = strip_tags($res);
-      }
-      if ($stripBackslashes) {
-        $res = stripslashes($res);
-      }
-      return $res;
+      $res = $stripNL ? preg_replace('/\s+/', ' ', $res) : $res;
+      $res = $stripTags ? strip_tags($res) : $res;
+      return $stripBackslashes ? stripslashes($res) : $res;
     }
     return null;
   }

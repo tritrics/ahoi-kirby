@@ -12,6 +12,7 @@ use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
 use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
 use Tritrics\AflevereApi\v1\Actions\EmailAction;
 use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
+use Tritrics\AflevereApi\v1\Helper\TypeHelper;
 use Tritrics\AflevereApi\v1\Helper\DebugHelper;
 
 /**
@@ -155,7 +156,18 @@ class ActionService
     $errors = $page->errors();
     foreach (PostFactory::fields($action) as $key => $type) {
       $field = $res->add($key);
-      $field->add('value', $page->$key()->value());
+      switch ($type) {
+        case 'toggle':
+          $field->add('value', $page->$key()->value() === 'true' ? 1 : 0);
+          break;
+        case 'checkboxes':
+        case 'multiselect':
+        case 'tags':
+          $field->add('value', TypeHelper::optionsToArray($page->$key()->value()));
+          break;
+        default:
+          $field->add('value', $page->$key()->value());
+      }
       if (isset($errors[$key])) {
         $field->add('errno', 120);
         if (isset($errors[$key]['message']) && count($errors[$key]['message']) > 0) {

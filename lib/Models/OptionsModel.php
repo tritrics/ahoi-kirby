@@ -12,18 +12,16 @@ class OptionsModel extends BaseModel
 {
   /**
    * Get the value of model as it's returned in response.
-   * Mandatory method.
    */
   protected function getValue () : Collection
   {
-    $values = $this->splitSelectedOptions($this->model->value());
     $addLabel = $this->blueprint->node('api', 'labels')->is(true);
 
     // OptionsModel can't be used her, because there is no blueprint
     // representation of a single option. So we create a pseudo-field 
     // with type=option here.
     $res = new Collection();
-    foreach($values as $key => $value) {
+    foreach(TypeHelper::optionsToArray($this->model->value()) as $key => $value) {
       $option = new Collection();
       $option->add('type', 'option');
       if ($addLabel) {
@@ -33,15 +31,5 @@ class OptionsModel extends BaseModel
       $res->add($key, $option);
     }
     return $res;
-  }
-
-  /**
-   * Helper to split and trim the defined options.
-   */
-  private function splitSelectedOptions (string|int|float $value): array
-  {
-    return array_map(function ($option) {
-      return TypeHelper::toChar($option, true);
-    }, explode(',', $value));
   }
 }

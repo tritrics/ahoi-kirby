@@ -32,7 +32,6 @@ class UserModel extends BaseModel
 
   /**
    * Get the value of model as it's returned in response.
-   * Mandatory method.
    * For security-reasons we don't expose user's build-in values like
    * name, email, role, avatar. We only expose possibly extra-fields.
    */
