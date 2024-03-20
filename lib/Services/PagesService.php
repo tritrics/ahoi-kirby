@@ -59,14 +59,14 @@ class PagesService
     }
     $abscount = $children->count();
     if ($params['limit'] > 0 && $abscount > 0) {
-      $pagecount = ceil($abscount / $params['limit']);
-      $pagenum = $params['page'] <= $pagecount ? $params['page'] : $pagecount;
+      $setcount = ceil($abscount / $params['limit']);
+      $pagenum = $params['set'] <= $setcount ? $params['set'] : $setcount;
       $offset = ($pagenum - 1) * $params['limit'];
       $children = $children->slice($offset, $params['limit']);
       $meta->add('pages', $pagenum);
       $meta->add('limit', $params['limit']);
       $meta->add('abscount', $abscount);
-      $meta->add('pagescount', $pagecount);
+      $meta->add('setscount', $setcount);
       $meta->add('rangestart', $offset + 1);
       $meta->add('rangeend', $offset + $children->count());
       $meta->add('rangecount', $children->count());

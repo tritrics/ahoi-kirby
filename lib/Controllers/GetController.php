@@ -125,7 +125,7 @@ class GetController
         }
       }
       $params = [
-        'page' => RequestHelper::getPage($request),
+        'set' => RequestHelper::getSet($request),
         'limit' => RequestHelper::getLimit($request),
         'order' => RequestHelper::getOrder($request),
         'fields' => RequestHelper::getFields($request),

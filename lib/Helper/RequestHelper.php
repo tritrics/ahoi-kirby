@@ -37,8 +37,10 @@ class RequestHelper
    */
   public static function getLimit (Request $request): int
   {
+    
     $val = TypeHelper::toInt($request->get('limit'));
-    return ($val || $val <= 0) ? 10 : $val;
+    $res = (!$val || $val <= 0) ? 10 : $val;
+    return $res;
   }
 
   /**
@@ -132,12 +134,12 @@ class RequestHelper
   }
 
   /**
-   * Get page parameter from Request, any number > 0, default 1.
+   * Get set parameter from Request, any number > 0, default 1.
    */
-  public static function getPage(Request $request): int
+  public static function getSet(Request $request): int
   {
-    $val = TypeHelper::toInt($request->get('page'));
-    return ($val || $val <= 0) ? 1 : $val;
+    $val = TypeHelper::toInt($request->get('set'));
+    return (!$val || $val <= 0) ? 1 : $val;
   }
 
   /**
