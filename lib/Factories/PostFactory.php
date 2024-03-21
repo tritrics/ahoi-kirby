@@ -56,7 +56,7 @@ class PostFactory
     $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
     $file = rtrim(kirby()->root('blueprints'), '/') . '/pages/' . $template . '.yml';
     if (!F::exists($file)) {
-      throw new Exception('Template configuration is missing or wrong in config.php.', 17); // @errno17
+      throw new Exception('Template configuration is missing or wrong in config.php.', 16); // @errno16
     };
 
     // Parent, ignored needed if page is not saved

@@ -29,7 +29,8 @@ use Tritrics\AflevereApi\v1\Helper\DebugHelper;
  * 10 Action configuration is missing or incomplete in config.php.
  * 11 Security token is missing in config or doesn\'t match the requirements.
  * 15 Action was declined due to security concerns. // not used, reserved
- * 17 Post data configuration is missing or incomplete in config.php.
+ * 16 Template configuration is missing or wrong in config.php.
+ * 17 Parent configuration is missing or wrong in config.php.
  * 18 Submitted post data failed validation.
  * 21 No valid inbound mail action configured in config.php.
  * 22 Sending failed for all inbound mails.
@@ -123,15 +124,19 @@ class ActionService
       DebugHelper::logActionError($action, 'Error in one or more actions.', 100); // @errno100
     }
 
-    // delete page or change status, default is save=true and status=draft
-    $status = ConfigHelper::getConfig('actions.' . $action . '.status', 'draft');
+    // Delete page if not needed
+    // Change of status is deactivated due to security reasons. Status is always draft, so
+    // it's not possible to get information through API. This is also the standard Kirby behaviour.
+    // To activate it, add 'status' => 'unlisted|listed' to action definition in config.php.
+    // $status = ConfigHelper::getConfig('actions.' . $action . '.status', 'draft');
     if(ConfigHelper::getConfig('actions.' . $action . '.save', true) === false) {
       KirbyHelper::deletePage($page);
       $result->node('saved')->set(false);
       $result->unset('id');
-    } elseif ($status === 'listed' || $status === 'unlisted') {
-      KirbyHelper::changeStatus($page, $status);
     }
+    // elseif ($status === 'listed' || $status === 'unlisted') {
+    //  KirbyHelper::changeStatus($page, $status);
+    // }
     return $res->get();
   }
 
