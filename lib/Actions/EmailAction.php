@@ -227,19 +227,20 @@ class EmailAction
   {
     $html = kirby()->template('emails/' . $template, 'html', 'text');
     $text = kirby()->template('emails/' . $template, 'text', 'text');
-    $data = $page->content()->data();
-    array_walk($data, function (&$value) {
+    $dataHtml = $page->content()->data();
+    $dataText = $page->content()->data();
+    array_walk($dataHtml, function (&$value) {
       $value = Str::esc((string)$value ?? '');
     });
     if ($html->exists()) {
       $body = [];
-      $body['html'] = $html->render($data);
+      $body['html'] = $html->render($dataHtml);
       if ($text->exists()) {
-        $body['text'] = $text->render($data);
+        $body['text'] = $text->render($dataText);
       }
       return $body;
     } elseif ($text->exists()) {
-      return $text->render($data);
+      return $text->render($dataText);
     }
     return null;
   }
