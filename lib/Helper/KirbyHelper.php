@@ -58,9 +58,9 @@ class KirbyHelper
   }
 
   /**
-   * Find a page by slug.
+   * Find a page by default slug.
    */
-  public static function findPage(string|null $slug = null): Page|null
+  public static function findPage(string|null $slug = null): ?Page
   {
     return $slug === null ? null : kirby()->site()->find($slug);
   }
@@ -69,15 +69,21 @@ class KirbyHelper
    * Helper: Find a page by translated slug
    * (Kirby can only find by default slug)
    */
-  public static function findPageBySlug(?string $lang, string $slug): Page
+  public static function findPageBySlug(?string $lang, string $slug): ?Page
   {
+    // search by default slug, the same for multilang or singlelang
+    $res = self::findPage($slug);
+    if ($res) {
+      return $res;
+    }
+
+    // If page is not found by default slug, try translated slug
     if (ConfigHelper::isMultilang()) {
       $pages = kirby()->site()->pages();
       $keys = explode('/', trim($slug, '/'));
       return self::findPageBySlugRec($pages, $lang, $keys);
-    } else {
-      return page($slug);
     }
+    return null;
   }
 
   /**
