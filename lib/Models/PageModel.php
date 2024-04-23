@@ -30,7 +30,7 @@ class PageModel extends BaseModel
       $meta->add('lang', $this->lang);
       $meta->add('locale', LanguagesHelper::getLocale($this->lang));
     }
-    $meta->add('title', $content->title()->get());
+    $meta->add('title', $content->title()->value());
     $meta->add('status', $this->model->status());
     $meta->add('sort', (int) $this->model->num());
     $meta->add('modified',  date('c', $this->model->modified()));
@@ -53,7 +53,7 @@ class PageModel extends BaseModel
       $translations = $res->add('translations');
       foreach(LanguagesHelper::list() as $code => $data) {
         $lang = $translations->add($code);
-        $lang->add('type', 'url');
+        $lang->add('type', 'page');
         $lang->add('link', LinkHelper::getPage(
           LanguagesHelper::getUrl($code, $this->model->uri($code))
         ));

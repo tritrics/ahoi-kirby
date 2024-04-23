@@ -162,8 +162,8 @@ class LinkHelper
 
     // intern links
     // use buildPath() -> make intern
-    if (self::isInternLink($parts, $hosts['referer']) || self::isInternLink($parts, $hosts['referer'])) {
-      return self::getPage(self::buildPath($parts), $title, $target);   
+    if (self::isInternLink($parts, $hosts['self']) || self::isInternLink($parts, $hosts['referer'])) {
+      return self::getPage(self::buildPath($parts), $title, $target);
     }
 
     // all other links
@@ -177,7 +177,7 @@ class LinkHelper
   {
     $res = [
       'type' => 'email',
-      'href' => 'mailto:' . $email
+      'href' => str_starts_with($email, 'mailto:') ? $email : 'mailto:' . $email
     ];
     if (!empty($title)) {
       $res['title'] = $title;
