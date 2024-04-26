@@ -1,18 +1,18 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Controllers;
+namespace Tritrics\Tric\v1\Controllers;
 
 use Kirby\Cms\Response;
 use Kirby\Exception\Exception;
-use Tritrics\AflevereApi\v1\Factories\ModelFactory;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
-use Tritrics\AflevereApi\v1\Services\LanguageService;
-use Tritrics\AflevereApi\v1\Helper\RequestHelper;
-use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
-use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
-use Tritrics\AflevereApi\v1\Services\InfoService;
-use Tritrics\AflevereApi\v1\Services\PageService;
-use Tritrics\AflevereApi\v1\Services\PagesService;
+use Tritrics\Tric\v1\Factories\ModelFactory;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Services\LanguageService;
+use Tritrics\Tric\v1\Helper\RequestHelper;
+use Tritrics\Tric\v1\Helper\ResponseHelper;
+use Tritrics\Tric\v1\Helper\KirbyHelper;
+use Tritrics\Tric\v1\Services\InfoService;
+use Tritrics\Tric\v1\Services\PageService;
+use Tritrics\Tric\v1\Services\PagesService;
 
 /**
  * API Controller

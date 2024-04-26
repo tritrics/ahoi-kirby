@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 /**
  * Helper to create and check action token.

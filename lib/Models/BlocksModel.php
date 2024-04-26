@@ -1,10 +1,10 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\Tric\v1\Data\Collection;
 
-use Tritrics\AflevereApi\v1\Factories\BlockFactory;
+use Tritrics\Tric\v1\Factories\BlockFactory;
 
 /**
  * Model for Kirby's fields: blocks

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
 /**
  * Model for Kirby's fields: toggle

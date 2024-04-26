@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Kirby\Cms\Blueprint;
 use Kirby\Cms\Site;
@@ -8,7 +8,7 @@ use Kirby\Cms\Page;
 use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Exception\NotFoundException;
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\Tric\v1\Data\Collection;
 
 /**
  * Reads a Kirby blueprint and translates it for internal needs.

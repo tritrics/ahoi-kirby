@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\LinkHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's fields: email
@@ -17,7 +17,7 @@ class EmailModel extends BaseModel
   protected function getProperties (): Collection
   {
     $res = new Collection();
-    $res->add('link', LinkHelper::getEmail($this->model->value()));
+    $res->add('link', LinkHelper::get($this->model->value(), null, false, null, 'email'));
     return $res;
   }
 

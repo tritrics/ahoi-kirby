@@ -1,12 +1,12 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Actions;
+namespace Tritrics\Tric\v1\Actions;
 
 use Exception;
 use Kirby\Cms\Page;
 use Kirby\Toolkit\Str;
-use Tritrics\AflevereApi\v1\Exceptions\PayloadException;
-use Tritrics\AflevereApi\v1\Helper\RequestHelper;
+use Tritrics\Tric\v1\Exceptions\PayloadException;
+use Tritrics\Tric\v1\Helper\RequestHelper;
 
 /**
  * Sending E-Mails

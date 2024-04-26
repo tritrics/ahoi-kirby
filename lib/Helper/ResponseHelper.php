@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Kirby\Cms\Response;
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\Tric\v1\Data\Collection;
 
 /**
  * Creating all sorts of responsess.

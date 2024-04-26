@@ -1,10 +1,9 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\LinkHelper;
-use Tritrics\AflevereApi\v1\Services\FileService;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\UrlHelper;
 
 /**
  * Model for Kirby's file object
@@ -24,18 +23,19 @@ class FileModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
-    $pathinfo = FileService::getPathinfo($this->model->url());
-
+    $parts = UrlHelper::parse($this->model->url());
     $title = $this->fields->node('title', 'value')->get();
     if (!$title) {
-      $title = $pathinfo['file'];
+      $title = $parts['filename'];
     }
 
     $meta = new Collection();
-    $meta->add('dir', $pathinfo['dirname'] . '/');
-    $meta->add('file', $pathinfo['file']);
-    $meta->add('filename', $pathinfo['filename']);
-    $meta->add('ext', $pathinfo['extension']);
+    $meta->add('host', UrlHelper::buildHost($parts));
+    $meta->add('dir', $parts['dirname']);
+    $meta->add('file', $parts['basename']);
+    $meta->add('name', $parts['filename']);
+    $meta->add('ext', $parts['extension']);
+    $meta->add('href', UrlHelper::build($parts));
     $meta->add('blueprint', $this->model->template());
     $meta->add('title', $title);
     if ($this->model->type() === 'image') {
@@ -45,7 +45,6 @@ class FileModel extends BaseModel
 
     $res = new Collection();
     $res->add('meta', $meta);
-    $res->add('link', LinkHelper::getFile($pathinfo['path']));
     return $res;
   }
 

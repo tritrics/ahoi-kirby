@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Data;
+namespace Tritrics\Tric\v1\Data;
 
 use ArrayIterator;
 use IteratorAggregate;

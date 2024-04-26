@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
 use \DOMDocument;
 use \DOMElement;
@@ -8,8 +8,8 @@ use \DOMText;
 use \DOMCdataSection;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\LinkHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's fields: list, slug, text, textarea, writer
@@ -109,21 +109,24 @@ class TextModel extends BaseModel
       }
 
       // add attributes as optional 3rd entry
+      $attr = [];
       if ($root->hasAttributes()) {
-        $res['attr'] = [];
         foreach ($root->attributes as $attribute) {
-          $res['attr'][$attribute->name] = $attribute->value;
+          $attr[$attribute->name] = $attribute->value;
         }
+      }
 
-        // change attributes, if it's a link
-        if ($res['elem'] === 'a') {
-          $res['attr'] = LinkHelper::getInline(
-            $this->lang,
-            $res['attr']['href'],
-            (isset($res['attr']['title']) ? $res['attr']['title'] : null),
-            (isset($res['attr']['target']) && $res['attr']['target'] === '_blank')
-          );
-        }
+      // change attributes, if it's a link
+      if ($res['elem'] === 'a') {
+        $attr = LinkHelper::get(
+          $attr['href'] ?? null,
+          $attr['title'] ??  null,
+          (isset($attr['target']) && $attr['target'] === '_blank'),
+          $this->lang
+        );
+      }
+      if (count($attr)) {
+        $res['attr'] = $attr;
       }
       return $res;
     }

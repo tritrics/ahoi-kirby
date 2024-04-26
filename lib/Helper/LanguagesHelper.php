@@ -1,10 +1,10 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Kirby\Cms\Language;
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\Tric\v1\Data\Collection;
 
 /**
  * Language related helper functions.

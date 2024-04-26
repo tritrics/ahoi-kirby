@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Kirby\Http\Request;
 
@@ -98,7 +98,7 @@ class RequestHelper
    */
   public static function getHosts(?string $lang = null): array
   {
-    $backend = LinkHelper::parseUrl(site()->url($lang));
+    $backend = UrlHelper::parse(site()->url($lang));
     $res = [
       'self' => [
         'host' => $backend['host'],
@@ -111,7 +111,7 @@ class RequestHelper
       ]
     ];
     if (isset($_SERVER['HTTP_REFERER'])) {
-      $referer = LinkHelper::parseUrl($_SERVER['HTTP_REFERER']);
+      $referer = UrlHelper::parse($_SERVER['HTTP_REFERER']);
       $res['referer']['host'] = $referer['host'];
       $res['referer']['port'] = isset($referer['port']) ? $referer['port'] : null;
     } else {

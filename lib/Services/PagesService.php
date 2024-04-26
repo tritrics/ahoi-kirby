@@ -1,17 +1,19 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\Tric\v1\Services;
 
 use Kirby\Cms\Page;
 use Kirby\Cms\Pages;
 use Kirby\Cms\Site;
 use Kirby\Exception\InvalidArgumentException;
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Models\PageModel;
-use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
-use Tritrics\AflevereApi\v1\Helper\FilterHelper;
-use Tritrics\AflevereApi\v1\Helper\BlueprintHelper;
-use Tritrics\AflevereApi\v1\Helper\FieldHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Models\PageModel;
+use Tritrics\Tric\v1\Helper\ResponseHelper;
+use Tritrics\Tric\v1\Helper\FilterHelper;
+use Tritrics\Tric\v1\Helper\BlueprintHelper;
+use Tritrics\Tric\v1\Helper\FieldHelper;
+use Tritrics\Tric\v1\Helper\UrlHelper;
+use Tritrics\Tric\v1\Helper\LinkHelper;
 
 /**
  * Service for API's pages interface. Handles a collection of pages.
@@ -24,16 +26,17 @@ class PagesService
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get(Page|Site $node, ?string $lang, array $params): array
+  public static function get(Page|Site $model, ?string $lang, array $params): array
   {
-    if (empty($node)) {
-      return [];
-    }
-    $blueprint = BlueprintHelper::getBlueprint($node);
+    $blueprint = BlueprintHelper::getBlueprint($model);
+    $res = ResponseHelper::getHeader();
+    $body = new PageModel($model, $blueprint, $lang, true);
+
+    // request children
     if (count($params['filter']) > 0) {
-      $children = FilterHelper::filterChildren($node, $params['filter']);
+      $children = FilterHelper::filterChildren($model, $params['filter']);
     } else {
-      $children = $node->children();
+      $children = $model->children();
     }
 
     // Limit, paging, sorting
@@ -41,22 +44,9 @@ class PagesService
       $children = $children->flip();
     }
 
-    $res = ResponseHelper::getHeader();
-    $body = $res->add('body');
-    $body->add('type', 'nodes');
-    $meta = $body->add('meta');
-
-    if ($node instanceof Site) {
-      $meta->add('parent', 'site');
-      $meta->add('host', $node->url($lang));
-    } else {
-      $meta->add('parent', 'page');
-      $meta->add('id', $node->id());
-      $meta->add('slug', $node->slug($lang));
-    }
-    if ($lang !== null) {
-      $meta->add('lang', $lang);
-    }
+    // add meta info about children
+    $body->node('type')->set('pages');
+    $meta = $body->node('meta');
     $abscount = $children->count();
     if ($params['limit'] > 0 && $abscount > 0) {
       $setcount = ceil($abscount / $params['limit']);
@@ -88,7 +78,11 @@ class PagesService
       }
     }
 
+    // adding children to value
     $body->add('value', self::getChildren($children, $lang, [ 'listed' ], $params['fields']));
+
+    // add body
+    $res->add('body', $body);
     return $res->get();
   }
 
@@ -110,7 +104,7 @@ class PagesService
       }
 
       $blueprint = BlueprintHelper::getBlueprint($child);
-      $node = new PageModel($child, $blueprint, $lang, false);
+      $model = new PageModel($child, $blueprint, $lang, false);
 
       // don't deactivate "all" here, because it's required for one-pager
       if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {
@@ -123,10 +117,10 @@ class PagesService
           $fields
         );
         if ($value->count() > 0) {
-          $node->add('value', $value);
+          $model->add('value', $value);
         }
       }
-      $res->push($node);
+      $res->push($model);
     }
     return $res;
   }

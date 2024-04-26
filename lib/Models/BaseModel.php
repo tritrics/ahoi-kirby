@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
 use Kirby\Cms\Languages;
 use Kirby\Cms\Language;
@@ -10,8 +10,8 @@ use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Content\Field;
 use Kirby\Cms\Block;
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\FieldHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\FieldHelper;
 
 /**
  * Basic model for Kirby Fields and Models.
@@ -77,11 +77,6 @@ abstract class BaseModel extends Collection
     $this->setChildFields();
     $this->setModelData();
   }
-
-  /**
-   * Get the model value. Overwritten by child class.
-   */
-  abstract protected function getValue();
 
   /**
    * Get the corresponding label for the selected option.
@@ -199,8 +194,11 @@ abstract class BaseModel extends Collection
     }
 
     // value
-    if ($type !== 'page') {
-      $this->add('value', $this->getValue());
+    if (method_exists($this, 'getValue')) {
+      $value = $this->getValue();
+      if ($value !== null) {
+        $this->add('value', $value);
+      }
     }
   }
 }

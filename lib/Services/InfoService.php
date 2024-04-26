@@ -1,13 +1,13 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\Tric\v1\Services;
 
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
-use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
-use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
-use Tritrics\AflevereApi\v1\Models\LanguagesModel;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Helper\ResponseHelper;
+use Tritrics\Tric\v1\Helper\KirbyHelper;
+use Tritrics\Tric\v1\Models\LanguageModel;
 
 /**
  * Service for API's info interface.
@@ -67,9 +67,10 @@ class InfoService
 
     // add languages
     if ($isMultilang) {
-      $value = $body->add('value');
-      $languages = new LanguagesModel(KirbyHelper::getLanguages());
-      $value->add('languages', $languages);
+      $languages = $body->add('languages');
+      foreach(KirbyHelper::getLanguages() as $model) {
+        $languages->push(new LanguageModel($model));
+      }
     }
     return $res->get();
   }

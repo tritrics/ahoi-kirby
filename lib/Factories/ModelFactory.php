@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Factories;
+namespace Tritrics\Tric\v1\Factories;
 
 use Kirby\Content\Field;
 use Kirby\Cms\Block;
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
 
 /**
  * Translates Kirby's fields and objects to API data models.
@@ -53,7 +53,7 @@ class ModelFactory
   /**
    * Overwritten or added field type to model equivalents.
    * These can be added by other plugins with the hook
-   * tritrics-aflevere-api-v1.register-model
+   * tritrics-tric-v1.register-model
    * 
    * @var array
    */
@@ -92,7 +92,7 @@ class ModelFactory
    */
   public static function hooks (): void
   {
-    kirby()->trigger('tritrics-aflevere-api-v1.register-model');
+    kirby()->trigger('tritrics-tric-v1.register-model');
   }
 
   /**

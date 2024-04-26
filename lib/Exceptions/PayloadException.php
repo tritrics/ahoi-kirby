@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Exceptions;
+namespace Tritrics\Tric\v1\Exceptions;
 
 use Exception;
 

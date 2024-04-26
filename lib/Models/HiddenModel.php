@@ -1,8 +1,8 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Helper\TypeHelper;
+use Tritrics\Tric\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: hidden

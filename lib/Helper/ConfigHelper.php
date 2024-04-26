@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Kirby\Exception\DuplicateException;
 
@@ -30,7 +30,7 @@ class ConfigHelper
 
   /**
    * Get setting from plugins config.php
-   * example: tritrics.aflevere-api.v1.slug
+   * example: tritrics.tric.v1.slug
    */
   public static function getConfig(string $node, mixed $default = null): mixed
   {

@@ -1,16 +1,16 @@
 <?php
 
 use Kirby\Exception\Exception;
-use Tritrics\AflevereApi\v1\Controllers\GetController;
-use Tritrics\AflevereApi\v1\Controllers\ActionController;
-use Tritrics\AflevereApi\v1\Services\FileService;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
-use Tritrics\AflevereApi\v1\Helper\RequestHelper;
+use Tritrics\Tric\v1\Controllers\GetController;
+use Tritrics\Tric\v1\Controllers\ActionController;
+use Tritrics\Tric\v1\Services\FileService;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Helper\RequestHelper;
 
 ConfigHelper::init([
   'version' => 'v1',
-  'plugin-name' => 'tritrics/aflevere-api-v1',
-  'namespace' => 'Tritrics\AflevereApi\v1'
+  'plugin-name' => 'tritrics/tric-v1',
+  'namespace' => 'Tritrics\Tric\v1'
 ]);
 
 /**

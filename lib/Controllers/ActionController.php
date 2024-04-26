@@ -1,14 +1,14 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Controllers;
+namespace Tritrics\Tric\v1\Controllers;
 
 use Kirby\Cms\Response;
 use Kirby\Exception\Exception;
-use Tritrics\AflevereApi\v1\Services\ActionService;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
-use Tritrics\AflevereApi\v1\Helper\RequestHelper;
-use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
-use Tritrics\AflevereApi\v1\Helper\TokenHelper;
+use Tritrics\Tric\v1\Services\ActionService;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Helper\RequestHelper;
+use Tritrics\Tric\v1\Helper\ResponseHelper;
+use Tritrics\Tric\v1\Helper\TokenHelper;
 
 /**
  * Action Controller

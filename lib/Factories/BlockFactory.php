@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Factories;
+namespace Tritrics\Tric\v1\Factories;
 
 use Kirby\Content\Field;
 use Kirby\Cms\Block;
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
 
 /**
  * Translates Kirby's blocks to API data models.

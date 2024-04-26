@@ -1,8 +1,8 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
+use Tritrics\Tric\v1\Data\Collection;
 
 /**
  * Model for Kirby's fields: color

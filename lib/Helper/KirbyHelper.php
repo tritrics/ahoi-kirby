@@ -1,9 +1,11 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Exception;
+use Kirby\Cms\File;
 use Kirby\Cms\Page;
+use Kirby\Cms\Site;
 use Kirby\Cms\Pages;
 use Kirby\Cms\Language;
 use Kirby\Cms\Languages;
@@ -58,19 +60,59 @@ class KirbyHelper
   }
 
   /**
+   * Find a file by Kirby's intern link like /@/file/uuid.
+   */
+  public static function findFileByKirbyLink(?string $href = null): ?File
+  {
+    if (is_string($href)) {
+      $uuid = str_replace('/@/file/', 'file://', $href);
+      $file = kirby()->file($uuid);
+      if ($file && $file->exists()) {
+        return $file;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Find a page by Kirby's intern link like /@/page/uuid.
+   */
+  public static function findPageByKirbyLink(?string $href = null): ?Page
+  {
+    if (is_string($href)) {
+      $uuid = str_replace('/@/page/', 'page://', $href);
+      $page = kirby()->page($uuid);
+      if ($page && $page->exists() && !$page->isDraft()) {
+        return $page;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Find a page by default slug.
    */
   public static function findPage(string|null $slug = null): ?Page
   {
-    return $slug === null ? null : kirby()->site()->find($slug);
+    if (is_string($slug)) {
+      $page = kirby()->site()->find($slug);
+      if($page && $page->exists() && !$page->isDraft()) {
+        return $page;
+      }
+    }
+    return null;
   }
 
   /**
    * Helper: Find a page by translated slug
    * (Kirby can only find by default slug)
    */
-  public static function findPageBySlug(?string $lang, string $slug): ?Page
+  public static function findPageBySlug(?string $lang = null, ?string $slug = null): ?Page
   {
+    if (!is_string($slug)) {
+      return null;
+    }
+
     // search by default slug, the same for multilang or singlelang
     $res = self::findPage($slug);
     if ($res) {
@@ -93,7 +135,7 @@ class KirbyHelper
   {
     $key = array_shift($keys);
     foreach ($collection as $page) {
-      if ($page->slug($lang) === $key) {
+      if (!$page->isDraft() && $page->slug($lang) === $key) {
         if (count($keys) > 0) {
           return self::findPageBySlugRec($page->children(), $lang, $keys);
         } else {
@@ -102,6 +144,19 @@ class KirbyHelper
       }
     }
     return null;
+  }
+
+  /**
+   * Get url of parent model
+   */
+  public static function getParentUrl(Page|Site $model, ?string $lang): string
+  {
+    $langSlug = LanguagesHelper::getSlug($lang);
+    $parent = $model->parent();
+    if ($parent) {
+      return '/' . ltrim($langSlug . '/' . $parent->uri($lang), '/');
+    }
+    return '/';
   }
 
   /**

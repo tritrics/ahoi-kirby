@@ -1,12 +1,10 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
-
-use Tritrics\AflevereApi\v1\Helper\LinkHelper;
-use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
-use Tritrics\AflevereApi\v1\Services\FileService;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\LinkHelper;
+use Tritrics\Tric\v1\Helper\KirbyHelper;
 
 /**
  * Model for Kirby's fields: link
@@ -23,31 +21,9 @@ class LinkModel extends BaseModel
   /**
    * Constructor with additional initialization.
    */
-  public function __construct(
-    mixed $model,
-    ?Collection $blueprint,
-    ?string $lang
-  ) {
-    $value = $model->value();
-    if (str_starts_with($value, '#')) {
-      $this->linktype = 'anchor';
-    } else if (str_starts_with($value, 'mailto:')) {
-      $this->linktype = 'email';
-    } else if (str_starts_with($value, 'file://')) {
-      $model = $model->toFile();
-      $this->linktype = 'file';
-    } else if (str_starts_with($value, 'page://')) {
-      $model = $model->toPage();
-      $this->linktype = 'page';
-    } else if (str_starts_with($value, 'tel:')) {
-      $this->linktype = 'tel';
-    } else if (str_starts_with($value, 'http://')) {
-      $this->linktype = 'http';
-    } else if (str_starts_with($value, 'https://')) {
-      $this->linktype = 'https';
-    } else {
-      $this->linktype = 'custom';
-    }
+  public function __construct(mixed $model, ?Collection $blueprint, ?string $lang)
+  {
+    $this->linktype = LinkHelper::getType($model->value());
     parent::__construct($model, $blueprint, $lang);
   }
 
@@ -58,32 +34,13 @@ class LinkModel extends BaseModel
   protected function getProperties(): Collection
   {
     $res = new Collection();
-    switch($this->linktype) {
-      case 'anchor':
-        $res->add('link', LinkHelper::getAnchor($this->model->value()));
-        break;
-      case 'email':
-        $res->add('link', LinkHelper::getEmail($this->model->value()));
-        break;
-      case 'file':
-        $pathinfo = FileService::getPathinfo($this->model->url());
-        $res->add('link', LinkHelper::getFile($pathinfo['path']));
-        break;
-      case 'page':
-        $res->add('link', LinkHelper::getPage(
-          LanguagesHelper::getUrl($this->lang, $this->model->uri($this->lang)))
-        );
-        break;
-      case 'tel':
-        $res->add('link', LinkHelper::getTel($this->model->value()));
-        break;
-      case 'http':
-      case 'https':
-        $res->add('link', LinkHelper::getUrl($this->model->value()));
-        break;
-      default:
-        $res->add('link', LinkHelper::getCustom($this->model->value()));
-    }
+    $res->add('link', LinkHelper::get(
+      $this->model->value(),
+      null,
+      false,
+      $this->lang,
+      $this->linktype
+    ));
     return $res;
   }
 
@@ -94,24 +51,19 @@ class LinkModel extends BaseModel
   {
     switch ($this->linktype) {
       case 'anchor':
-        return substr($this->model->value(), 1);
+        return preg_replace('/^(#)/', '', $this->model->value());
       case 'email':
-        return substr($this->model->value(), 7);
+        return preg_replace('/^(mailto:)/', '', $this->model->value());
       case 'file':
-        $title = (string) $this->model->title()->get();
-        if (!$title) {
-          $pathinfo = FileService::getPathinfo($this->model->url());
-          $title = $pathinfo['file'];
-        }
-        return $title;
+        $model = KirbyHelper::findFileByKirbyLink($this->model->value());
+        return $model ? (string) $model->title()->get() : '';
       case 'page':
-        return $this->model->title()->get();
+        $model = KirbyHelper::findPageByKirbyLink($this->model->value());
+        return $model ? (string) $model->title()->get() : '';
       case 'tel':
-        return substr($this->model->value(), 4);
-      case 'http':
-        return substr($this->model->value(), 7);
-      case 'https':
-        return substr($this->model->value(), 8);
+        return preg_replace('/^(tel:)/', '', $this->model->value());
+      case 'url':
+        return preg_replace('/^(http[s]*:\/\/)[.]*/', '', $this->model->value());
       default:
         return $this->model->value();
     }

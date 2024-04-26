@@ -1,11 +1,13 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Models;
+namespace Tritrics\Tric\v1\Models;
 
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Helper\LanguagesHelper;
-use Tritrics\AflevereApi\v1\Helper\LinkHelper;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Kirby\Cms\Page;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\LanguagesHelper;
+use Tritrics\Tric\v1\Helper\LinkHelper;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Helper\KirbyHelper;
 
 /**
  * Model for Kirby's page object
@@ -18,25 +20,33 @@ class PageModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
-    $content = $this->model->content($this->lang);
-
     $res = new Collection();
+    $content = $this->model->content($this->lang);
+    $attr = LinkHelper::get($this->model, null, false, $this->lang, 'page');
 
     $meta = $res->add('meta');
-    $meta->add('id', $this->model->id());
-    $meta->add('parent', $this->getParentUrl($this->lang));
-    $meta->add('slug',$this->model->slug($this->lang));
+    if ($this->model instanceof Page) {
+      $meta->add('id', $this->model->id());
+      $meta->add('blueprint', (string) $this->model->intendedTemplate());
+      $meta->add('slug', $this->model->slug($this->lang));
+      $meta->add('parent', KirbyHelper::getParentUrl($this->model, $this->lang));
+    } else {
+      $meta->add('blueprint', 'site');
+      $meta->add('host', $this->model->url($this->lang));
+    }
+    $meta->add('href', $attr['href']);
+    $meta->add('title', $content->title()->value());
+    if ($this->model instanceof Page) {
+      $meta->add('status', $this->model->status());
+      $meta->add('sort', (int) $this->model->num());
+      $meta->add('home', $this->model->isHomePage());
+    }
     if ($this->lang !== null) {
       $meta->add('lang', $this->lang);
       $meta->add('locale', LanguagesHelper::getLocale($this->lang));
     }
-    $meta->add('title', $content->title()->value());
-    $meta->add('status', $this->model->status());
-    $meta->add('sort', (int) $this->model->num());
     $meta->add('modified',  date('c', $this->model->modified()));
-    $meta->add('blueprint', (string) $this->model->intendedTemplate());
-    $meta->add('home', $this->model->isHomePage());
-
+    
     if ($this->blueprint->has('api', 'meta')) {
       foreach ($this->blueprint->node('api', 'meta')->get() as $key => $value) {
         if (!$meta->has($key)) {
@@ -45,39 +55,13 @@ class PageModel extends BaseModel
       }
     }
 
-    $res->add('link', LinkHelper::getPage(
-      LanguagesHelper::getUrl($this->lang, $this->model->uri($this->lang))
-    ));
-
-    if ($this->addDetails && ConfigHelper::isMultilang()) {
+    if (ConfigHelper::isMultilang()) {
       $translations = $res->add('translations');
       foreach(LanguagesHelper::list() as $code => $data) {
-        $lang = $translations->add($code);
-        $lang->add('type', 'page');
-        $lang->add('link', LinkHelper::getPage(
-          LanguagesHelper::getUrl($code, $this->model->uri($code))
-        ));
-        $lang->add('value', $data->node('name')->get());
+        $attr = LinkHelper::get($this->model, null, false, $code, 'page');
+        $translations->add($code, $attr['href']);
       }
     }
     return $res;
-  }
-
-  /**
-   * Get the value of model as it's returned in response.
-   */
-  protected function getValue (): void {}
-
-  /**
-   * Get url of parent model
-   */
-  private function getParentUrl (?string $lang) : string
-  {
-    $langSlug = LanguagesHelper::getSlug($lang);
-    $parent = $this->model->parent();
-    if ($parent) {
-      return '/' . ltrim($langSlug . '/' . $parent->uri($lang), '/');
-    }
-    return '/'; // or false?
   }
 }

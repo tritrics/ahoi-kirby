@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Services;
+namespace Tritrics\Tric\v1\Services;
 
 use Kirby\Exception\LogicException;
-use Tritrics\AflevereApi\v1\Helper\ResponseHelper;
-use Tritrics\AflevereApi\v1\Models\LanguageModel;
-use Tritrics\AflevereApi\v1\Helper\KirbyHelper;
+use Tritrics\Tric\v1\Helper\ResponseHelper;
+use Tritrics\Tric\v1\Models\LanguageModel;
+use Tritrics\Tric\v1\Helper\KirbyHelper;
 
 /**
  * Service for API's language interface and all language related functions.

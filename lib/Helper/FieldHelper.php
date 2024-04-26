@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\AflevereApi\v1\Helper;
+namespace Tritrics\Tric\v1\Helper;
 
 use Kirby\Cms\Field as KirbyField;
-use Tritrics\AflevereApi\v1\Data\Collection;
-use Tritrics\AflevereApi\v1\Factories\ModelFactory;
-use Tritrics\AflevereApi\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Factories\ModelFactory;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
 
 /**
  * Reads all Kirby fields of a blueprint and translates it to collection of models.

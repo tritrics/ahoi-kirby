@@ -1,7 +1,7 @@
 {
-    "name": "tritrics\/aflevere-api",
+    "name": "tritrics\/tric-kirby",
     "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
-    "version": "0.2.3",
+    "version": "0.3.0",
     "authors": [
         {
             "name": "Michael Adams",
@@ -15,8 +15,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Tritrics\\AflevereApi\\v1\\": "lib\/",
-            "Tritrics\\AflevereApi\\v1\\Root\\": ".\/"
+            "Tritrics\\Tric\\v1\\": "lib\/",
+            "Tritrics\\Tric\\v1\\Root\\": ".\/"
         },
         "files": [
             "config.php"
@@ -29,6 +29,6 @@
         "optimize-autoloader": true
     },
     "extra": {
-        "installer-name": "aflevere-api"
+        "installer-name": "tric"
     }
 }
