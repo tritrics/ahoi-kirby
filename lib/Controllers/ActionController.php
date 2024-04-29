@@ -2,7 +2,8 @@
 
 namespace Tritrics\Tric\v1\Controllers;
 
-use Kirby\Cms\Response;
+use Kirby\Http\Response as KirbyResponse;
+use Tritrics\Tric\v1\Data\Response;
 use Kirby\Exception\Exception;
 use Tritrics\Tric\v1\Services\ActionService;
 use Tritrics\Tric\v1\Helper\ConfigHelper;
@@ -20,53 +21,56 @@ class ActionController
   /**
    * Create
    */
-  public function create(?string $lang, ?string $action, ?string $token): Response
+  public function create(?string $lang, ?string $action, ?string $token): KirbyResponse
   {
-    if($response = $this->isInvalidRequest($lang, $action, $token)) {
-      return $response;
+    $Response = new Response('create', $lang, $action);
+    if($Error = $this->isInvalidRequest($Response, $lang, $action, $token)) {
+      return $Error;
     };
     try {
       $data = kirby()->request()->data() ?? [];
-      return Response::json(ActionService::create($lang, $action, $data));
+      return $Response->get(ActionService::create($lang, $action, $data));
     } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
+      return $Response->getFatal($e->getMessage());
     }
   }
 
   /**
    * Delete
    */
-  public function delete(): Response
+  public function delete(): KirbyResponse
   {
-    return ResponseHelper::notImplemented();
+    $Response = new Response('delete');
+    return $Response->getNotImplemented();
   }
 
   /**
    * Get
    */
-  public function get(): Response
+  public function get(): KirbyResponse
   {
-    return ResponseHelper::notImplemented();
+    $Response = new Response('get');
+    return $Response->getNotImplemented();
   }
 
   /**
    * Validate parameter, check config.
    */
-  private function isInvalidRequest(?string $lang, ?string $action, ?string $token): Response|bool
+  private function isInvalidRequest(Response $Response, ?string $lang, ?string $action, ?string $token): Response|bool
   {
     if (!ConfigHelper::isEnabledAction()) {
-      return ResponseHelper::disabled();
+      return $Response->getDisabled();
     }
     $lang = RequestHelper::getLang($lang);
     if ($lang === null) {
-      return ResponseHelper::invalidLang();
+      return $Response->getInvalidLang();
     }
     $action = RequestHelper::getAction($action);
     if ($action === null) {
-      return ResponseHelper::badRequest();
+      return $Response->getBadRequest();
     }
     if (!TokenHelper::check($action, $token)) {
-      return ResponseHelper::badRequest();
+      return $Response->getBadRequest();
     }
     return false;
   }
@@ -74,38 +78,41 @@ class ActionController
   /**
    * Options
    */
-  public function options(?string $lang, ?string $action, ?string $token): Response
+  public function options(?string $lang, ?string $action, ?string $token): KirbyResponse
   {
-    if ($response = $this->isInvalidRequest($lang, $action, $token)) {
-      return $response;
+    $Response = new Response('options', $lang, $action);
+    if ($Error = $this->isInvalidRequest($Response, $lang, $action, $token)) {
+      return $Error;
     };
-    return ResponseHelper::ok();
+    return $Response->get();
   }
 
   /**
    * Get a token for submit action.
    */
-  public function token(?string $action): Response
+  public function token(?string $action): KirbyResponse
   {
+    $Response = new Response('token', null, $action);
     if (!ConfigHelper::isEnabledAction()) {
-      return ResponseHelper::disabled();
+      return $Response->getDisabled();
     }
     $action = RequestHelper::getAction($action);
     if ($action === null) {
-      return ResponseHelper::badRequest();
+      return $Response->getBadRequest();
     }
     try {
-      return Response::json(ActionService::token($action));
+      return $Response->get(ActionService::token($action));
     } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
+      return $Response->getFatal($e->getMessage());
     }
   }
 
   /**
    * Update
    */
-  public function update(): Response
+  public function update(): KirbyResponse
   {
-    return ResponseHelper::notImplemented();
+    $Response = new Response('update');
+    return $Response->getNotImplemented();
   }
 }

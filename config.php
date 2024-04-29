@@ -3,7 +3,7 @@
 use Kirby\Exception\Exception;
 use Tritrics\Tric\v1\Controllers\GetController;
 use Tritrics\Tric\v1\Controllers\ActionController;
-use Tritrics\Tric\v1\Services\FileService;
+use Tritrics\Tric\v1\Services\ImageService;
 use Tritrics\Tric\v1\Helper\ConfigHelper;
 use Tritrics\Tric\v1\Helper\RequestHelper;
 
@@ -53,7 +53,7 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
         $attributes['env'] === 'media' &&
         is_string($path) &&
         !is_file(kirby()->root('index') . '/' . $path)) {
-          FileService::getImage($path, $route->arguments(), $route->pattern());
+          ImageService::get($path, $route->arguments(), $route->pattern());
       }
       return;
     }
@@ -107,15 +107,15 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
       ];
     }
 
-    // a page
-    if (ConfigHelper::isEnabledPage()) {
+    // fields of a page or a file
+    if (ConfigHelper::isEnabledFields()) {
       $routes[] = [
-        'pattern' => $slug . '/page/(:all?)',
+        'pattern' => $slug . '/fields/(:all?)',
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
           $controller = new GetController();
-          return $controller->page($lang, $path);
+          return $controller->fields($lang, $path);
         }
       ];
     }
@@ -129,6 +129,19 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
           $controller = new GetController();
           return $controller->pages($lang, $path);
+        }
+      ];
+    }
+
+    // children of a page
+    if (ConfigHelper::isEnabledFiles()) {
+      $routes[] = [
+        'pattern' => $slug . '/files/(:all?)',
+        'method' => 'GET',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
+          $controller = new GetController();
+          return $controller->files($lang, $path);
         }
       ];
     }

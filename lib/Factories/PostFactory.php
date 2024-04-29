@@ -62,7 +62,7 @@ class PostFactory
     // Parent, ignored needed if page is not saved
     $parent = false;
     if (ConfigHelper::getConfig('actions.' . $action . '.save', true)) {
-      $parent = KirbyHelper::findPage(ConfigHelper::getConfig('actions.' . $action . '.parent', null));
+      $parent = KirbyHelper::findPage($lang, ConfigHelper::getConfig('actions.' . $action . '.parent', null));
       if (!$parent instanceof Page) {
         throw new Exception('Parent configuration is missing or wrong in config.php.', 17); // @errno17
       }

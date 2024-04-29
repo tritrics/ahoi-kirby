@@ -21,13 +21,13 @@ class FieldHelper
     array $allFields,
     Collection $blueprint,
     ?string $lang,
-    string|array $fields = 'all'
+    string|array $addFields = 'all'
   ): void {
     $separator = ConfigHelper::getconfig('field-name-separator', '');
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
-      if ($fields !== 'all' && ! in_array($key, $fields)) {
+      if ($addFields !== 'all' && !in_array($key, $addFields)) {
         continue;
       }
       $field = isset($allFields[$key]) ? $allFields[$key] : new KirbyField(null, $key, '');

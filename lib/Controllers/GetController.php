@@ -2,17 +2,17 @@
 
 namespace Tritrics\Tric\v1\Controllers;
 
-use Kirby\Cms\Response;
 use Kirby\Exception\Exception;
+use Kirby\Http\Response as KirbyResponse;
+use Tritrics\Tric\v1\Data\Response;
 use Tritrics\Tric\v1\Factories\ModelFactory;
 use Tritrics\Tric\v1\Helper\ConfigHelper;
 use Tritrics\Tric\v1\Services\LanguageService;
 use Tritrics\Tric\v1\Helper\RequestHelper;
-use Tritrics\Tric\v1\Helper\ResponseHelper;
 use Tritrics\Tric\v1\Helper\KirbyHelper;
 use Tritrics\Tric\v1\Services\InfoService;
-use Tritrics\Tric\v1\Services\PageService;
-use Tritrics\Tric\v1\Services\PagesService;
+use Tritrics\Tric\v1\Services\FieldsService;
+use Tritrics\Tric\v1\Services\CollectionService;
 
 /**
  * API Controller
@@ -33,95 +33,120 @@ class GetController
   /**
    * Get general information, i.e. defined languages 
    */
-  public function info (): Response
+  public function info (): KirbyResponse
   {
-    $request = kirby()->request();
+    $Response = new Response('info');
     try {
       if ( !ConfigHelper::isEnabledInfo()) {
-        return ResponseHelper::disabled();
+        return $Response->getDisabled();
       }
-      return ResponseHelper::json(InfoService::get());
+      return $Response->get(InfoService::get());
     } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
+      return $Response->getFatal($e->getMessage());
     }
   }
 
   /**
    * Get a single language
    */
-  public function language(?string $lang): Response
+  public function language(?string $lang): KirbyResponse
   {
-    $request = kirby()->request();
+    $Response = new Response('language', $lang);
     try {
       if (!ConfigHelper::isEnabledLanguage()) {
-        return ResponseHelper::disabled();
+        return $Response->getDisabled();
       }
       $lang = RequestHelper::getLang($lang);
       if ($lang === null) {
-        return ResponseHelper::invalidLang();
+        return $Response->getInvalidLang();
       }
-      return ResponseHelper::json(LanguageService::get($lang));
+      return $Response->get(LanguageService::get($lang));
     } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
+      return $Response->getFatal($e->getMessage());
     }
   }
 
   /**
    * Get a single node
    */
-  public function page(?string $lang, ?string $slug): Response
+  public function fields(?string $lang, ?string $slug): KirbyResponse
   {
+    $Response = new Response('fields', $lang, $slug);
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
-      return ResponseHelper::ok();
+      return $Response->get();
     }
     try {
-      if ( !ConfigHelper::isEnabledPage()) {
-        return ResponseHelper::disabled();
+      if ( !ConfigHelper::isEnabledFields()) {
+        return $Response->getDisabled();
       }
       $lang = RequestHelper::getLang($lang);
       if ($lang === null) {
-        return ResponseHelper::invalidLang();
+        return $Response->getInvalidLang();
       }
       if ($slug === null) {
         $node = site();
       } else {
-        $node = KirbyHelper::findPageBySlug($lang, $slug);
-        if (!$node || $node->isDraft()) {
-          return ResponseHelper::notFound();
+        $node = KirbyHelper::findAny($lang, $slug);
+        if (!$node) {
+          return $Response->getNotFound();
         }
       }
-      return ResponseHelper::json(
-        PageService::get($node, $lang, RequestHelper::getFields($request))
+      return $Response->get(
+        FieldsService::get($node, $lang, RequestHelper::getFields($request))
       );
     } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
+      return $Response->getFatal($e->getMessage());
     }
   }
 
   /**
    * Get the children of a page, optionally filtered, limited etc.
    */
-  public function pages(?string $lang, ?string $slug): Response
+  public function pages(?string $lang, ?string $slug): KirbyResponse
+  {
+    $Response = new Response('pages', $lang, $slug);
+    return $this->collection($Response, $lang, $slug);
+  }
+
+  /**
+   * Get the children of a page, optionally filtered, limited etc.
+   */
+  public function files(?string $lang, ?string $slug): KirbyResponse
+  {
+    $Response = new Response('files', $lang, $slug);
+    return $this->collection($Response, $lang, $slug);
+  }
+
+  /**
+   * pages and files are similar
+   */
+  private function collection(Response $Response, ?string $lang, ?string $slug): KirbyResponse
   {
     $request = kirby()->request();
     if ($request->method() === 'OPTIONS') {
-      return ResponseHelper::ok();
+      return $Response->get();
     }
     try {
-      if ( !ConfigHelper::isEnabledPages()) {
-        return ResponseHelper::disabled();
+      if (!in_array($Response->request, ['pages', 'files'])) {
+        return $Response->getFatal();
+      }
+      if (
+        ($Response->request === 'pages' && !ConfigHelper::isEnabledPages()) ||
+        ($Response->request === 'files' && !ConfigHelper::isEnabledFiles())
+      ) {
+        return $Response->getDisabled();
       }
       $lang = RequestHelper::getLang($lang);
       if ($lang === null) {
-        return ResponseHelper::invalidLang();
+        return $Response->getInvalidLang();
       }
       if ($slug === null) {
         $node = site();
       } else {
-        $node = KirbyHelper::findPageBySlug($lang, $slug);
+        $node = KirbyHelper::findPage($lang, $slug);
         if (!$node || $node->isDraft()) {
-          return ResponseHelper::notFound();
+          return $Response->getNotFound();
         }
       }
       $params = [
@@ -131,9 +156,9 @@ class GetController
         'fields' => RequestHelper::getFields($request),
         'filter' => RequestHelper::getFilter($request),
       ];
-      return ResponseHelper::json(PagesService::get($node, $lang, $params));
+      return $Response->get(CollectionService::get($Response->request, $node, $lang, $params));
     } catch (Exception $e) {
-      return ResponseHelper::fatal($e->getMessage());
+      return $Response->getFatal($e->getMessage());
     }
   }
 }

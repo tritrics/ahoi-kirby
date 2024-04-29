@@ -13,7 +13,7 @@ use Kirby\Exception\LogicException;
 /**
  * File functions and image handling. Creates thumbs.
  */
-class FileService
+class ImageService
 {
   /**
    * Create a thumb so that it can be called by the given path.
@@ -32,7 +32,7 @@ class FileService
    * @throws LogicException 
    * @throws Exception 
    */
-  public static function getImage (
+  public static function get (
     string $path,
     array $arguments,
     string $pattern,

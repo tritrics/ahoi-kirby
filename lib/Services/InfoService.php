@@ -4,8 +4,8 @@ namespace Tritrics\Tric\v1\Services;
 
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
+use Tritrics\Tric\v1\Data\Collection;
 use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\ResponseHelper;
 use Tritrics\Tric\v1\Helper\KirbyHelper;
 use Tritrics\Tric\v1\Models\LanguageModel;
 
@@ -20,13 +20,11 @@ class InfoService
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get(): array
+  public static function get(): Collection
   {
     $expose = kirby()->option('debug', false);
     $isMultilang = ConfigHelper::isMultilang();
-
-    $res = ResponseHelper::getHeader();
-    $body = $res->add('body');
+    $body = new Collection();
 
     // Type
     $body->add('type', 'info');
@@ -54,11 +52,14 @@ class InfoService
       if (ConfigHelper::isEnabledLanguage()) {
         $interface->add('language', $url . '/language',);
       }
-      if (ConfigHelper::isEnabledPage()) {
-        $interface->add('page', $url . '/page');
+      if (ConfigHelper::isEnabledFields()) {
+        $interface->add('fields', $url . '/fields');
       }
       if (ConfigHelper::isEnabledPages()) {
         $interface->add('pages', $url . '/pages');
+      }
+      if (ConfigHelper::isEnabledFiles()) {
+        $interface->add('files', $url . '/files');
       }
       if (ConfigHelper::isEnabledAction()) {
         $interface->add('action', $url . '/action');
@@ -72,6 +73,6 @@ class InfoService
         $languages->push(new LanguageModel($model));
       }
     }
-    return $res->get();
+    return $body;
   }
 }

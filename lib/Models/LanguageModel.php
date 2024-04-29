@@ -23,29 +23,11 @@ class LanguageModel extends BaseModel
     $res = new Collection();
     $meta = $res->add('meta');
     $meta->add('code', $code);
+    $meta->add('title', $this->model->name());
     $meta->add('default', $this->model->isDefault());
     $meta->add('href', $attr['href']);
-    $meta->add('title', $this->model->name());
     $meta->add('locale', LanguagesHelper::getLocale($code));
     $meta->add('direction', $this->model->direction());
-    return $res;
-  }
-
-  /**
-   * Get the value of model as it's returned in response.
-   */
-  protected function getValue(): Collection|null
-  {
-    if (!$this->addDetails) {
-      return null;
-    }
-    $res = new Collection();
-    foreach($this->model->translations() as $key => $value) {
-      $res->add($key, [
-        'type' => 'string',
-        'value' => $value
-      ]);
-    }
     return $res;
   }
 }

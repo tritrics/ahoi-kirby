@@ -15,6 +15,13 @@ use Tritrics\Tric\v1\Helper\KirbyHelper;
 class PageModel extends BaseModel
 {
   /**
+   * Marker if this model has child fields.
+   * 
+   * @var bool
+   */
+  protected $hasChildFields = true;
+
+  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -27,14 +34,15 @@ class PageModel extends BaseModel
     $meta = $res->add('meta');
     if ($this->model instanceof Page) {
       $meta->add('id', $this->model->id());
-      $meta->add('blueprint', (string) $this->model->intendedTemplate());
       $meta->add('slug', $this->model->slug($this->lang));
       $meta->add('parent', KirbyHelper::getParentUrl($this->model, $this->lang));
+      $meta->add('href', $attr['href']);
+      $meta->add('blueprint', (string) $this->model->intendedTemplate());
     } else {
-      $meta->add('blueprint', 'site');
       $meta->add('host', $this->model->url($this->lang));
+      $meta->add('href', $attr['href']);
+      $meta->add('blueprint', 'site');
     }
-    $meta->add('href', $attr['href']);
     $meta->add('title', $content->title()->value());
     if ($this->model instanceof Page) {
       $meta->add('status', $this->model->status());

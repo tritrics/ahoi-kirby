@@ -65,7 +65,7 @@ class ModelFactory
   public static function create(
     string $type,
     Field|Block $field,
-    Collection $def,
+    Collection $blueprint,
     ?string $lang
   ): object {
     $key = $type;
@@ -76,7 +76,7 @@ class ModelFactory
     } else {
       $class = ConfigHelper::getNamespace() . self::$classMap['text'];
     }
-    return new $class($field, $def, $lang);
+    return new $class($field, $blueprint, $lang);
   }
 
   /**

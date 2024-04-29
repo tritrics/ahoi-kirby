@@ -16,16 +16,15 @@ class ColorModel extends BaseModel
   protected function getProperties(): Collection
   {
     $res = new Collection();
-    $meta = $res->add('meta');
     if ($this->blueprint->has('format')) {
-      $meta->add('format', $this->blueprint->node('format')->get());
+      $res->add('format', $this->blueprint->node('format')->get());
     } else {
-      $meta->add('format', 'hex');
+      $res->add('format', 'hex');
     }
     if ($this->blueprint->has('format')) {
-      $meta->add('alpha', $this->blueprint->node('alpha')->get());
+      $res->add('alpha', $this->blueprint->node('alpha')->get());
     } else {
-      $meta->add('alpha', false);
+      $res->add('alpha', false);
     }
     return $res;
   }

@@ -3,7 +3,7 @@
 namespace Tritrics\Tric\v1\Services;
 
 use Kirby\Exception\LogicException;
-use Tritrics\Tric\v1\Helper\ResponseHelper;
+use Tritrics\Tric\v1\Data\Collection;
 use Tritrics\Tric\v1\Models\LanguageModel;
 use Tritrics\Tric\v1\Helper\KirbyHelper;
 
@@ -18,13 +18,19 @@ class LanguageService
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get(?string $lang): array
+  public static function get(?string $lang): Collection
   {
     $language = KirbyHelper::getLanguage($lang);
-    $res = ResponseHelper::getHeader();
-    if ($language !== null) {
-      $res->add('body', new LanguageModel($language, null, null, true));
+    $body = new LanguageModel($language);
+
+    $terms = new Collection();
+    foreach ($language->translations() as $key => $value) {
+      $terms->add($key, [
+        'type' => 'string',
+        'value' => $value
+      ]);
     }
-    return $res->get();
+    $body->add('fields', $terms);
+    return $body;
   }
 }

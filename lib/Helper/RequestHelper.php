@@ -49,11 +49,8 @@ class RequestHelper
   public static function getFields (Request $request): string|array
   {
     $val  = $request->get('fields');
-    if (is_string($val) && TypeHelper::toString($val, true, true) === 'all') {
-      return 'all';
-    }
     if (!is_array($val) || count($val) === 0) {
-      return [];
+      return 'all';
     }
     $val = array_map(function ($entry) {
       return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString($entry, true, true)); 

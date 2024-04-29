@@ -36,6 +36,7 @@ class FileModel extends BaseModel
     $meta->add('name', $parts['filename']);
     $meta->add('ext', $parts['extension']);
     $meta->add('href', UrlHelper::build($parts));
+    $meta->add('filetype', $this->model->type());
     $meta->add('blueprint', $this->model->template());
     $meta->add('title', $title);
     if ($this->model->type() === 'image') {
@@ -46,22 +47,5 @@ class FileModel extends BaseModel
     $res = new Collection();
     $res->add('meta', $meta);
     return $res;
-  }
-
-  /**
-   * Get type of this model as it's returned in response.
-   * Method called by setModelData()
-   */
-  protected function getType(): string
-  {
-    return $this->model->type();
-  }
-
-  /**
-   * Get the value of model as it's returned in response.
-   */
-  protected function getValue(): Collection
-  {
-    return $this->fields;
   }
 }

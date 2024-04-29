@@ -120,9 +120,9 @@ class ConfigHelper
   /**
    * Check if "page" action is enabled.
    */
-  public static function isEnabledPage(): bool
+  public static function isEnabledFields(): bool
   {
-    return self::isEnabled('page');
+    return self::isEnabled('fields');
   }
 
   /**
@@ -131,6 +131,14 @@ class ConfigHelper
   public static function isEnabledPages(): bool
   {
     return self::isEnabled('pages');
+  }
+
+  /**
+   * Check if "pages" action is enabled.
+   */
+  public static function isEnabledFiles(): bool
+  {
+    return self::isEnabled('files');
   }
 
   /**

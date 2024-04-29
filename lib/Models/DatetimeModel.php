@@ -24,17 +24,14 @@ class DatetimeModel extends BaseModel
     } else {
       $utc = [(int) date('Y', $time), (int) date('m', $time) - 1, (int) date('d', $time),(int) date('H', $time), (int) date('i', $time), (int) date('s', $time), 0];
     }
-    $meta = new Collection();
+    $res = new Collection();
 
     $timezone = date_default_timezone_get();
     date_default_timezone_set('UTC');
-    $meta->add('utc', date('Y-m-d\TH:i:s\Z', $time));
+    $res->add('utc', date('Y-m-d\TH:i:s\Z', $time));
     date_default_timezone_set($timezone);
-    $meta->add('iso', date('c', $time));
-    $meta->add('timezone', $timezone);
-
-    $res = new Collection();
-    $res->add('meta', $meta);
+    $res->add('iso', date('c', $time));
+    $res->add('timezone', $timezone);
     return $res;
   }
   

@@ -29,14 +29,4 @@ class UserModel extends BaseModel
     $res->add('meta', $meta);
     return $res;
   }
-
-  /**
-   * Get the value of model as it's returned in response.
-   * For security-reasons we don't expose user's build-in values like
-   * name, email, role, avatar. We only expose possibly extra-fields.
-   */
-  protected function getValue (): Collection
-  {
-    return $this->fields;
-  }
 }

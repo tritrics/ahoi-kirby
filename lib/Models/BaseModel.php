@@ -48,11 +48,11 @@ abstract class BaseModel extends Collection
   protected $fields;
 
   /**
-   * Sometimes required for output control.
+   * Sometimes required for output control of child fields.
    * 
-   * @var bool
+   * @var array|string
    */
-  protected $addDetails = false;
+  protected $addFields = 'all';
 
   /**
    * Marker if this model has child fields. Can be overwritten
@@ -68,12 +68,12 @@ abstract class BaseModel extends Collection
     Block|Field|User|File|Page|Site|Language|Languages $model,
     ?Collection $blueprint = null,
     ?string $lang = null,
-    ?bool $addDetails = false
+    array|string $addFields = 'all'
   ) {
     $this->model = $model;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
-    $this->addDetails = $addDetails;
+    $this->addFields = $addFields;
     $this->setChildFields();
     $this->setModelData();
   }
@@ -152,6 +152,7 @@ abstract class BaseModel extends Collection
   {
     $this->fields = new Collection();
     if ($this->hasChildFields && $this->blueprint->has('fields')) {
+      error_log('-------------');
 
       // Inconsistency in Kirby's field definition
       // furthermore $this->lang is not documented and maybe not working for toObject()
@@ -164,8 +165,10 @@ abstract class BaseModel extends Collection
         $this->fields,
         $fields,
         $this->blueprint->node('fields'),
-        $this->lang
+        $this->lang,
+        $this->addFields
       );
+      error_log(print_r($this->fields->get(), true));
     }
   }
 
@@ -199,6 +202,11 @@ abstract class BaseModel extends Collection
       if ($value !== null) {
         $this->add('value', $value);
       }
+    }
+
+    // child-fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
     }
   }
 }

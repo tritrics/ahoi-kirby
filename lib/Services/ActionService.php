@@ -9,7 +9,6 @@ use Tritrics\Tric\v1\Factories\PostFactory;
 use Tritrics\Tric\v1\Exceptions\PayloadException;
 use Tritrics\Tric\v1\Helper\TokenHelper;
 use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\ResponseHelper;
 use Tritrics\Tric\v1\Actions\EmailAction;
 use Tritrics\Tric\v1\Helper\KirbyHelper;
 use Tritrics\Tric\v1\Helper\TypeHelper;
@@ -50,11 +49,10 @@ class ActionService
    * Main function to submit (execute) a given action.
    * Token and action are already checked by controller.
    */
-  public static function create(string $lang, string $action, array $data): array
+  public static function create(string $lang, string $action, array $data): Collection
   {
     // init response
-    $res = ResponseHelper::getHeader();
-    $body = $res->add('body');
+    $body = new Collection();
     $body->add('action', $action);
     $errno = $body->add('errno', 0);
     $result = $body->add('result');
@@ -71,7 +69,7 @@ class ActionService
     ) {
       $errno->set(10);
       DebugHelper::logActionError($action, 'Action configuration is missing or incomplete in config.php.', 10); // @errno10
-      return $res->get();
+      return $body;
     }
 
     // read post data and validate
@@ -80,7 +78,7 @@ class ActionService
     } catch (Exception $E) {
       $errno->set($E->getCode());
       DebugHelper::logActionError($action, $E->getMessage(), $E->getCode());
-      return $res->get();
+      return $body;
     }
 
     // write post data to result
@@ -95,7 +93,7 @@ class ActionService
       $errno->set(18);
       DebugHelper::logActionError($action, 'Submitted post data failed validation.', 18); // @errno18
       KirbyHelper::deletePage($page);
-      return $res->get();
+      return $body;
     }
 
     // Executing additional actions
@@ -137,19 +135,18 @@ class ActionService
     // elseif ($status === 'listed' || $status === 'unlisted') {
     //  KirbyHelper::changeStatus($page, $status);
     // }
-    return $res->get();
+    return $body;
   }
 
   /**
    * Getting a token.
    */
-  public static function token(string $action): array
+  public static function token(string $action): Collection
   {
-    $res = ResponseHelper::getHeader();
-    $body = $res->add('body');
+    $body = new Collection();
     $body->add('action', $action);
     $body->add('token', TokenHelper::get($action));
-    return $res->get();
+    return $body;
   }
 
   /**

@@ -17,7 +17,7 @@ class FilesModel extends BaseModel
   protected function getProperties(): Collection
   {
     $res = new Collection();
-    $meta = $res->add('meta');
+    $meta = $res->add('collection');
     $meta->add('multiple', $this->isMultiple());
     $meta->add('count', $this->model->toFiles()->count());
     return $res;
@@ -28,10 +28,14 @@ class FilesModel extends BaseModel
    */
   protected function getValue (): Collection
   {
+    $addFields = []; // no fields added on default, must be explizit set.
+    if ($this->blueprint->node('api')->has('fields')) {
+      $addFields = $this->blueprint->node('api')->node('fields')->get();
+    }
     $res = new Collection();
     foreach ($this->model->toFiles() as $file) {
       $blueprint = BlueprintHelper::getBlueprint($file);
-      $model = new FileModel($file, $blueprint, $this->lang);
+      $model = new FileModel($file, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }
     return $res;

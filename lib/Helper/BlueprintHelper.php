@@ -90,7 +90,7 @@ class BlueprintHelper
       $add_title_field = false;
     } elseif ($model instanceof File) {
       $path = 'files/' . $model->template();
-      $add_title_field = true;
+      $add_title_field = false;
     } elseif ($model instanceof User) {
       $path = 'users/' . $model->role();
       $add_title_field = false;

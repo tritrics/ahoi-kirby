@@ -4,16 +4,17 @@ namespace Tritrics\Tric\v1\Services;
 
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
+use Kirby\Cms\File;
 use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Models\FileModel;
 use Tritrics\Tric\v1\Models\PageModel;
-use Tritrics\Tric\v1\Helper\ResponseHelper;
 use Tritrics\Tric\v1\Helper\BlueprintHelper;
 use Tritrics\Tric\v1\Helper\FieldHelper;
 
 /**
  * Service for API's page interface. Handles a single page or site.
  */
-class PageService
+class FieldsService
 {
   /**
    * Main method to respond to "page" action.
@@ -21,11 +22,14 @@ class PageService
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get (Page|Site $model, ?string $lang, array|string $fields): array
+  public static function get (Page|Site|File $model, ?string $lang, array|string $fields): Collection
   {
     $blueprint = BlueprintHelper::getBlueprint($model);
-    $res = ResponseHelper::getHeader();
-    $body = new PageModel($model, $blueprint, $lang, true);
+    if($model instanceof File) {
+      $body = new FileModel($model, $blueprint, $lang);
+    } else {
+      $body = new PageModel($model, $blueprint, $lang);
+    }
 
     if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {
       $value = new Collection();
@@ -37,10 +41,9 @@ class PageService
         $fields
       );
       if ($value->count() > 0) {
-        $body->add('value', $value);
+        $body->add('fields', $value);
       }
     }
-    $res->add('body', $body);
-    return $res->get();
+    return $body;
   }
 }
