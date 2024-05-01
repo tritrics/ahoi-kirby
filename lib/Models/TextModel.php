@@ -152,7 +152,7 @@ class TextModel extends BaseModel
   }
 
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    * 
    * return value can be:
    * 

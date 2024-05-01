@@ -73,9 +73,6 @@ class GetController
   {
     $Response = new Response('fields', $lang, $slug);
     $request = kirby()->request();
-    if ($request->method() === 'OPTIONS') {
-      return $Response->get();
-    }
     try {
       if ( !ConfigHelper::isEnabledFields()) {
         return $Response->getDisabled();

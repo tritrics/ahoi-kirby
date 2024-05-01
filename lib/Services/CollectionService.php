@@ -25,7 +25,7 @@ class CollectionService
   public static function get(string $request, Page|Site $model, ?string $lang, array $params): Collection
   {
     $blueprint = BlueprintHelper::getBlueprint($model);
-    $body = new PageModel($model, $blueprint, $lang);
+    $body = new PageModel($model, $blueprint, $lang, []);
 
     // request children
     if ($request === 'pages') {
@@ -41,16 +41,6 @@ class CollectionService
     // Limit, paging, sorting
     if ($params['order'] === 'desc') {
       $children = $children->flip();
-    }
-
-    // add additional meta fields from blueprint
-    if ($blueprint->has('api', 'meta')) {
-      $meta = $body->node('meta');
-      foreach ($blueprint->node('api', 'meta')->get() as $key => $value) {
-        if (!$meta->has($key)) {
-          $meta->add($key, $value);
-        }
-      }
     }
 
     // add collection info
@@ -79,7 +69,7 @@ class CollectionService
     }
 
     // adding children to value
-    $body->add($request, self::getChildren($request, $children, $lang, [ 'listed' ], $params['fields']));
+    $body->add('entries', self::getChildren($request, $children, $lang, [ 'listed' ], $params['fields']));
     return $body;
   }
 

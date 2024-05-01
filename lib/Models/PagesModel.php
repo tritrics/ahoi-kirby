@@ -11,6 +11,11 @@ use Tritrics\Tric\v1\Helper\BlueprintHelper;
 class PagesModel extends BaseModel
 {
   /**
+   * Nodename for pages.
+   */
+  protected $valueNodeName = 'entries';
+  
+  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -18,13 +23,12 @@ class PagesModel extends BaseModel
   {
     $res = new Collection();
     $meta = $res->add('collection');
-    $meta->add('multiple', $this->isMultiple());
     $meta->add('count', $this->model->toPages()->count());
     return $res;
   }
 
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    */
   protected function getValue (): Collection
   {

@@ -3,7 +3,10 @@
 namespace Tritrics\Tric\v1\Models;
 
 use Tritrics\Tric\v1\Data\Collection;
+use Tritrics\Tric\v1\Helper\KirbyHelper;
 use Tritrics\Tric\v1\Helper\UrlHelper;
+use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Tric\v1\Helper\LanguagesHelper;
 
 /**
  * Model for Kirby's file object
@@ -16,6 +19,11 @@ class FileModel extends BaseModel
    * @var bool
    */
   protected $hasChildFields = true;
+  
+  /**
+   * Nodename for fields.
+   */
+  protected $valueNodeName = 'fields';
 
   /**
    * Get additional field data (besides type and value)
@@ -24,10 +32,6 @@ class FileModel extends BaseModel
   protected function getProperties (): Collection
   {
     $parts = UrlHelper::parse($this->model->url());
-    $title = $this->fields->node('title', 'value')->get();
-    if (!$title) {
-      $title = $parts['filename'];
-    }
 
     $meta = new Collection();
     $meta->add('host', UrlHelper::buildHost($parts));
@@ -35,17 +39,39 @@ class FileModel extends BaseModel
     $meta->add('file', $parts['basename']);
     $meta->add('name', $parts['filename']);
     $meta->add('ext', $parts['extension']);
-    $meta->add('href', UrlHelper::build($parts));
+    $meta->add('href', $this->model->url());
     $meta->add('filetype', $this->model->type());
     $meta->add('blueprint', $this->model->template());
-    $meta->add('title', $title);
+    $meta->add('title', $parts['filename']);
+    if ($this->lang !== null) {
+      $meta->add('lang', $this->lang);
+    }
+    $meta->add('modified',  date('c', $this->model->modified()));
     if ($this->model->type() === 'image') {
       $meta->add('width', $this->model->width());
       $meta->add('height', $this->model->height());
     }
 
+    if (ConfigHelper::isMultilang()) {
+      $node = new Collection();
+      foreach (LanguagesHelper::list() as $code => $data) {
+        $node->add($code, KirbyHelper::getNodeUrl($this->model, $code));
+      }
+    } else {
+      $node = KirbyHelper::getNodeUrl($this->model, $this->lang);
+    }
+    $meta->add('node', $node);
+
     $res = new Collection();
     $res->add('meta', $meta);
     return $res;
+  }
+
+  /**
+   * Get the value of model.
+   */
+  protected function getValue(): Collection|null
+  {
+    return $this->fields;
   }
 }

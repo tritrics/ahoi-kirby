@@ -11,7 +11,7 @@ use Tritrics\Tric\v1\Helper\TypeHelper;
 class OptionsModel extends BaseModel
 {
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    */
   protected function getValue () : Collection
   {

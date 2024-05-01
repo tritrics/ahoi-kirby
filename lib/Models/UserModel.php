@@ -17,6 +17,11 @@ class UserModel extends BaseModel
   protected $hasChildFields = true;
 
   /**
+   * Nodename for fields.
+   */
+  protected $valueNodeName = 'fields';
+
+  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -28,5 +33,13 @@ class UserModel extends BaseModel
     $res = new Collection();
     $res->add('meta', $meta);
     return $res;
+  }
+
+  /**
+   * Get the value of model.
+   */
+  protected function getValue(): Collection|null
+  {
+    return $this->fields;
   }
 }

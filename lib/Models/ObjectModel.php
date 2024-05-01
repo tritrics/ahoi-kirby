@@ -15,4 +15,17 @@ class ObjectModel extends BaseModel
    * @var bool
    */
   protected $hasChildFields = true;
+
+  /**
+   * Nodename for fields.
+   */
+  protected $valueNodeName = 'fields';
+
+  /**
+   * Get the value of model.
+   */
+  protected function getValue(): Collection|null
+  {
+    return $this->fields;
+  }
 }

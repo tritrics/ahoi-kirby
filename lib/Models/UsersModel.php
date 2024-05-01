@@ -11,6 +11,11 @@ use Tritrics\Tric\v1\Helper\BlueprintHelper;
 class UsersModel extends BaseModel
 {
   /**
+   * Nodename for users.
+   */
+  protected $valueNodeName = 'entries';
+  
+  /**
    * Get additional field data (besides type and value)
    * Method called by setModelData()
    */
@@ -18,13 +23,12 @@ class UsersModel extends BaseModel
   {
     $res = new Collection();
     $meta = $res->add('collection');
-    $meta->add('multiple', $this->isMultiple());
     $meta->add('count', $this->model->toUsers()->count());
     return $res;
   }
 
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    */
   protected function getValue (): Collection
   {

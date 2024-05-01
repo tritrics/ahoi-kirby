@@ -133,13 +133,15 @@ class KirbyHelper
    */
   public static function findPageByKirbyLink(?string $href = null): ?Page
   {
-    if (is_string($href)) {
-      $uuid = str_replace('/@/page/', 'page://', $href);
-      $page = kirby()->page($uuid);
-      if ($page && $page->exists() && !$page->isDraft()) {
-        return $page;
+    try {
+      if (is_string($href)) {
+        $uuid = str_replace('/@/page/', 'page://', $href);
+        $page = kirby()->page($uuid);
+        if ($page && $page->exists() && !$page->isDraft()) {
+          return $page;
+        }
       }
-    }
+    } catch (Exception $e) {}
     return null;
   }
 
@@ -162,14 +164,27 @@ class KirbyHelper
   }
 
   /**
-   * Get url of parent model
+   * Get url of a model.
+   * Dont't add langslug!
    */
-  public static function getParentUrl(Page|Site $model, ?string $lang): string
+  public static function getNodeUrl(Page|Site|File $model, ?string $lang): string
   {
-    $langSlug = LanguagesHelper::getSlug($lang);
+    if ($model instanceof File) {
+      $parentUrl = self::getParentUrl($model, $lang);
+      return rtrim($parentUrl, '/') . '/' . $model->filename();
+    }
+    return '/' . ltrim($model->uri($lang), '/');
+  }
+
+  /**
+   * Get url of parent model.
+   * Dont't add langslug!
+   */
+  public static function getParentUrl(Page|Site|File $model, ?string $lang): string
+  {
     $parent = $model->parent();
     if ($parent) {
-      return '/' . ltrim($langSlug . '/' . $parent->uri($lang), '/');
+      return '/' . ltrim($parent->uri($lang), '/');
     }
     return '/';
   }

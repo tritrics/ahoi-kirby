@@ -43,9 +43,9 @@ abstract class BaseModel extends Collection
   /**
    * Optionally child-fields, auto-detected from blueprint
    * 
-   * @var Collection
+   * @var Collection|null
    */
-  protected $fields;
+  protected $fields = null;
 
   /**
    * Sometimes required for output control of child fields.
@@ -55,12 +55,18 @@ abstract class BaseModel extends Collection
   protected $addFields = 'all';
 
   /**
-   * Marker if this model has child fields. Can be overwritten
-   * by same property in child class.
+   * Marker if this model has child fields.
+   * Can be overwritten by child class.
    * 
    * @var bool
    */
   protected $hasChildFields = false;
+
+  /**
+   * Name of the node with the value/childfields etc.
+   * Can be overwritten by child class.
+   */
+  protected $valueNodeName = 'value';
 
   /**
    */
@@ -73,7 +79,7 @@ abstract class BaseModel extends Collection
     $this->model = $model;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
-    $this->addFields = $addFields;
+    $this->addFields = is_array($addFields) || $addFields === 'all' ? $addFields : 'all';
     $this->setChildFields();
     $this->setModelData();
   }
@@ -133,16 +139,12 @@ abstract class BaseModel extends Collection
   }
 
   /**
-   * Because Kirby sets multiple to true on default, we check for false here.
-   * max = 1 is NOT interpreted as multiple, because the setting multiple
-   * is explicitely designed for this.
+   * Get the data/value/childfields etc.
+   * Overwritten by child class.
    */
-  protected function isMultiple(): bool
+  protected function getValue(): mixed
   {
-    if ($this->blueprint->has('multiple') && $this->blueprint->node('multiple')->is(false)) {
-      return false;
-    }
-    return true;
+    return null;
   }
 
   /**
@@ -152,7 +154,6 @@ abstract class BaseModel extends Collection
   {
     $this->fields = new Collection();
     if ($this->hasChildFields && $this->blueprint->has('fields')) {
-      error_log('-------------');
 
       // Inconsistency in Kirby's field definition
       // furthermore $this->lang is not documented and maybe not working for toObject()
@@ -168,7 +169,6 @@ abstract class BaseModel extends Collection
         $this->lang,
         $this->addFields
       );
-      error_log(print_r($this->fields->get(), true));
     }
   }
 
@@ -197,16 +197,13 @@ abstract class BaseModel extends Collection
     }
 
     // value
-    if (method_exists($this, 'getValue')) {
-      $value = $this->getValue();
-      if ($value !== null) {
-        $this->add('value', $value);
+    $value = $this->getValue();
+    if ($value instanceof Collection) {
+      if ($value->count() > 0) {
+        $this->add($this->valueNodeName, $value);
       }
-    }
-
-    // child-fields
-    if ($this->fields->count() > 0) {
-      $this->add('fields', $this->fields);
+    } else if ($value !== null) {
+      $this->add($this->valueNodeName, $value);
     }
   }
 }

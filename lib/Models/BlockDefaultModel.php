@@ -10,6 +10,11 @@ use Tritrics\Tric\v1\Data\Collection;
 class BlockDefaultModel extends BaseModel
 {
   /**
+   * Nodename for fields.
+   */
+  protected $valueNodeName = 'fields';
+
+  /**
    * Marker if this model has child fields.
    * 
    * @var bool
@@ -37,9 +42,9 @@ class BlockDefaultModel extends BaseModel
   }
 
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    */
-  protected function getValue (): mixed
+  protected function getValue (): Collection|null
   {
     return $this->fields;
   }

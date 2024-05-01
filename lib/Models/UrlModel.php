@@ -28,7 +28,7 @@ class UrlModel extends BaseModel
   }
 
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    */
   protected function getValue (): string
   {

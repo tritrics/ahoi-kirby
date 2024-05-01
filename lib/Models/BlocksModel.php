@@ -12,7 +12,24 @@ use Tritrics\Tric\v1\Factories\BlockFactory;
 class BlocksModel extends BaseModel
 {
   /**
-   * Get the value of model as it's returned in response.
+   * Nodename for blocks.
+   */
+  protected $valueNodeName = 'entries';
+
+  /**
+   * Get additional field data (besides type and value)
+   * Method called by setModelData()
+   */
+  protected function getProperties(): Collection
+  {
+    $res = new Collection();
+    $meta = $res->add('collection');
+    $meta->add('count', $this->model->toBlocks()->count());
+    return $res;
+  }
+  
+  /**
+   * Get the value of model.
    */
   protected function getValue (): Collection
   {

@@ -15,6 +15,11 @@ class BlockHeadingModel extends BaseModel
    * @var bool
    */
   protected $hasChildFields = true;
+  
+  /**
+   * Nodename for fields.
+   */
+  protected $valueNodeName = 'fields';
 
   /**
    * Get additional field data (besides type and value)
@@ -37,33 +42,24 @@ class BlockHeadingModel extends BaseModel
   }
 
   /**
-   * Get the value of model as it's returned in response.
+   * Get the value of model.
    */
   protected function getValue (): Collection
   {
     // combine inline-html-field text with field level
     if ($this->fields->has('level') && $this->fields->has('text')) {
       
-      // get values and delete nodes
-      $elem = $this->fields->node('level', 'value')->get();
-      $this->fields->unset('level');
-      $value = $this->fields->node('text', 'value')->get();
-      $this->fields->unset('text');
+      // combine level and text to html-element headline
+      $this->fields->add('headline', [
+        'type' => 'html',
+        'value' => [
+          'elem' => $this->fields->node('level', 'value')->get(),
+          'value' => $this->fields->node('text', 'value')->get()
+        ],
+      ]);
 
-      // recombine
-      $data = [ 'type' => 'html' ];
-      if (is_array($value) && count($value) > 1) {
-        $data['value'] = [
-          'elem' => $elem,
-          'children' => $value
-        ];
-      } else {
-        $data['value'] = [
-          'elem' => $elem,
-          'text' => isset($value['text']) ? $value['text'] : ''
-        ];
-      }
-      $this->fields->add('headline', $data);
+      $this->fields->unset('level');
+      $this->fields->unset('text');
     }
     return $this->fields;
   }
