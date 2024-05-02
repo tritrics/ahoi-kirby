@@ -11,6 +11,24 @@ use Tritrics\Tric\v1\Helper\TypeHelper;
 class OptionsModel extends BaseModel
 {
   /**
+   * Nodename for options.
+   */
+  protected $valueNodeName = 'entries';
+
+  /**
+   * Get additional field data (besides type and value)
+   * Method called by setModelData()
+   */
+  protected function getProperties(): Collection
+  {
+    $options = TypeHelper::optionsToArray($this->model->value());
+    $res = new Collection();
+    $meta = $res->add('collection');
+    $meta->add('count', count($options));
+    return $res;
+  }
+
+  /**
    * Get the value of model.
    */
   protected function getValue () : Collection
