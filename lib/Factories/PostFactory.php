@@ -1,15 +1,15 @@
 <?php
 
-namespace Tritrics\Tric\v1\Factories;
+namespace Tritrics\Ahoi\v1\Factories;
 
 use Exception;
 use Kirby\Cms\Page;
 use Kirby\Filesystem\F;
 use Kirby\Toolkit\Str;
-use Tritrics\Tric\v1\Helper\RequestHelper;
-use Tritrics\Tric\v1\Helper\KirbyHelper;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\TypeHelper;
+use Tritrics\Ahoi\v1\Helper\RequestHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
  * Helper to translate form data into Kirby page model.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Exceptions;
+namespace Tritrics\Ahoi\v1\Exceptions;
 
 use Exception;
 

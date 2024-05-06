@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Helper;
+namespace Tritrics\Ahoi\v1\Helper;
 
 use Kirby\Http\Request;
 

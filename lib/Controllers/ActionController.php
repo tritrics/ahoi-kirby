@@ -1,15 +1,15 @@
 <?php
 
-namespace Tritrics\Tric\v1\Controllers;
+namespace Tritrics\Ahoi\v1\Controllers;
 
 use Kirby\Http\Response as KirbyResponse;
-use Tritrics\Tric\v1\Data\Response;
+use Tritrics\Ahoi\v1\Data\Response;
 use Kirby\Exception\Exception;
-use Tritrics\Tric\v1\Services\ActionService;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\RequestHelper;
-use Tritrics\Tric\v1\Helper\ResponseHelper;
-use Tritrics\Tric\v1\Helper\TokenHelper;
+use Tritrics\Ahoi\v1\Services\ActionService;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Helper\RequestHelper;
+use Tritrics\Ahoi\v1\Helper\ResponseHelper;
+use Tritrics\Ahoi\v1\Helper\TokenHelper;
 
 /**
  * Action Controller

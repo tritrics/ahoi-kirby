@@ -1,8 +1,8 @@
 <?php
 
-namespace Tritrics\Tric\v1\Models;
+namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Tric\v1\Helper\TypeHelper;
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: hidden

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tritrics\Tric\v1\Models;
+namespace Tritrics\Ahoi\v1\Models;
 
 use Kirby\Cms\Page;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Helper\LanguagesHelper;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\KirbyHelper;
-use Tritrics\Tric\v1\Helper\LinkHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's page object

@@ -1,15 +1,15 @@
 <?php
 
-namespace Tritrics\Tric\v1\Services;
+namespace Tritrics\Ahoi\v1\Services;
 
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Cms\File;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Models\FileModel;
-use Tritrics\Tric\v1\Models\PageModel;
-use Tritrics\Tric\v1\Helper\BlueprintHelper;
-use Tritrics\Tric\v1\Helper\FieldHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Models\FileModel;
+use Tritrics\Ahoi\v1\Models\PageModel;
+use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
+use Tritrics\Ahoi\v1\Helper\FieldHelper;
 
 /**
  * Service for API's page interface. Handles a single page or site.

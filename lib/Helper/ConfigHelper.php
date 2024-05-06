@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Helper;
+namespace Tritrics\Ahoi\v1\Helper;
 
 use Kirby\Exception\DuplicateException;
 
@@ -30,7 +30,7 @@ class ConfigHelper
 
   /**
    * Get setting from plugins config.php
-   * example: tritrics.tric.v1.slug
+   * example: tritrics.ahoi.v1.slug
    */
   public static function getConfig(string $node, mixed $default = null): mixed
   {

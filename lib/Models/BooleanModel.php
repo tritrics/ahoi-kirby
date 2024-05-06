@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Models;
+namespace Tritrics\Ahoi\v1\Models;
 
 /**
  * Model for Kirby's fields: toggle

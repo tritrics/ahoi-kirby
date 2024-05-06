@@ -1,13 +1,13 @@
 <?php
 
-namespace Tritrics\Tric\v1\Services;
+namespace Tritrics\Ahoi\v1\Services;
 
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\KirbyHelper;
-use Tritrics\Tric\v1\Models\LanguageModel;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Models\LanguageModel;
 
 /**
  * Service for API's info interface.

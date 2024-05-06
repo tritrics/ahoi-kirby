@@ -1,16 +1,16 @@
 <?php
 
 use Kirby\Exception\Exception;
-use Tritrics\Tric\v1\Controllers\GetController;
-use Tritrics\Tric\v1\Controllers\ActionController;
-use Tritrics\Tric\v1\Services\ImageService;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Helper\RequestHelper;
+use Tritrics\Ahoi\v1\Controllers\GetController;
+use Tritrics\Ahoi\v1\Controllers\ActionController;
+use Tritrics\Ahoi\v1\Services\ImageService;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Helper\RequestHelper;
 
 ConfigHelper::init([
   'version' => 'v1',
-  'plugin-name' => 'tritrics/tric-v1',
-  'namespace' => 'Tritrics\Tric\v1'
+  'plugin-name' => 'tritrics/ahoi-v1',
+  'namespace' => 'Tritrics\Ahoi\v1'
 ]);
 
 /**

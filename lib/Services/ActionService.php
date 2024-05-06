@@ -1,18 +1,18 @@
 <?php
 
-namespace Tritrics\Tric\v1\Services;
+namespace Tritrics\Ahoi\v1\Services;
 
 use Exception;
 use Kirby\Cms\Page;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Factories\PostFactory;
-use Tritrics\Tric\v1\Exceptions\PayloadException;
-use Tritrics\Tric\v1\Helper\TokenHelper;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Actions\EmailAction;
-use Tritrics\Tric\v1\Helper\KirbyHelper;
-use Tritrics\Tric\v1\Helper\TypeHelper;
-use Tritrics\Tric\v1\Helper\DebugHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Factories\PostFactory;
+use Tritrics\Ahoi\v1\Exceptions\PayloadException;
+use Tritrics\Ahoi\v1\Helper\TokenHelper;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Actions\EmailAction;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
+use Tritrics\Ahoi\v1\Helper\DebugHelper;
 
 /**
  * Handling actions (post-data)

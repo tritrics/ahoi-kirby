@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Models;
+namespace Tritrics\Ahoi\v1\Models;
 
 use \DOMDocument;
 use \DOMElement;
@@ -8,8 +8,8 @@ use \DOMText;
 use \DOMCdataSection;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Helper\LinkHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's fields: list, slug, text, textarea, writer

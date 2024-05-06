@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Services;
+namespace Tritrics\Ahoi\v1\Services;
 
 use Exception;
 use Kirby\Filesystem\F;

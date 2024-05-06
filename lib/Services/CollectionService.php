@@ -1,18 +1,18 @@
 <?php
 
-namespace Tritrics\Tric\v1\Services;
+namespace Tritrics\Ahoi\v1\Services;
 
 use Kirby\Cms\Page;
 use Kirby\Cms\Pages;
 use Kirby\Cms\Files;
 use Kirby\Cms\Site;
 use Kirby\Exception\InvalidArgumentException;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Models\PageModel;
-use Tritrics\Tric\v1\Models\FileModel;
-use Tritrics\Tric\v1\Helper\FilterHelper;
-use Tritrics\Tric\v1\Helper\BlueprintHelper;
-use Tritrics\Tric\v1\Helper\FieldHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Models\PageModel;
+use Tritrics\Ahoi\v1\Models\FileModel;
+use Tritrics\Ahoi\v1\Helper\FilterHelper;
+use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
+use Tritrics\Ahoi\v1\Helper\FieldHelper;
 
 /**
  * Service for API's pages interface. Handles a collection of pages.

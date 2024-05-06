@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Data;
+namespace Tritrics\Ahoi\v1\Data;
 
 use Kirby\Http\Response as KirbyResponse;
 

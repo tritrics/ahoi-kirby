@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Tric\v1\Models;
+namespace Tritrics\Ahoi\v1\Models;
 
 use Kirby\Cms\Languages;
 use Kirby\Cms\Language;
@@ -10,8 +10,8 @@ use Kirby\Cms\File;
 use Kirby\Cms\User;
 use Kirby\Content\Field;
 use Kirby\Cms\Block;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Helper\FieldHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Helper\FieldHelper;
 
 /**
  * Basic model for Kirby Fields and Models.

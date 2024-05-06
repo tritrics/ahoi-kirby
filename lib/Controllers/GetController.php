@@ -1,18 +1,18 @@
 <?php
 
-namespace Tritrics\Tric\v1\Controllers;
+namespace Tritrics\Ahoi\v1\Controllers;
 
 use Kirby\Exception\Exception;
 use Kirby\Http\Response as KirbyResponse;
-use Tritrics\Tric\v1\Data\Response;
-use Tritrics\Tric\v1\Factories\ModelFactory;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
-use Tritrics\Tric\v1\Services\LanguageService;
-use Tritrics\Tric\v1\Helper\RequestHelper;
-use Tritrics\Tric\v1\Helper\KirbyHelper;
-use Tritrics\Tric\v1\Services\InfoService;
-use Tritrics\Tric\v1\Services\FieldsService;
-use Tritrics\Tric\v1\Services\CollectionService;
+use Tritrics\Ahoi\v1\Data\Response;
+use Tritrics\Ahoi\v1\Factories\ModelFactory;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Services\LanguageService;
+use Tritrics\Ahoi\v1\Helper\RequestHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Services\InfoService;
+use Tritrics\Ahoi\v1\Services\FieldsService;
+use Tritrics\Ahoi\v1\Services\CollectionService;
 
 /**
  * API Controller

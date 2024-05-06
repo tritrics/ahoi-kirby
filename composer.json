@@ -1,5 +1,5 @@
 {
-    "name": "tritrics\/tric-kirby",
+    "name": "tritrics\/ahoi-kirby",
     "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
     "version": "0.3.0",
     "authors": [
@@ -15,8 +15,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Tritrics\\Tric\\v1\\": "lib\/",
-            "Tritrics\\Tric\\v1\\Root\\": ".\/"
+            "Tritrics\\Ahoi\\v1\\": "lib\/",
+            "Tritrics\\Ahoi\\v1\\Root\\": ".\/"
         },
         "files": [
             "config.php"
@@ -29,6 +29,6 @@
         "optimize-autoloader": true
     },
     "extra": {
-        "installer-name": "tric"
+        "installer-name": "ahoi"
     }
 }

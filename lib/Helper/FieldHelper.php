@@ -1,11 +1,11 @@
 <?php
 
-namespace Tritrics\Tric\v1\Helper;
+namespace Tritrics\Ahoi\v1\Helper;
 
 use Kirby\Cms\Field as KirbyField;
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Factories\ModelFactory;
-use Tritrics\Tric\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Factories\ModelFactory;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 
 /**
  * Reads all Kirby fields of a blueprint and translates it to collection of models.

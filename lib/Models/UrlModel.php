@@ -1,9 +1,9 @@
 <?php
 
-namespace Tritrics\Tric\v1\Models;
+namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Tric\v1\Data\Collection;
-use Tritrics\Tric\v1\Helper\LinkHelper;
+use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's fields: url
