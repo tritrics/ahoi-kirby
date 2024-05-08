@@ -162,7 +162,6 @@ class BlueprintHelper
       ];
     }
     $fields = array_merge($fields, self::getFieldsFromSectionsRec($blueprint, $publish));
-    error_log(print_r($fields, true));
     $res->add('fields', $fields);
     return $res;
   }
