@@ -118,7 +118,7 @@ class Collection implements IteratorAggregate
   }
 
   /**
-   * Make this class an iterator class.
+   * Define class as iterator class.
    */
   final public function getIterator() : ArrayIterator
   {

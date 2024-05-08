@@ -26,7 +26,7 @@ class FilesService
    */
   public static function get(Page|Site $model, ?string $lang, array $params): Collection
   {
-    $blueprint = BlueprintHelper::getBlueprint($model);
+    $blueprint = BlueprintHelper::get($model);
     $body = new PageModel($model, $blueprint, $lang);
 
     // request children
@@ -93,7 +93,7 @@ class FilesService
   ): Collection {
     $res = new Collection();
     foreach ($children as $child) {
-      $blueprint = BlueprintHelper::getBlueprint($child);
+      $blueprint = BlueprintHelper::get($child);
       $model = new FileModel($child, $blueprint, $lang);
 
       if (is_array($fields) && count($fields) > 0) {

@@ -54,7 +54,7 @@ class FilterHelper
   {
     $children =  $page->children()->filter( // the Kirby-filter-function of children()
       function ($child) use ($filter) {
-        $blueprint = BlueprintHelper::getBlueprint($child);
+        $blueprint = BlueprintHelper::get($child);
         foreach ($filter as $criteria) {
           $fieldname = $criteria[0];
 

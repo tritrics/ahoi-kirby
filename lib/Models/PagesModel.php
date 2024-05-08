@@ -41,7 +41,7 @@ class PagesModel extends BaseModel
       if ($page->isDraft()) {
         continue;
       }
-      $blueprint = BlueprintHelper::getBlueprint($page);
+      $blueprint = BlueprintHelper::get($page);
       $model = new PageModel($page, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }

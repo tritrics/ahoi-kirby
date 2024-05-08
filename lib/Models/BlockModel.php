@@ -7,7 +7,7 @@ use Tritrics\Ahoi\v1\Data\Collection;
 /**
  * Default model for Kirby's blocks
  */
-class BlockDefaultModel extends BaseModel
+class BlockModel extends BaseModel
 {
   /**
    * Nodename for fields.

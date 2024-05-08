@@ -38,7 +38,7 @@ class FilesModel extends BaseModel
     }
     $res = new Collection();
     foreach ($this->model->toFiles() as $file) {
-      $blueprint = BlueprintHelper::getBlueprint($file);
+      $blueprint = BlueprintHelper::get($file);
       $model = new FileModel($file, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }

@@ -24,25 +24,11 @@ class FieldsService
    */
   public static function get (Page|Site|File $model, ?string $lang, array|string $fields): Collection
   {
-    $blueprint = BlueprintHelper::getBlueprint($model);
+    $blueprint = BlueprintHelper::get($model);
     if($model instanceof File) {
       $body = new FileModel($model, $blueprint, $lang);
     } else {
-      $body = new PageModel($model, $blueprint, $lang);
-    }
-
-    if ($fields === 'all' || (is_array($fields) && count($fields) > 0)) {
-      $value = new Collection();
-      FieldHelper::addFields(
-        $value,
-        $model->content($lang)->fields(),
-        $blueprint->node('fields'),
-        $lang,
-        $fields
-      );
-      if ($value->count() > 0) {
-        $body->add('fields', $value);
-      }
+      $body = new PageModel($model, $blueprint, $lang, $fields);
     }
     return $body;
   }

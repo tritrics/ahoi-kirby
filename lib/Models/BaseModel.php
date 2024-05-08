@@ -139,6 +139,18 @@ abstract class BaseModel extends Collection
   }
 
   /**
+   * Get field type.
+   * Optionally overwritten by child class.
+   */
+  protected function getType(): string
+  {
+    $path = explode('\\', get_class($this));
+    $class = array_pop($path);
+    $name = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $class));
+    return preg_replace('/(-model$)/', '', $name);
+  }
+
+  /**
    * Get the data/value/childfields etc.
    * Overwritten by child class.
    */
@@ -177,16 +189,7 @@ abstract class BaseModel extends Collection
    */
   private function setModelData (): void
   {
-    // compute type
-    if (method_exists($this, 'getType')) {
-      $type = $this->getType();
-    } else {
-      $path = explode('\\', get_class($this));
-      $class = array_pop($path);
-      $name = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $class));
-      $type = preg_replace('/(-model$)/', '', $name);
-    }
-    $this->add('type', $type);
+    $this->add('type', $this->getType());
 
     // properties, any kind of nodes
     if (method_exists($this, 'getProperties')) {

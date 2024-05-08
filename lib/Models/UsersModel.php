@@ -38,7 +38,7 @@ class UsersModel extends BaseModel
     }
     $res = new Collection();
     foreach ($this->model->toUsers() as $user) {
-      $blueprint = BlueprintHelper::getBlueprint($user);
+      $blueprint = BlueprintHelper::get($user);
       $model = new UserModel($user, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }

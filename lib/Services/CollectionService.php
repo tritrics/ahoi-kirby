@@ -24,7 +24,7 @@ class CollectionService
    */
   public static function get(string $request, Page|Site $model, ?string $lang, array $params): Collection
   {
-    $blueprint = BlueprintHelper::getBlueprint($model);
+    $blueprint = BlueprintHelper::get($model);
     $body = new PageModel($model, $blueprint, $lang, []);
 
     // request children
@@ -91,10 +91,10 @@ class CollectionService
         if (!in_array($child->status(), $status)) {
           continue;
         }
-        $blueprint = BlueprintHelper::getBlueprint($child);
+        $blueprint = BlueprintHelper::get($child);
         $model = new PageModel($child, $blueprint, $lang);
       } else {
-        $blueprint = BlueprintHelper::getBlueprint($child);
+        $blueprint = BlueprintHelper::get($child);
         $model = new FileModel($child, $blueprint, $lang);
       }
       if (is_array($fields) && count($fields) > 0) {

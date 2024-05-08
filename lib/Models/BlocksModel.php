@@ -3,8 +3,7 @@
 namespace Tritrics\Ahoi\v1\Models;
 
 use Tritrics\Ahoi\v1\Data\Collection;
-
-use Tritrics\Ahoi\v1\Factories\BlockFactory;
+use Tritrics\Ahoi\v1\Models\BlockModel;
 
 /**
  * Model for Kirby's fields: blocks
@@ -38,7 +37,7 @@ class BlocksModel extends BaseModel
       $type = strtolower($block->type());
       $blueprint = $this->blueprint->node('blocks', $type);
       if ($blueprint->has('fields')) {
-        $model = BlockFactory::create($type, $block, $blueprint, $this->lang);
+        $model = new BlockModel($block, $blueprint, $this->lang);
         $res->push($model);
       }
     }
