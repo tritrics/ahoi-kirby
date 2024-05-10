@@ -25,13 +25,13 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
       'action' => false
     ],
     'slug' => 'public-api',
-    'field-name-separator' => '_',
-    'form-security' => [
+    'field_name_separator' => '_',
+    'form_security' => [
       'secret' => null,
-      'token-validity' => 10,
-      'return-post-values' => false,
-      'strip-tags' => true,
-      'strip-backslashes' => true,
+      'token_validity' => 10,
+      'return_post_values' => false,
+      'strip_tags' => true,
+      'strip_backslashes' => true,
     ],
   ],
   'hooks' => [

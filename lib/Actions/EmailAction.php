@@ -110,14 +110,14 @@ class EmailAction
 
       // from name, optional
       if (
-        isset($preset['fromName']) &&
-        is_string($preset['fromName']) &&
-        strlen($preset['fromName']) > 0
+        isset($preset['from_name']) &&
+        is_string($preset['from_name']) &&
+        strlen($preset['from_name']) > 0
       ) {
         $email['fromName'] =
-          $page->content()->has($preset['fromName'])
-          ? $page->$preset['fromName']()->value()
-          : $preset['fromName'];
+          $page->content()->has($preset['from_name'])
+          ? $page->$preset['from_name']()->value()
+          : $preset['from_name'];
       }
 
       // to, one or multiple, required
@@ -131,8 +131,8 @@ class EmailAction
       }
 
       // reply to, one, optional
-      if (isset($preset['replyTo'])) {
-        $email['replyTo'] = self::getAddresses($preset['replyTo'], $page);
+      if (isset($preset['reply_to'])) {
+        $email['replyTo'] = self::getAddresses($preset['reply_to'], $page);
         if ($email['replyTo'] === null || is_array($email['replyTo'])) {
           unset($email['replyTo']);
         }
@@ -141,14 +141,14 @@ class EmailAction
       // replay to name, optional
       if (
         isset($email['replyTo']) &&
-        isset($preset['replyToName']) &&
-        is_string($preset['replyToName']) &&
-        strlen($preset['replyToName']) > 0
+        isset($preset['reply_to_name']) &&
+        is_string($preset['reply_to_name']) &&
+        strlen($preset['reply_to_name']) > 0
       ) {
         $email['replyToName'] =
-          isset($data[$preset['replyToName']])
-          ? $data[$preset['replyToName']]
-          : $preset['replyToName'];
+          isset($data[$preset['reply_to_name']])
+          ? $data[$preset['reply_to_name']]
+          : $preset['reply_to_name'];
       }
 
       // cc, optional
@@ -170,11 +170,11 @@ class EmailAction
       // subject, lang-specific, required
       if (
         is_string($lang) &&
-        isset($preset['subject-' . $lang]) &&
-        is_string($preset['subject-' . $lang]) &&
-        strlen($preset['subject-' . $lang]) > 0
+        isset($preset['subject_' . $lang]) &&
+        is_string($preset['subject_' . $lang]) &&
+        strlen($preset['subject_' . $lang]) > 0
       ) {
-        $email['subject'] = $preset['subject-' . $lang];
+        $email['subject'] = $preset['subject_' . $lang];
       } else if (
         isset($preset['subject']) &&
         is_string($preset['subject']) &&
@@ -189,11 +189,11 @@ class EmailAction
       $email['body'] = null;
       if (
         is_string($lang) &&
-        isset($preset['template-' . $lang]) &&
-        is_string($preset['template-' . $lang]) &&
-        strlen($preset['template-' . $lang]) > 0
+        isset($preset['template_' . $lang]) &&
+        is_string($preset['template_' . $lang]) &&
+        strlen($preset['template_' . $lang]) > 0
       ) {
-        $email['body'] = self::parseTemplate($preset['template-' . $lang], $page);
+        $email['body'] = self::parseTemplate($preset['template_' . $lang], $page);
       }
       if (
         $email['body'] === null &&

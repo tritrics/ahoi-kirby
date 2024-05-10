@@ -69,8 +69,8 @@ class PostFactory
     }
 
     // get Content
-    $stripTags = ConfigHelper::getConfig('form-security.strip-tags', true);
-    $stripBackslashes = ConfigHelper::getConfig('form-security.strip-backslashes', true);
+    $stripTags = ConfigHelper::getConfig('form_security.strip_tags', true);
+    $stripBackslashes = ConfigHelper::getConfig('form_security.strip_backslashes', true);
     $content = [
       'title' => ConfigHelper::getConfig('actions.' . $action . '.title', 'Incoming %created (action %action)'),
       'uuid' => $uuid,

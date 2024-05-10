@@ -82,7 +82,7 @@ class ActionService
     }
 
     // write post data to result
-    if (ConfigHelper::getConfig('form-security.return-post-values', false)) {
+    if (ConfigHelper::getConfig('form_security.return_post_values', false)) {
       $result->add('saved', true);
       $result->add('id', $page->slug());
       $result->add('data', self::getInputData($action, $page));

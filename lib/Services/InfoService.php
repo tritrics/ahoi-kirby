@@ -38,7 +38,7 @@ class InfoService
       $meta->add('kirby', kirby()->version());
       $meta->add('php', phpversion());
       $meta->add('slug', ConfigHelper::getconfig('slug', ''));
-      $meta->add('field-name-separator',  ConfigHelper::getconfig('field-name-separator', ''));
+      $meta->add('field_name_separator',  ConfigHelper::getconfig('field_name_separator', ''));
     }
 
     // Interface

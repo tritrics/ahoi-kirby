@@ -23,7 +23,7 @@ class FieldHelper
     ?string $lang,
     string|array $addFields = 'all'
   ): void {
-    $separator = ConfigHelper::getconfig('field-name-separator', '');
+    $separator = ConfigHelper::getconfig('field_name_separator', '');
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {

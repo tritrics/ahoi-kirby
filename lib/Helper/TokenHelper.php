@@ -61,7 +61,7 @@ class TokenHelper
   {
     // Payload
     $payload = json_encode([
-      'exp' => time() + ConfigHelper::getConfig('form-security.token-validity', 10),
+      'exp' => time() + ConfigHelper::getConfig('form_security.token_validity', 10),
       'act' => $action,
     ]);
     $payloadEnc = self::base64UrlEncode($payload);
@@ -83,7 +83,7 @@ class TokenHelper
    */
   public static function getSecret(): ?string
   {
-    $secret = (string) ConfigHelper::getConfig('form-security.secret');
+    $secret = (string) ConfigHelper::getConfig('form_security.secret');
     preg_match("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{12,}$/", $secret, $check);
     if (is_array($check) && count($check) === 1 && $check[0] === $secret) {
       return $secret;
