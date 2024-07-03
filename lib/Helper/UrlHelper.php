@@ -80,7 +80,8 @@ class UrlHelper
   public static function getPath(string $url): string
   {
     $parts = self::parse($url);
-    return self::buildPath($parts);
+    $path = self::buildPath($parts);
+    return empty($path) ? '/' : $path;
   }
 
   /**
