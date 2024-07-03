@@ -120,17 +120,9 @@ class ConfigHelper
   /**
    * Check if "page" action is enabled.
    */
-  public static function isEnabledFields(): bool
+  public static function isEnabledFile(): bool
   {
-    return self::isEnabled('fields');
-  }
-
-  /**
-   * Check if "pages" action is enabled.
-   */
-  public static function isEnabledPages(): bool
-  {
-    return self::isEnabled('pages');
+    return self::isEnabled('file');
   }
 
   /**
@@ -142,6 +134,22 @@ class ConfigHelper
   }
 
   /**
+   * Check if "page" action is enabled.
+   */
+  public static function isEnabledPage(): bool
+  {
+    return self::isEnabled('page');
+  }
+
+  /**
+   * Check if "pages" action is enabled.
+   */
+  public static function isEnabledPages(): bool
+  {
+    return self::isEnabled('pages');
+  }
+
+  /**
    * Check if installation is multilang.
    * Multilang-site is defined in config.php: languages => true.
    */
@@ -149,7 +157,7 @@ class ConfigHelper
   {
     // kirby()->multilang() is not working correctly.
     // It's returning true, even if config is false.
-    return kirby()->option('languages', false);
+    return kirby()->option('languages', false) === true;
   }
 
   /**

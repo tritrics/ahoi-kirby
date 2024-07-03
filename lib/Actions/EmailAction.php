@@ -6,7 +6,7 @@ use Exception;
 use Kirby\Cms\Page;
 use Kirby\Toolkit\Str;
 use Tritrics\Ahoi\v1\Exceptions\PayloadException;
-use Tritrics\Ahoi\v1\Helper\RequestHelper;
+use Tritrics\Ahoi\v1\Helper\UrlHelper;
 
 /**
  * Sending E-Mails
@@ -92,7 +92,6 @@ class EmailAction
   private static function getEmails(array $presets, string $lang, Page $page): array
   {
     $res = [];
-    $hosts = RequestHelper::getHosts($lang);
     foreach ($presets as $preset) {
 
       // build array with email config, like required by Kirby's mail function
@@ -182,7 +181,7 @@ class EmailAction
       ) {
         $email['subject'] = $preset['subject'];
       } else {
-        $email['subject'] = 'Message from ' . $hosts['self']['host'];
+        $email['subject'] = 'Message from ' . UrlHelper::getReferer();
       }
 
       // body, lang-specific, required

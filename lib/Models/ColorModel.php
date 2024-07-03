@@ -11,7 +11,6 @@ class ColorModel extends BaseModel
 {
   /**
    * Get additional field data (besides type and value)
-   * Method called by setModelData()
    */
   protected function getProperties(): Collection
   {

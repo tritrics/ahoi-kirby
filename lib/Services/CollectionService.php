@@ -25,7 +25,7 @@ class CollectionService
   public static function get(string $request, Page|Site $model, ?string $lang, array $params): Collection
   {
     $blueprint = BlueprintHelper::get($model);
-    $body = new PageModel($model, $blueprint, $lang, []);
+    $body = new PageModel($model, $blueprint, $lang, [], true);
 
     // request children
     if ($request === 'pages') {

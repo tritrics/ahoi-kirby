@@ -3,6 +3,7 @@
 namespace Tritrics\Ahoi\v1\Helper;
 
 use Kirby\Cms\Language;
+use Kirby\Cms\Languages;
 use Kirby\Exception\LogicException;
 use Tritrics\Ahoi\v1\Data\Collection;
 
@@ -12,6 +13,11 @@ use Tritrics\Ahoi\v1\Data\Collection;
 class LanguagesHelper
 {
   /**
+   * Cache some data.
+   */
+  private static $cache = [];
+
+  /**
    * Get the language count if it's a multilang installation.
    */
   public static function count(): int
@@ -19,7 +25,43 @@ class LanguagesHelper
     if (!ConfigHelper::isMultilang()) {
       return 0;
     }
-    return KirbyHelper::getLanguages()->count();
+    return self::getAll()->count();
+  }
+
+  /**
+   * Get a single language as Kirby object defined by $code.
+   */
+  public static function get(?string $code): ?Language
+  {
+    try {
+      return kirby()->language($code);
+    } catch (LogicException $E) {
+      return null;
+    }
+  }
+
+  /**
+   * Get all languages as Kirby object.
+   */
+  public static function getAll(): ?Languages
+  {
+    try {
+      return kirby()->languages();
+    } catch (LogicException $E) {
+      return null;
+    }
+  }
+
+  /**
+   * List availabe languages for intern use.
+   */
+  public static function getCodes(): array
+  {
+    $res = [];
+    foreach (self::getAll() as $language) {
+      $res[] = $language->code();
+    }
+    return $res;
   }
 
   /**
@@ -30,7 +72,23 @@ class LanguagesHelper
     if (!ConfigHelper::isMultilang()) {
       return null;
     }
-    return KirbyHelper::getLanguages()->default();
+    return self::getAll()->default();
+  }
+
+  /**
+   * Get link (optional) prefix, defined in languages/[lang].php > url.
+   * Link prefix is the path-part of the setting (@see getOrigin()).
+   * Default link prefix is the language-code.
+   */
+  public static function getLangSlug(string $code): string|null
+  {
+    if (self::isValid($code)) {
+      $language = self::get($code);
+      $url = UrlHelper::parse($language->url());
+      $path = UrlHelper::buildPath($url);
+      return $path === '/' ? '' : $path;
+    }
+    return null;
   }
 
   /**
@@ -41,36 +99,27 @@ class LanguagesHelper
     if (!self::isValid($code)) {
       return '';
     }
-    $language = KirbyHelper::getLanguage($code);
+    $language = self::get($code);
     $php_locale = $language->locale(LC_ALL);
     return str_replace('_', '-', $php_locale);
   }
 
   /**
-   * Get the slug for a given language.
-   * setting url = '/' means there is no prefix for default langauge
-   * Frontend has it's own logic and always uses code for api-requests.
-   * The slug-property is only the vue-router to show or not the code in routes.
+   * Get the (optional) domain, defined in languages/[lang].php > url.
+   * Origin is the domain-part of the setting (@see getLinkPrefix()).
    */
-  public static function getSlug(?string $code): string
+  public static function getOrigin(string $code): string
   {
-    if (!self::isValid($code)) {
-      return '';
+    if (self::isValid($code)) {
+      $language = self::get($code);
+      $url = UrlHelper::parse($language->url());
+      $urlHost = UrlHelper::buildHost($url);
+      $self = UrlHelper::getSelfUrl();
+      if ($self !== $urlHost) {
+        return rtrim(UrlHelper::buildHost($url), '/');
+      }
     }
-    $language = KirbyHelper::getLanguage($code);
-    $url = parse_url($language->url());
-    if ($language->isDefault() && (!isset($url['path']) || $url['path'] === '')) {
-      return '';
-    }
-    return $language->code();
-  }
-
-  /**
-   * Get the url for a given language.
-   */
-  public static function getUrl(string $code, string $slug): string
-  {
-    return '/' . trim(self::getSlug($code) . '/' . $slug, '/');
+    return '';
   }
 
   /**
@@ -81,29 +130,9 @@ class LanguagesHelper
    */
   public static function isValid(?string $code): bool
   {
-    if (!$code && !ConfigHelper::isMultilang()) {
-      return true;
+    if (ConfigHelper::isMultilang()) {
+      return self::getAll()->has($code);
     }
-    return KirbyHelper::getLanguages()->has($code);
-  }
-
-  /**
-   * List availabe languages for intern use.
-   */
-  public static function list(): Collection
-  {
-    $home = kirby()->site()->homePage();
-    $res = new Collection();
-    foreach (KirbyHelper::getLanguages() as $language) {
-      $res->add($language->code(), [
-        'name' => $language->name(),
-        'slug' => self::getSlug($language->code()),
-        'default' => $language->isDefault(),
-        'locale' => self::getLocale($language->code()),
-        'direction' => $language->direction(),
-        'homeslug' => $home->uri($language->code())
-      ]);
-    }
-    return $res;
+    return empty($code) || $code === null;
   }
 }

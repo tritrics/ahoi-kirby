@@ -23,7 +23,6 @@ class BlockModel extends BaseModel
 
   /**
    * Get additional field data (besides type and value)
-   * Method called by setModelData()
    */
   protected function getProperties(): Collection
   {
@@ -34,7 +33,6 @@ class BlockModel extends BaseModel
 
   /**
    * Get type of this model as it's returned in response.
-   * Method called by setModelData()
    */
   protected function getType(): string
   {

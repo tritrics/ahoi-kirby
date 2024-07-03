@@ -118,12 +118,23 @@ class TextModel extends BaseModel
 
       // change attributes, if it's a link
       if ($res['elem'] === 'a') {
-        $attr = LinkHelper::get(
+        $meta = LinkHelper::get(
           $attr['href'] ?? null,
           $attr['title'] ??  null,
           (isset($attr['target']) && $attr['target'] === '_blank'),
           $this->lang
         );
+        if (is_array($meta) && isset($meta['href'])) {
+          $res['meta'] = $meta;
+          $attr['href'] = $meta['href'];
+        } else {
+
+          // invalid link, so return text node
+          $attr = [];
+          $res = [
+            'value' => $res['value']
+          ];
+        }
       }
       if (count($attr)) {
         $res['attr'] = $attr;
@@ -144,7 +155,6 @@ class TextModel extends BaseModel
 
   /**
    * Get type of this model as it's returned in response.
-   * Method called by setModelData()
    */
   protected function getType (): string
   {

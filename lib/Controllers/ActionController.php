@@ -8,7 +8,6 @@ use Kirby\Exception\Exception;
 use Tritrics\Ahoi\v1\Services\ActionService;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\RequestHelper;
-use Tritrics\Ahoi\v1\Helper\ResponseHelper;
 use Tritrics\Ahoi\v1\Helper\TokenHelper;
 
 /**

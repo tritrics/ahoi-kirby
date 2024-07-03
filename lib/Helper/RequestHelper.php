@@ -91,34 +91,6 @@ class RequestHelper
   }
 
   /**
-   * Get host inforamtion about API and frontend.
-   */
-  public static function getHosts(?string $lang = null): array
-  {
-    $backend = UrlHelper::parse(site()->url($lang));
-    $res = [
-      'self' => [
-        'host' => $backend['host'],
-        'port' => isset($backend['port']) ? $backend['port'] : null,
-      ],
-      'referer' => [
-        'host' => null,
-        'port' => null,
-        'ip' => getenv('HTTP_CLIENT_IP') ? getenv('HTTP_CLIENT_IP') : getenv('REMOTE_ADDR') // don't care about proxys, too complicated for our purpose
-      ]
-    ];
-    if (isset($_SERVER['HTTP_REFERER'])) {
-      $referer = UrlHelper::parse($_SERVER['HTTP_REFERER']);
-      $res['referer']['host'] = $referer['host'];
-      $res['referer']['port'] = isset($referer['port']) ? $referer['port'] : null;
-    } else {
-      $res['referer']['host'] = $res['self']['host'];
-      $res['referer']['port'] = $res['self']['port'];
-    }
-    return $res;
-  }
-
-  /**
    * Get order parameter from Request, asc or desc, default desc.
    */
   public static function getOrder(Request $request): string

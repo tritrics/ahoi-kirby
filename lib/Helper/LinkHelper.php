@@ -29,7 +29,7 @@ class LinkHelper
     string|null $title = null,
     bool $blank = false,
     string|null $lang = null,
-    ?string $type = null
+    string $type = null
   ): array {
     $type = is_string($type) ? $type : self::getType($mixed);
     switch($type) {
@@ -99,17 +99,16 @@ class LinkHelper
   private static function getFile(string|File $mixed, ?string $title, ?bool $blank): array
   {
     if (is_string($mixed)) {
-      $file = KirbyHelper::findFileByKirbyLink($mixed);
-    } else if ($mixed instanceof Page) {
-      $file = $mixed;
-    } else {
-      $file = null;
+      $mixed = KirbyHelper::findFileByKirbyLink($mixed);
     }
-    $href = $file ? $file->url() : '/';
-    $res = [
-      'type' => 'file',
-      'href' => $href
-    ];
+    $res = [];
+    if ($mixed instanceof File) {
+      $href = $mixed->url();
+      $res = [
+        'type' => 'file',
+        'href' => $href
+      ];
+    }
     return self::addGlobals($res, $title, $blank);
   }
 
@@ -120,20 +119,23 @@ class LinkHelper
    * - [/lang]/some/path is NOT interpreted as intern link > custom
    * - an invalid intern link => '/[lang]'
    */
-  private static function getPage(string|Page|null $mixed, ?string $title, ?bool $blank, ?string $lang): array
-  {
-    $page = null;
+  private static function getPage(
+    string|Page|null $mixed,
+    ?string $title,
+    ?bool $blank,
+    ?string $lang
+  ): array {
     if (is_string($mixed)) {
-      $page = KirbyHelper::findPageByKirbyLink($mixed);
-    } else if ($mixed instanceof Page) {
-      $page = $mixed;
+      $mixed = KirbyHelper::findPageByKirbyLink($mixed);
     }
-    $href = $page instanceof Page ? $page->url($lang) : '/' . $lang;
-    $parts = UrlHelper::parse($href);
-    $res = [
-      'type' => 'page',
-      'href' => UrlHelper::buildPath($parts)
-    ];
+    $res = [];
+    if ($mixed instanceof Page) {
+      $href = $mixed->url($lang);
+      $res = [
+        'type' => 'page',
+        'href' => UrlHelper::getPath($href)
+      ];
+    }
     return self::addGlobals($res, $title, $blank);
   }
 
@@ -177,7 +179,6 @@ class LinkHelper
    */
   private static function getUrl(?string $href, ?string $title, ?bool $blank): array
   {
-    $url = UrlHelper::parse($href);
     $res = [
       'type' => 'url',
       'href' => $href,

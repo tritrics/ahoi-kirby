@@ -7,9 +7,6 @@ use Kirby\Cms\File;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Cms\Pages;
-use Kirby\Cms\Language;
-use Kirby\Cms\Languages;
-use Kirby\Exception\LogicException;
 use Throwable;
 
 /**
@@ -106,10 +103,10 @@ class KirbyHelper
    * Helper: Find a page by translated slug
    * (Kirby can only find by default slug)
    */
-  public static function findPage(?string $lang = null, ?string $slug = null): ?Page
+  public static function findPage(?string $lang = null, ?string $slug = null): Page|Site|null
   {
     if (!is_string($slug)) {
-      return null;
+      return kirby()->site();
     }
     $slug = trim($slug, '/');
 
@@ -161,55 +158,5 @@ class KirbyHelper
       }
     }
     return null;
-  }
-
-  /**
-   * Get url of a model.
-   * Dont't add langslug!
-   */
-  public static function getNodeUrl(Page|Site|File $model, ?string $lang): string
-  {
-    if ($model instanceof File) {
-      $parentUrl = self::getParentUrl($model, $lang);
-      return rtrim($parentUrl, '/') . '/' . $model->filename();
-    }
-    return '/' . ltrim($model->uri($lang), '/');
-  }
-
-  /**
-   * Get url of parent model.
-   * Dont't add langslug!
-   */
-  public static function getParentUrl(Page|Site|File $model, ?string $lang): string
-  {
-    $parent = $model->parent();
-    if ($parent) {
-      return '/' . ltrim($parent->uri($lang), '/');
-    }
-    return '/';
-  }
-
-  /**
-   * Get a single language as Kirby object defined by $code.
-   */
-  public static function getLanguage(?string $code): ?Language
-  {
-    try {
-      return kirby()->language($code);
-    } catch (LogicException $E) {
-      return null;
-    }
-  }
-
-  /**
-   * Get all languages as Kirby object.
-   */
-  public static function getLanguages(): ?Languages
-  {
-    try {
-      return kirby()->languages();
-    } catch (LogicException $E) {
-      return null;
-    }
   }
 }

@@ -10,14 +10,18 @@ use Tritrics\Ahoi\v1\Helper\LinkHelper;
  */
 class EmailModel extends BaseModel
 {
+  protected function getType(): string
+  {
+    return 'link';
+  }
+  
   /**
    * Get additional field data (besides type and value)
-   * Method called by setModelData()
    */
   protected function getProperties (): Collection
   {
     $res = new Collection();
-    $res->add('link', LinkHelper::get($this->model->value(), null, false, null, 'email'));
+    $res->add('meta', LinkHelper::get($this->model->value(), null, false, null, 'email'));
     return $res;
   }
 

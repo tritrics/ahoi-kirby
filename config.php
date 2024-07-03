@@ -1,8 +1,11 @@
 <?php
 
 use Kirby\Exception\Exception;
-use Tritrics\Ahoi\v1\Controllers\GetController;
 use Tritrics\Ahoi\v1\Controllers\ActionController;
+use Tritrics\Ahoi\v1\Controllers\CollectionController;
+use Tritrics\Ahoi\v1\Controllers\InfoController;
+use Tritrics\Ahoi\v1\Controllers\LanguageController;
+use Tritrics\Ahoi\v1\Controllers\NodeController;
 use Tritrics\Ahoi\v1\Services\ImageService;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\RequestHelper;
@@ -19,10 +22,12 @@ ConfigHelper::init([
 kirby()::plugin(ConfigHelper::getPluginName(), [
   'options' => [
     'enabled' => [
+      'action' => false,
       'info' => false,
+      'file' => false,
+      'files' => false,
       'page' => false,
       'pages' => false,
-      'action' => false
     ],
     'slug' => 'public-api',
     'field_name_separator' => '_',
@@ -66,22 +71,17 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
     $multilang = ConfigHelper::isMultilang();
     $routes = array();
 
-    // language-based routes, only relevant if any language
-    // exists in site/languages/
-    if ($multilang) {
-
-      // default kirby route must be overwritten to prevent kirby
-      // from redirecting to default language. This is done by
-      // the frontend.
-      $routes[] = [
-        'pattern' => '',
-        'method'  => 'ALL',
-        'env'     => 'site',
-        'action'  => function () use ($kirby) {
-          return $kirby->defaultLanguage()->router()->call();
-        }
-      ];
-    }
+    // default kirby route must be overwritten to prevent kirby
+    // from redirecting to default language. This is done by
+    // the frontend.
+    $routes[] = [
+      'pattern' => '',
+      'method'  => 'ALL',
+      'env'     => 'site',
+      'action'  => function () use ($kirby) {
+        return $kirby->defaultLanguage()->router()->call();
+      }
+    ];
 
     // expose
     if (ConfigHelper::isEnabledInfo()) {
@@ -89,33 +89,46 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
         'pattern' => $slug . '/info',
         'method' => 'GET',
         'action' => function () {
-          $controller = new GetController();
+          $controller = new InfoController();
           return $controller->info();
         }
       ];
     }
 
     // a language
-    if (ConfigHelper::isEnabledLanguage()) {
+    if ($multilang && ConfigHelper::isEnabledLanguage()) {
       $routes[] = [
         'pattern' => $slug . '/language/(:any)',
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
-          $controller = new GetController();
+          $controller = new LanguageController();
           return $controller->language($resource);
         }
       ];
     }
 
-    // fields of a page or a file
-    if (ConfigHelper::isEnabledFields()) {
+    // a page
+    if (ConfigHelper::isEnabledPage()) {
       $routes[] = [
-        'pattern' => $slug . '/fields/(:all?)',
+        'pattern' => $slug . '/page/(:all?)',
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new GetController();
-          return $controller->fields($lang, $path);
+          $controller = new NodeController();
+          return $controller->page($lang, $path);
+        }
+      ];
+    }
+
+    // a file
+    if (ConfigHelper::isEnabledFile()) {
+      $routes[] = [
+        'pattern' => $slug . '/file/(:all?)',
+        'method' => 'GET',
+        'action' => function ($resource = '') use ($multilang) {
+          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
+          $controller = new NodeController();
+          return $controller->file($lang, $path);
         }
       ];
     }
@@ -127,7 +140,7 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new GetController();
+          $controller = new CollectionController();
           return $controller->pages($lang, $path);
         }
       ];
@@ -140,7 +153,7 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
         'method' => 'GET',
         'action' => function ($resource = '') use ($multilang) {
           list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new GetController();
+          $controller = new CollectionController();
           return $controller->files($lang, $path);
         }
       ];

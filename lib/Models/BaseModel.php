@@ -69,14 +69,21 @@ abstract class BaseModel extends Collection
   protected $valueNodeName = 'value';
 
   /**
+   * Can be used, if model should output different content in different cases.
+   */
+  protected $addDetails = false;
+
+  /**
    */
   public function __construct (
     Block|Field|User|File|Page|Site|Language|Languages $model,
     ?Collection $blueprint = null,
     ?string $lang = null,
-    array|string $addFields = 'all'
+    array|string $addFields = 'all',
+    ?bool $addDetails = false
   ) {
     $this->model = $model;
+    $this->addDetails = $addDetails;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
     $this->addFields = is_array($addFields) || $addFields === 'all' ? $addFields : 'all';

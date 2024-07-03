@@ -6,7 +6,7 @@ use Exception;
 use Kirby\Cms\Page;
 use Kirby\Filesystem\F;
 use Kirby\Toolkit\Str;
-use Tritrics\Ahoi\v1\Helper\RequestHelper;
+use Tritrics\Ahoi\v1\Helper\UrlHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\TypeHelper;
@@ -50,7 +50,6 @@ class PostFactory
   public static function create (string $lang, string $action, array $data): Page
   {
     $uuid = Str::lower(Str::random(16, 'base32hex'));
-    $hosts = RequestHelper::getHosts();
 
     // Template
     $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
@@ -87,10 +86,10 @@ class PostFactory
           $content[$key] = date('Y-m-d H:i:s');
           break;
         case 'host':
-          $content[$key] = $hosts['referer']['host'];
+          $content[$key] = UrlHelper::getReferer();
           break;
         case 'ip':
-          $content[$key] = $hosts['referer']['ip'];
+          $content[$key] = UrlHelper::getClientIp();
           break;
         case 'lang':
           $content[$key] = $lang;

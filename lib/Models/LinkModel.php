@@ -29,12 +29,11 @@ class LinkModel extends BaseModel
 
   /**
    * Get additional field data (besides type and value)
-   * Method called by setModelData()
    */
   protected function getProperties(): Collection
   {
     $res = new Collection();
-    $res->add('link', LinkHelper::get(
+    $res->add('meta', LinkHelper::get(
       $this->model->value(),
       null,
       false,

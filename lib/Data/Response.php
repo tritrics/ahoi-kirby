@@ -18,8 +18,6 @@ class Response {
 
   private $node = null;
 
-  private $query = null;
-
   /**
    * @param string $request 
    * @return void 
@@ -29,8 +27,6 @@ class Response {
     $this->request = $request;
     $this->lang = $lang;
     $this->node = $node;
-    $Request = kirby()->request();
-    $this->query = $Request->query()->toString();
   }
 
   /**
@@ -38,20 +34,19 @@ class Response {
    */
   function get(array|Collection|null $body = null): KirbyResponse
   {
+    $Query = kirby()->request()->query();
     $data = [
       'ok' => $this->ok,
       'status' => $this->status,
       'msg' => $this->msg,
       'request' => $this->request,
+      'node' => rtrim('/' . ltrim($this->lang . '/' . $this->node, '/'), '/')
     ];
-    if (is_string($this->lang) && !empty($this->lang)) {
-      $data['lang'] = $this->lang;
+    if (!empty($Query->toString())) {
+      $data['query'] = urldecode($Query->toString());
     }
-    if (is_string($this->node) && !empty($this->node)) {
-      $data['node'] = $this->node;
-    }
-    if (is_string($this->query) && !empty($this->query)) {
-      $data['query'] = urldecode($this->query);
+    if ($Query->get('id')) {
+      $data['id'] = $Query->get('id');
     }
     if (is_array($body)) {
       $data['body'] = $body;

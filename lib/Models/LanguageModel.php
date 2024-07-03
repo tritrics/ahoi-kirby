@@ -12,7 +12,6 @@ class LanguageModel extends BaseModel
 {
   /**
    * Get additional field data (besides type and value)
-   * Method called by setModelData()
    */
   protected function getProperties(): Collection
   {
@@ -23,6 +22,8 @@ class LanguageModel extends BaseModel
     $meta->add('code', $code);
     $meta->add('title', $this->model->name());
     $meta->add('default', $this->model->isDefault());
+    $meta->add('origin', LanguagesHelper::getOrigin($code));
+    $meta->add('slug', LanguagesHelper::getLangSlug($code));
     $meta->add('locale', LanguagesHelper::getLocale($code));
     $meta->add('direction', $this->model->direction());
     return $res;

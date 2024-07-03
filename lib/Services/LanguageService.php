@@ -5,7 +5,8 @@ namespace Tritrics\Ahoi\v1\Services;
 use Kirby\Exception\LogicException;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Models\LanguageModel;
-use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
+use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 
 /**
  * Service for API's language interface and all language related functions.
@@ -20,17 +21,24 @@ class LanguageService
    */
   public static function get(?string $lang): Collection
   {
-    $language = KirbyHelper::getLanguage($lang);
+    $languageDefault = LanguagesHelper::getDefault();
+    $language = LanguagesHelper::get($lang);
     $body = new LanguageModel($language);
+    $separator = ConfigHelper::getconfig('field_name_separator', '');
 
-    $terms = new Collection();
-    foreach ($language->translations() as $key => $value) {
-      $terms->add($key, [
+    $fields = new Collection();
+    $translations = $language->translations();
+    foreach ($languageDefault->translations() as $key => $foo) {
+      $value = isset($translations[$key]) ? $translations[$key] : '';
+      if ($separator) {
+        $key = explode($separator, $key);
+      }
+      $fields->add($key, [
         'type' => 'string',
         'value' => $value
       ]);
     }
-    $body->add('fields', $terms);
+    $body->add('fields', $fields);
     return $body;
   }
 }

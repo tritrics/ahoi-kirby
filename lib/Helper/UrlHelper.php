@@ -2,8 +2,9 @@
 
 namespace Tritrics\Ahoi\v1\Helper;
 
+use Kirby\Http\Url;
+use Kirby\Cms\File;
 use Kirby\Cms\Page;
-use Kirby\Cms\Site;
 
 class UrlHelper
 {
@@ -43,18 +44,60 @@ class UrlHelper
   }
 
   /**
-   * Check if an url begins with backend and/or frontend host
+   * Get Client IP
    */
-  public static function compareHosts(array $parts, array $compare): bool
+  public static function getClientIp(): string
   {
-    $host = isset($parts['host']) ? $parts['host'] : null;
-    $hostCompare = isset($compare['host']) ? $compare['host'] : null;
-    if ($host !== $hostCompare) {
-      return false;
+    return getenv('HTTP_CLIENT_IP') ? getenv('HTTP_CLIENT_IP') : getenv('REMOTE_ADDR'); // don't care about proxys, too complicated for our purpose
+  }
+
+  /**
+   * Get host from an url.
+   */
+  public static function getHost(string $url): string
+  {
+    $parts = self::parse($url);
+    return self::buildHost($parts);
+  }
+
+  /**
+   * Get node for a page or file.
+   */
+  public static function getNode(Page|File $model, ?string $lang): string
+  {
+    if ($model instanceof Page) {
+      return '/' . trim($lang . '/' . $model->uri($lang), '/');
     }
-    $port = isset($parts['port']) ? $parts['port'] : null;
-    $portCompare = isset($compare['port']) ? $compare['port'] : null;
-    return $port === $portCompare;
+    if ($model instanceof File) {
+      $page = $model->parent($lang);
+      return '/' . ltrim($lang . '/' . $page->uri($lang), '/') . '/' . $model->filename();
+    }
+  }
+
+  /**
+   * Get path of an url.
+   */
+  public static function getPath(string $url): string
+  {
+    $parts = self::parse($url);
+    return self::buildPath($parts);
+  }
+
+  /**
+   * Get url of referer/frontend.
+   */
+  public static function getReferer(): string
+  {
+    return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : self::getSelfUrl();
+  }
+
+  /**
+   * Get url of backend.
+   */
+  public static function getSelfUrl(): string
+  {
+    $backend = self::parse(URL::current());
+    return self::buildHost($backend);
   }
 
   /**
