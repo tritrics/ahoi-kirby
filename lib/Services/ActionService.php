@@ -41,7 +41,7 @@ use Tritrics\Ahoi\v1\Helper\DebugHelper;
  * 
  * 100 Error in one or more sub-actions.
  * 120 Field value failed validation (the Kirby error message from error.validation is added)
- * 200 Error on sending %fail from %total mails.
+ * 200 Error on sending {{ fail }} from {{ total }} mails.
  */
 class ActionService
 {
@@ -103,7 +103,7 @@ class ActionService
         $resEmail = EmailAction::send($actions[$action]['email'], $page, $lang);
         $result->add('email', $resEmail);
         if ($resEmail['errno'] === 200) {
-          DebugHelper::logActionError($action, 'Error on sending %fail from %total mails.', 200, $resEmail);
+          DebugHelper::logActionError($action, 'Error on sending {{ fail }} from {{ total }} mails.', 200, $resEmail);
         }
       } catch (Exception $E) {
         $subActionFailed = true;

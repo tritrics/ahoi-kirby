@@ -2,6 +2,8 @@
 
 namespace Tritrics\Ahoi\v1\Helper;
 
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
+
 /**
  * Debugging, logging.
  */
@@ -24,7 +26,7 @@ class DebugHelper
     }
     if (is_array($parse)) {
       foreach ($parse as $key => $value) {
-        $message = str_replace('%' . $key, $value, $message);
+        $message = TypeHelper::replaceTag($message, $key, $value);
       }
     }
     error_log(ConfigHelper::getPluginName() . ': Error ' . $errno . ' on excecuting /action/' . $action . ' (' . $message . ')');

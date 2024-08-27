@@ -97,7 +97,7 @@ class PostFactory
         default:
           $content[$key] = self::sanitize($data[$key] ?? '', $type, $stripTags, $stripBackslashes);
       }
-      $content['title'] = str_replace('%' . $key, (string) $content[$key], $content['title']);
+      $content['title'] = TypeHelper::replaceTag($content['title'], $key, $content[$key]);
     }
 
     // create Page

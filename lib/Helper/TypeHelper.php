@@ -93,6 +93,15 @@ class TypeHelper
   }
 
   /**
+   * Replace {{ tags }} in strings.
+   */
+  public static function replaceTag(string $str, string $search, mixed $replace): string
+  {
+    $reg = '/\{\{\s*' . preg_quote($search) . '\s*\}\}/';
+    return preg_replace($reg, self::toString($replace), $str);
+  }
+
+  /**
    * Normalize to bool.
    */
   public static function toBool(mixed $value): bool
