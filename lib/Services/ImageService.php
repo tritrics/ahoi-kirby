@@ -40,7 +40,7 @@ class ImageService
   ): void {
     $pathinfo = pathinfo($path);
     $filename = $pathinfo['basename'];
-    $preg = "/^(.*?)(-(\d*)x(\d*))?(-crop-(top-left|top|top-right|left|center|right|bottom-left|bottom|bottom-right)+)?(-blur(\d+))?(-bw)?(-q(\d+))?\.(jpg|png)$/i";
+    $preg = "/^(.*?)(-(\d*)x(\d*))?(-crop-(top-left|top|top-right|left|center|right|bottom-left|bottom|bottom-right)+)?(-blur(\d+))?(-bw)?(-q(\d+))?\.(jpg|png|webp)$/i";
     $res = preg_match($preg, $filename, $matches);
     if (!$res) {
       return;
