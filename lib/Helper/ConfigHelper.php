@@ -64,7 +64,8 @@ class ConfigHelper
    */
   public static function getPluginVersion(): string
   {
-    return kirby()->plugin(self::$globals['plugin-name'])->version();
+    $version = kirby()->plugin(self::$globals['plugin-name'])->version();
+    return $version ?? 'unkown';
   }
 
   /**
