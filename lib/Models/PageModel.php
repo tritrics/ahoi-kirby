@@ -35,7 +35,9 @@ class PageModel extends BaseModel
     // global values
     $meta->add('blueprint', (string) $this->model->intendedTemplate());
     $meta->add('status', $this->model->status());
-    $meta->add('sort', (int) $this->model->num());
+    if ($this->model->status() === 'listed') {
+      $meta->add('sort', (int) $this->model->num());
+    }
     $meta->add('home', $this->model->isHomePage());
     $meta->add('modified',  date('c', $this->model->modified()));
     $meta->add('slug', $this->model->slug($this->lang));

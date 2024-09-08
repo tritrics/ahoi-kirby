@@ -18,6 +18,72 @@ class RequestHelper
     $valid_actions = ConfigHelper::getConfig('actions');
     return strlen($action) && isset($valid_actions[$action]) ? $action : null;
   }
+
+  /**
+   * Get fields parameter from Request, can be 'all' or array with field-names.
+   */
+  public static function getFields(Request $request): string|array
+  {
+    $val  = $request->get('fields');
+    if (!is_array($val) || count($val) === 0) {
+      return 'all';
+    }
+    $val = array_map(function ($entry) {
+      return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString($entry, true, true));
+    }, $val);
+    $val = array_filter($val, function ($entry) {
+      return (is_string($entry) && strlen($entry) > 0);
+    });
+    return $val;
+  }
+
+  /**
+   * Get the filter option for collection request. Can be an array with strings
+   * 
+   * [ 'created', 'date >', '2023-08-15' ]
+   * 
+   * or multiple of these:
+   * 
+   * [
+   *   [ 'tags', 'webdesign', ',' ],
+   *   [ 'created', 'date >', '2023-08-15' ]
+   * ]
+   */
+  public static function getFilter(Request $request): array
+  {
+    $filter = $request->get('filter');
+    if (!is_array($filter)) {
+      return [];
+    }
+
+    // single line
+    if (TypeHelper::isString($filter[0]) || TypeHelper::isNumber($filter[0])) {
+      $filter = [ $filter ];
+    }
+
+    // check and optionally convert all values
+    $res = [];
+    if (is_array($filter[0])) {
+      foreach ($filter as $line) {
+        $args = [];
+        foreach ($line as $arg) {
+          if (TypeHelper::isString($arg)) {
+            $args[] = $arg;
+          } else if (TypeHelper::isNumber($arg)) {
+            $args[] = TypeHelper::toString($arg);
+          } else if(TypeHelper::isTrue($arg)) {
+            $args[] = 'true';
+          } else if (TypeHelper::isFalse($arg)) {
+            $args[] = 'false';
+          } else {
+            continue 2; // discard complete line
+          }
+        }
+        $res[] = $args;
+      }
+    }
+    return $res;
+  }
   
   /**
    * Normalize and check lang-code.
@@ -35,80 +101,61 @@ class RequestHelper
   /**
    * Get limit parameter from Request, any number > 0, default 10.
    */
-  public static function getLimit (Request $request): int
+  public static function getLimit(Request $request): int
   {
-    
     $val = TypeHelper::toInt($request->get('limit'));
     $res = (!$val || $val <= 0) ? 10 : $val;
     return $res;
   }
 
   /**
-   * Get fields parameter from Request, can be 'all' or array with field-names.
+   * Get set parameter from Request, any number > 0, default 1.
    */
-  public static function getFields (Request $request): string|array
+  public static function getOffset(Request $request): int
   {
-    $val  = $request->get('fields');
-    if (!is_array($val) || count($val) === 0) {
-      return 'all';
-    }
-    $val = array_map(function ($entry) {
-      return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString($entry, true, true)); 
-    }, $val);
-    $val = array_filter($val, function ($entry) {
-      return (is_string($entry) && strlen($entry) > 0);
-    });
-    return $val;
+    $val = TypeHelper::toInt($request->get('offset'));
+    return (!$val || $val <= 0) ? 0 : $val;
   }
 
   /**
-   * Parse the request like field.eq.foo to array.
-   * Attention: the first parameter "field" is the fieldname, where as
-   * compare() uses the value of the field.
+   * Get the sort option for collection request. Can be an array with strings
+   * 
+   * [ 'tags', 'asc' ]
+   * 
+   * or multiple of these:
+   * 
+   * [
+   *   [ 'tags', 'asc' ],
+   *   [ 'created', 'desc', 'SORT_LOCALE_STRING' ]
+   * ]
    */
-  public static function getFilter (Request $request): array
+  public static function getSort(Request $request): array
   {
-    $val = $request->get('filter');
-    if (!$val) {
+    $sort = $request->get('sort');
+    if (!is_array($sort)) {
       return [];
     }
-    if (!is_array($val)) {
-      $val = [ $val ];
-    }
+
+    // check all values
     $res = [];
-    foreach ($val as $string) {
-      $query = explode('.', $string);
-      if (count($query) < 3) { // field.eq. is possible, but needs the last .
-        continue;
+    foreach ($sort as $arg) {
+      if (TypeHelper::isString($arg)) {
+        $res[] = TypeHelper::toString($arg, true, true);
       }
-      $res[] = [
-        preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString(array_shift($query), true, true)),
-        preg_replace("/[^a-z]/", "", TypeHelper::toString(array_shift($query), true, true)),
-        implode('.', $query)
-      ];
     }
     return $res;
   }
 
   /**
-   * Get order parameter from Request, asc or desc, default desc.
+   * Get status parameter from Request.
    */
-  public static function getOrder(Request $request): string
+  public static function getStatus(Request $request): string
   {
-    $val = TypeHelper::toString($request->get('order'), true, true);
-    if (in_array($val, ['asc', 'desc'])) {
+    $val = TypeHelper::toString($request->get('status'), true, true);
+    if (in_array($val, ['listed', 'unlisted', 'published'])) {
       return $val;
     }
-    return 'asc';
-  }
-
-  /**
-   * Get set parameter from Request, any number > 0, default 1.
-   */
-  public static function getSet(Request $request): int
-  {
-    $val = TypeHelper::toInt($request->get('set'));
-    return (!$val || $val <= 0) ? 1 : $val;
+    return 'listed';
   }
 
   /**
@@ -143,5 +190,19 @@ class RequestHelper
     $lang = $multilang ? array_shift($parts) : null;
     $slug = count($parts) > 0 ? implode('/', $parts) : null;
     return [$lang, $slug];
+  }
+
+  /**
+   * Expects an multidimensional array like:
+   * 
+   * [ [ $val1, $val2, ... ], [ $val1, $val2, ... ] ]
+   * 
+   * and checks if all values are strings or numbers. If any value
+   * doesn't pass the test, the complete array is discarded.
+   */
+  private static function normalizeArray(array $arr): array
+  {
+    
+    return $arr;
   }
 }

@@ -34,7 +34,8 @@ class Response {
    */
   function get(array|Collection|null $body = null): KirbyResponse
   {
-    $Query = kirby()->request()->query();
+    $Request = kirby()->request();
+    $Query = $Request->query();
     $data = [
       'ok' => $this->ok,
       'status' => $this->status,
@@ -45,8 +46,8 @@ class Response {
     if (!empty($Query->toString())) {
       $data['query'] = urldecode($Query->toString());
     }
-    if ($Query->get('id')) {
-      $data['id'] = $Query->get('id');
+    if ($Request->get('id')) {
+      $data['id'] = $Request->get('id');
     }
     if (is_array($body)) {
       $data['body'] = $body;

@@ -10,9 +10,9 @@ use Kirby\Exception\InvalidArgumentException;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Models\PageModel;
 use Tritrics\Ahoi\v1\Models\FileModel;
-use Tritrics\Ahoi\v1\Helper\FilterHelper;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 use Tritrics\Ahoi\v1\Helper\FieldHelper;
+use Tritrics\Ahoi\v1\Models\SiteModel;
 
 /**
  * Service for API's pages interface. Handles a collection of pages.
@@ -21,55 +21,53 @@ class CollectionService
 {
   /**
    * Get pages or files as childs from model.
+   * $params = [
+   *   'fields',
+   *   'filter',
+   *   'limit',
+   *   'offset',
+   *   'status',
+   *   'sort',
+   * ];
    */
   public static function get(string $request, Page|Site $model, ?string $lang, array $params): Collection
   {
     $blueprint = BlueprintHelper::get($model);
-    $body = new PageModel($model, $blueprint, $lang, [], true);
 
-    // request children
+    if ($model instanceof Page) {
+      $body = new PageModel($model, $blueprint, $lang, [], true);
+    } else if ($model instanceof Site) {
+      $body = new SiteModel($model, $blueprint, $lang, [], true);
+    }
+
+    // request children of pages or files
     if ($request === 'pages') {
-      if (count($params['filter']) > 0) {
-        $children = FilterHelper::filterChildren($model, $params['filter']);
-      } else {
-        $children = $model->children();
-      }
+      $children = $model->children();
     } else {
       $children = $model->files();
     }
 
-    // Limit, paging, sorting
-    if ($params['order'] === 'desc') {
-      $children = $children->flip();
+    // limit result, order important
+    $status = $params['status'];
+    $children = $children->$status();
+    foreach($params['filter'] as $args) {
+      $children = $children->filterBy(...$args);
     }
+    $children = $children->offset($params['offset']);
+    $children = $children->limit($params['limit']);
+    $children = $children->sortBy(...$params['sort']);
 
     // add collection info
     $collection = $body->add('collection');
-    $abscount = $children->count();
-    if ($params['limit'] > 0 && $abscount > 0) {
-      $setcount = ceil($abscount / $params['limit']);
-      $set = $params['set'] <= $setcount ? $params['set'] : $setcount;
-      $offset = ($set - 1) * $params['limit'];
-      $children = $children->slice($offset, $params['limit']);
-      $collection->add('set', $set);
-      $collection->add('limit', $params['limit']);
-      $collection->add('count', $children->count());
-      $collection->add('start', $offset + 1);
-      $collection->add('end', $offset + $children->count());
-      $collection->add('sets', $setcount);
-      $collection->add('total', $abscount);
-    } else {
-      $collection->add('set', $abscount > 0 ? 1 : 0);
-      $collection->add('limit', $params['limit']);
-      $collection->add('count', $abscount);
-      $collection->add('start', $abscount > 0 ? 1 : 0);
-      $collection->add('end', $abscount);
-      $collection->add('sets', $abscount > 0 ? 1 : 0);
-      $collection->add('total', $abscount);
-    }
+    $collection->add('total', $children->count());
+    $collection->add('limit', $params['limit']);
+    $collection->add('offset', $params['offset']);
+    $collection->add('status', $params['status']);
+    $collection->add('filter', $params['filter']);
+    $collection->add('sort', $params['sort']);
 
     // adding children to value
-    $body->add('entries', self::getChildren($request, $children, $lang, [ 'listed' ], $params['fields']));
+    $body->add('entries', self::getChildren($request, $children, $lang, $params['fields']));
     return $body;
   }
 
@@ -82,15 +80,11 @@ class CollectionService
     string $request,
     Pages|Files $children,
     ?string $lang,
-    array $status,
     string|array $fields
   ): Collection {
     $res = new Collection();
     foreach ($children as $child) {
       if ($request === 'pages') {
-        if (!in_array($child->status(), $status)) {
-          continue;
-        }
         $blueprint = BlueprintHelper::get($child);
         $model = new PageModel($child, $blueprint, $lang);
       } else {

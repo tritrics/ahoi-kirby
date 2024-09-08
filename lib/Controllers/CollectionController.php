@@ -59,11 +59,12 @@ class CollectionController
         }
       }
       $params = [
-        'set' => RequestHelper::getSet($request),
-        'limit' => RequestHelper::getLimit($request),
-        'order' => RequestHelper::getOrder($request),
         'fields' => RequestHelper::getFields($request),
         'filter' => RequestHelper::getFilter($request),
+        'limit' => RequestHelper::getLimit($request),
+        'offset' => RequestHelper::getOffset($request),
+        'status' => RequestHelper::getStatus($request),
+        'sort' => RequestHelper::getSort($request),
       ];
       return $Response->get(CollectionService::get($Response->request, $node, $lang, $params));
     } catch (Exception $e) {

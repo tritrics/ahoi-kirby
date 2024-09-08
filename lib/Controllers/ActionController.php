@@ -75,18 +75,6 @@ class ActionController
   }
 
   /**
-   * Options
-   */
-  public function options(?string $lang, ?string $action, ?string $token): KirbyResponse
-  {
-    $Response = new Response('options', $lang, $action);
-    if ($Error = $this->isInvalidRequest($Response, $lang, $action, $token)) {
-      return $Error;
-    };
-    return $Response->get();
-  }
-
-  /**
    * Get a token for submit action.
    */
   public function token(?string $action): KirbyResponse
