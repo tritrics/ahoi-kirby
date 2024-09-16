@@ -31,7 +31,7 @@ class BlueprintHelper
 
   private static $excludeNodes = [
     'after',
-    'api',
+    //'api', don't add, api needed!
     'autofocus',
     'before',
     'blocks',  // parsed separately

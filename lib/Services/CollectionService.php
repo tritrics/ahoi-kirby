@@ -43,13 +43,17 @@ class CollectionService
     // request children of pages or files
     if ($request === 'pages') {
       $children = $model->children();
-    } else {
+    } else if ($request === 'files') {
       $children = $model->files();
+    } else {
+      return $body;
     }
 
     // limit result, order important
-    $status = $params['status'];
-    $children = $children->$status();
+    if ($request === 'pages') {
+      $status = $params['status'];
+      $children = $children->$status();
+    }
     foreach($params['filter'] as $args) {
       $children = $children->filterBy(...$args);
     }
@@ -62,9 +66,6 @@ class CollectionService
     $collection->add('total', $children->count());
     $collection->add('limit', $params['limit']);
     $collection->add('offset', $params['offset']);
-    $collection->add('status', $params['status']);
-    $collection->add('filter', $params['filter']);
-    $collection->add('sort', $params['sort']);
 
     // adding children to value
     $body->add('entries', self::getChildren($request, $children, $lang, $params['fields']));
