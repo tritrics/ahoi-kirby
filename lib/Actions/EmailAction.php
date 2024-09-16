@@ -89,7 +89,7 @@ class EmailAction
    * like it would be configures in config.php email.presets.
    * https://getkirby.com/docs/guide/emails
    */
-  private static function getEmails(array $presets, string $lang, Page $page): array
+  private static function getEmails(array $presets, ?string $lang, Page $page): array
   {
     $res = [];
     foreach ($presets as $preset) {
@@ -250,7 +250,7 @@ class EmailAction
    * @throws Exception
    * @throws PayloadException
    */
-  public static function send(array $presets, Page $page, string $lang): array {
+  public static function send(array $presets, Page $page, ?string $lang): array {
     $res = [
       'total' => 0,
       'success' => 0,

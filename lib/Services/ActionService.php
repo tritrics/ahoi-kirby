@@ -49,7 +49,7 @@ class ActionService
    * Main function to submit (execute) a given action.
    * Token and action are already checked by controller.
    */
-  public static function create(string $lang, string $action, array $data): Collection
+  public static function create(?string $lang, string $action, array $data): Collection
   {
     // init response
     $body = new Collection();

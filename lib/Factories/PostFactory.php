@@ -47,7 +47,7 @@ class PostFactory
   /**
    * Creates as Page object from post values.
    */
-  public static function create (string $lang, string $action, array $data): Page
+  public static function create (?string $lang, string $action, array $data): Page
   {
     $uuid = Str::lower(Str::random(16, 'base32hex'));
 
