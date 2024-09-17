@@ -7,6 +7,9 @@ use Kirby\Cms\Page;
 use Kirby\Toolkit\Str;
 use Tritrics\Ahoi\v1\Exceptions\PayloadException;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
+use Kirby\Query\Query;
+use Kirby\Content\Field;
 
 /**
  * Sending E-Mails
@@ -53,35 +56,20 @@ class EmailAction
   }
 
   /**
-   * Check if addresses are valid mail adresses or a field name,
-   * so the mail adress is taken from data.
+   * Check if addresses are valid mail adresses
    */
-  private static function getAddresses(string|array $addresses, Page $page): mixed
+  private static function checkAddresses(string|array $addresses): array|string|null
   {
-    if (!is_array($addresses)) {
-      $addresses = [$addresses];
-    }
-    $res = [];
-    foreach ($addresses as $address) {
-      if (!is_string($address) || strlen($address) === 0) {
-        continue;
-      }
-      if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
-        $res[] = $address;
-      } else if (
-        $page->content()->has($address) &&
-        filter_var($page->$address()->value(), FILTER_VALIDATE_EMAIL)
-      ) {
-        $res[] = $page->$address()->value();
-      }
-    }
+    $res = is_array($addresses) ? $addresses : [ $addresses ];
+    $res = array_filter($res, function($address) {
+      return filter_var($address, FILTER_VALIDATE_EMAIL);
+    });
     if (count($res) === 0) {
       return null;
     } else if (count($res) === 1) {
       return $res[0];
-    } else {
-      return $res;
     }
+    return $res;
   }
 
   /**
@@ -92,6 +80,7 @@ class EmailAction
   private static function getEmails(array $presets, ?string $lang, Page $page): array
   {
     $res = [];
+    $strFields = self::getStringFields($page);
     foreach ($presets as $preset) {
 
       // build array with email config, like required by Kirby's mail function
@@ -99,7 +88,7 @@ class EmailAction
 
       // from, one, required
       if (isset($preset['from'])) {
-        $email['from'] = self::getAddresses($preset['from'], $page);
+        $email['from'] = self::checkAddresses(self::getPresetValue($preset['from'], $strFields, false));
         if ($email['from'] === null || is_array($email['from'])) {
           continue;
         }
@@ -113,15 +102,12 @@ class EmailAction
         is_string($preset['from_name']) &&
         strlen($preset['from_name']) > 0
       ) {
-        $email['fromName'] =
-          $page->content()->has($preset['from_name'])
-          ? $page->$preset['from_name']()->value()
-          : $preset['from_name'];
+        $email['fromName'] = self::getPresetValue($preset['from_name'], $strFields, false);
       }
 
       // to, one or multiple, required
       if (isset($preset['to'])) {
-        $email['to'] = self::getAddresses($preset['to'], $page);
+        $email['to'] = self::checkAddresses(self::getPresetValue($preset['to'], $strFields, true));
         if ($email['to'] === null) {
           continue;
         }
@@ -131,7 +117,7 @@ class EmailAction
 
       // reply to, one, optional
       if (isset($preset['reply_to'])) {
-        $email['replyTo'] = self::getAddresses($preset['reply_to'], $page);
+        $email['replyTo'] = self::checkAddresses(self::getPresetValue($preset['replyTo'], $strFields, false));
         if ($email['replyTo'] === null || is_array($email['replyTo'])) {
           unset($email['replyTo']);
         }
@@ -144,23 +130,20 @@ class EmailAction
         is_string($preset['reply_to_name']) &&
         strlen($preset['reply_to_name']) > 0
       ) {
-        $email['replyToName'] =
-          isset($data[$preset['reply_to_name']])
-          ? $data[$preset['reply_to_name']]
-          : $preset['reply_to_name'];
+        $email['replyToName'] = self::getPresetValue($preset['replyToName'], $strFields, false);
       }
 
-      // cc, optional
+      // cc, one or multiple, optional
       if (isset($preset['cc'])) {
-        $email['cc'] = self::getAddresses($preset['cc'], $page);
+        $email['cc'] = self::checkAddresses(self::getPresetValue($preset['cc'], $strFields, true));
         if ($email['cc'] === null) {
           unset($email['cc']);
         }
       }
 
-      // bcc optional
+      // bcc, one or multiple, optional
       if (isset($preset['bcc'])) {
-        $email['bcc'] = self::getAddresses($preset['bcc'], $page);
+        $email['bcc'] = self::checkAddresses(self::getPresetValue($preset['bcc'], $strFields, true));
         if ($email['bcc'] === null) {
           unset($email['bcc']);
         }
@@ -173,13 +156,13 @@ class EmailAction
         is_string($preset['subject_' . $lang]) &&
         strlen($preset['subject_' . $lang]) > 0
       ) {
-        $email['subject'] = $preset['subject_' . $lang];
+        $email['subject'] = self::getPresetValue($preset['subject_' . $lang], $strFields, false);
       } else if (
         isset($preset['subject']) &&
         is_string($preset['subject']) &&
         strlen($preset['subject']) > 0
       ) {
-        $email['subject'] = $preset['subject'];
+        $email['subject'] = self::getPresetValue($preset['subject'], $strFields, false);
       } else {
         $email['subject'] = 'Message from ' . UrlHelper::getReferer();
       }
@@ -214,6 +197,83 @@ class EmailAction
       $res[] = $email;
     }
     return $res;
+  }
+
+  /**
+   * Getting string or number values from Page, cutted to a max length of 32 chars
+   */
+  private static function getStringFields(Page $page): array
+  {
+    $res = [];
+    foreach ($page->content()->data() as $key => $value) {
+      if ($key === 'title' || $key === 'uuid') continue;
+      if (is_string($value) || is_numeric($value)) {
+        $str = str_replace(["\n", "\r"], ' ', (string) $value);
+        if (strlen($str) > 32) {
+          $str = substr($str, 0, 29) . '...';
+        }
+        $res[$key] = $str;
+      }
+    }
+    return $res;
+  }
+
+  /**
+   * Get the value of a preset from 3 sources:
+   * 
+   * 1. from a Kirby query given in preset
+   * 2. string from given preset with parsed in post fields
+   * 3. string from given preset
+   * 
+   * Query (must begin with site. or page.):
+   * 
+   * 1. from field: 'site.find("slug").content.fieldName'
+   * 2. from object-field: 'site.find("slug").content.objectFieldName.toObject.fieldName'
+   * 3. from structure-field: 'site.find("slug").content.structureFieldName.toStructure.pluck("fieldName")'
+   * 
+   * result must be single or array with string values
+   */
+  private static function getPresetValue(string|array $preset, array $fields, bool $allowMultiple = false): string|array
+  {
+    $res = [];
+
+    // preset is a query
+    if (is_string($preset) && (substr($preset, 0, 5) === 'site.' || substr($preset, 0, 5) === 'page.')) {
+      $query = new Query($preset);
+      $queryResult = $query->resolve();
+      if ($queryResult instanceof Field) {
+        $res[] = (string) $queryResult->value();
+      } else if (is_array($queryResult)) {
+        foreach ($queryResult as $entry) {
+          if ($entry instanceof Field) {
+            $res[] = (string) $entry->value();
+          }
+        }
+      }
+    } else if (is_string($preset)) { // preset is string
+      $res = [ $preset ];
+    } else if (is_array($preset)) { // preset is array
+      $res = $preset;
+    }
+
+    // filter if all values are strings
+    $res = array_filter($res, function($val) {
+      return is_string($val) && strlen($val) > 0;
+    });
+
+    // empty, no result
+    if (count($res) === 0) {
+      return null;
+    }
+
+    // parse post-fields in
+    $res = array_map(function ($value) use ($fields) {
+      foreach ($fields as $fieldname => $fieldvalue) {
+        $value = TypeHelper::replaceTag($value, $fieldname, $fieldvalue);
+      }
+      return $value;
+    }, $res);
+    return ($allowMultiple && count($res) > 1) ? $res : $res[0];
   }
 
   /**
