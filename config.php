@@ -75,14 +75,16 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
     // default kirby route must be overwritten to prevent kirby
     // from redirecting to default language. This is done by
     // the frontend.
-    $routes[] = [
-      'pattern' => '',
-      'method'  => 'ALL',
-      'env'     => 'site',
-      'action'  => function () use ($kirby) {
-        return $kirby->defaultLanguage()->router()->call();
-      }
-    ];
+    if ($multilang) {
+      $routes[] = [
+        'pattern' => '',
+        'method'  => 'ALL',
+        'env'     => 'site',
+        'action'  => function () use ($kirby) {
+          return $kirby->defaultLanguage()->router()->call();
+        }
+      ];
+    }
 
     // OPTIONS > pre-flight
     $routes[] = [

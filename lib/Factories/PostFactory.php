@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Factories;
 
+use DateTime;
 use Exception;
 use Kirby\Cms\Page;
 use Kirby\Filesystem\F;
@@ -83,7 +84,8 @@ class PostFactory
           $content[$key] = $action;
           break;
         case 'created':
-          $content[$key] = date('Y-m-d H:i:s');
+          $date = new DateTime("now");
+          $content[$key] = $date->format('Y-m-d H:i:s');
           break;
         case 'host':
           $content[$key] = UrlHelper::getReferer();

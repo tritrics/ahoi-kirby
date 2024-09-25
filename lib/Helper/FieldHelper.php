@@ -57,8 +57,8 @@ class FieldHelper
       $conditions = $blueprint->node('when')->get();
       foreach ($conditions as $key => $value) {
         $key = strtolower($key);
-        $condField = $fields[$key];
         if (isset($fields[$key])) {
+          $condField = $fields[$key];
           $condValue =
             TypeHelper::isBool($condField->value())
               ? TypeHelper::toBool($condField->value())
