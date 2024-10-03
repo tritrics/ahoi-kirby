@@ -9,12 +9,7 @@ use Tritrics\Ahoi\v1\Helper\LinkHelper;
  * Model for Kirby's fields: email
  */
 class EmailModel extends BaseModel
-{
-  protected function getType(): string
-  {
-    return 'link';
-  }
-  
+{  
   /**
    * Get additional field data (besides type and value)
    */
@@ -23,6 +18,14 @@ class EmailModel extends BaseModel
     $res = new Collection();
     $res->add('meta', LinkHelper::get($this->model->value(), null, false, null, 'email'));
     return $res;
+  }
+
+  /**
+   * Get type of this model.
+   */
+  protected function getType(): string
+  {
+    return 'link';
   }
 
   /**

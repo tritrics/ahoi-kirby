@@ -44,6 +44,8 @@ class PagesModel extends BaseModel
       $model = new PageModel($page, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }
+
+    // return only one element (no collection) if multiple is false
     return $res;
   }
 }

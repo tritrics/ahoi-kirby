@@ -32,7 +32,7 @@ class BlockModel extends BaseModel
   }
 
   /**
-   * Get type of this model as it's returned in response.
+   * Get type of this model.
    */
   protected function getType(): string
   {

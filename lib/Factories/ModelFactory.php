@@ -6,6 +6,7 @@ use Kirby\Content\Field;
 use Kirby\Cms\Block;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
  * Translates Kirby's fields and objects to API data models.
@@ -18,36 +19,37 @@ class ModelFactory
    * @var array
    */
   protected static $classMap = [
-    'blocks'        => '\Models\BlocksModel',
-    'checkboxes'    => '\Models\OptionsModel',
-    'color'         => '\Models\ColorModel',
-    'date'          => '\Models\DatetimeModel',
-    'email'         => '\Models\EmailModel',
-    'file'          => '\Models\FileModel',
-    'files'         => '\Models\FilesModel',
-    'hidden'        => '\Models\HiddenModel',
-    'list'          => '\Models\TextModel',
-    'link'          => '\Models\LinkModel',
-    'multiselect'   => '\Models\OptionsModel',
-    'number'        => '\Models\NumberModel',
-    'object'        => '\Models\ObjectModel',
-    'page'          => '\Models\PageModel',
-    'pages'         => '\Models\PagesModel',
-    'radio'         => '\Models\OptionModel',
-    'range'         => '\Models\NumberModel',
-    'select'        => '\Models\OptionModel',
-    'slug'          => '\Models\TextModel',
-    'structure'     => '\Models\StructureModel',
-    'tags'          => '\Models\OptionsModel',
-    'tel'           => '\Models\TelModel',
-    'text'          => '\Models\TextModel',
-    'textarea'      => '\Models\TextModel',
-    'time'          => '\Models\DatetimeModel',
-    'toggle'        => '\Models\BooleanModel',
-    'toggles'       => '\Models\OptionModel',
-    'url'           => '\Models\UrlModel',
-    'users'         => '\Models\UsersModel',
-    'writer'        => '\Models\TextModel',
+    'blocks'      => 'BlocksModel',
+    'checkboxes'  => 'OptionsModel',
+    'color'       => 'ColorModel',
+    'date'        => 'DatetimeModel',
+    'email'       => 'EmailModel',
+    'file'        => 'FileModel',
+    'files'       => 'FilesModel',
+    'hidden'      => 'HiddenModel',
+    'list'        => 'TextModel',
+    'link'        => 'LinkModel',
+    'multiselect' => 'OptionsModel',
+    'number'      => 'NumberModel',
+    'object'      => 'ObjectModel',
+    'page'        => 'PageModel',
+    'pages'       => 'PagesModel',
+    'radio'       => 'OptionModel',
+    'range'       => 'NumberModel',
+    'select'      => 'OptionModel',
+    'slug'        => 'TextModel',
+    'structure'   => 'StructureModel',
+    'tags'        => 'OptionsModel',
+    'tel'         => 'TelModel',
+    'text'        => 'TextModel',
+    'textarea'    => 'TextModel',
+    'time'        => 'DatetimeModel',
+    'toggle'      => 'BooleanModel',
+    'toggles'     => 'OptionModel',
+    'url'         => 'UrlModel',
+    'user'        => 'UserModel',
+    'users'       => 'UsersModel',
+    'writer'      => 'TextModel',
   ];
 
   /**
@@ -69,14 +71,20 @@ class ModelFactory
     ?string $lang
   ): object {
     $key = $type;
+
+    // get model from added, definitions or default
     if (isset(self::$added[$key])) {
-      $class = self::$added[$key];
+      $model = self::$added[$key];
     } elseif (isset(self::$classMap[$key])) {
-      $class = ConfigHelper::getNamespace() . self::$classMap[$key];
+      $model = ConfigHelper::getNamespace() . '\\Models\\' . self::$classMap[$key];
     } else {
-      $class = ConfigHelper::getNamespace() . self::$classMap['text'];
+      $model = ConfigHelper::getNamespace() . '\\Models\\' . self::$classMap['text'];
     }
-    return new $class($field, $blueprint, $lang);
+    $instance = new $model($field, $blueprint, $lang);
+    if ($instance->isNoneMultipleCollection()) {
+      return $instance->getFirstEntry();
+    }
+    return $instance;
   }
 
   /**
@@ -98,10 +106,10 @@ class ModelFactory
   /**
    * Register a field type to model equivalent
    */
-  public static function register (string $type, string $model): void
+  public static function register (string $type, array $def): void
   {
-    if (is_string($type) && strlen($type) > 0 && class_exists($model)) {
-      self::$added[$type] = $model;
+    if (is_string($type) && strlen($type) > 0 && class_exists($def['class'])) {
+      self::$added[$type] = $def;
     }
   }
 }

@@ -10,11 +10,6 @@ use Tritrics\Ahoi\v1\Helper\LinkHelper;
  */
 class TelModel extends BaseModel
 {
-  protected function getType(): string
-  {
-    return 'link';
-  }
-  
   /**
    * Get additional field data (besides type and value)
    */
@@ -29,6 +24,14 @@ class TelModel extends BaseModel
       'tel'
     ));
     return $res;
+  }
+
+  /**
+   * Get type of this model.
+   */
+  protected function getType(): string
+  {
+    return 'link';
   }
 
   /**

@@ -57,9 +57,9 @@ class CollectionService
     foreach($params['filter'] as $args) {
       $children = $children->filterBy(...$args);
     }
+    $children = $children->sortBy(...$params['sort']);
     $children = $children->offset($params['offset']);
     $children = $children->limit($params['limit']);
-    $children = $children->sortBy(...$params['sort']);
 
     // add collection info
     $collection = $body->add('collection');

@@ -12,6 +12,7 @@ use Kirby\Content\Field;
 use Kirby\Cms\Block;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\FieldHelper;
+use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
  * Basic model for Kirby Fields and Models.
@@ -92,6 +93,18 @@ abstract class BaseModel extends Collection
   }
 
   /**
+   * Get first child of collection, if there is any.
+   */
+  public function getFirstEntry(): Collection
+  {
+    if ($this->node($this->valueNodeName)->isCollection()) {
+      return $this->node($this->valueNodeName)->first();
+    } else {
+      return new Collection();
+    }
+  }
+
+  /**
    * Get the corresponding label for the selected option.
    */
   protected function getLabel(mixed $value): mixed
@@ -167,6 +180,17 @@ abstract class BaseModel extends Collection
   }
 
   /**
+   * Check if this model is a collection with only one child allowed
+   * due to blueprint definition multiple: false.
+   */
+  public function isNoneMultipleCollection(): bool {
+    return
+      $this->node($this->valueNodeName)->isCollection() &&
+      $this->blueprint->has('multiple') &&
+      TypeHelper::isFalse($this->blueprint->node('multiple')->get());
+  }
+
+  /**
    * Check and set possible child fields.
    */
   private function setChildFields (): void
@@ -201,7 +225,7 @@ abstract class BaseModel extends Collection
     // properties, any kind of nodes
     if (method_exists($this, 'getProperties')) {
       $add = $this->getProperties();
-      if ($add instanceof Collection) {
+      if ($add->count() > 0) {
         $this->merge($add);
       }
     }

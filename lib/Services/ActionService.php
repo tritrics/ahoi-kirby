@@ -39,8 +39,8 @@ use Tritrics\Ahoi\v1\Helper\DebugHelper;
  * 200 - 299 EmailAction
  * 300 - 999 unused
  * 
- * 100 Error in one or more sub-actions.
- * 120 Field value failed validation (the Kirby error message from error.validation is added)
+ * 100 Field value failed validation (the Kirby error message from error.validation is added)
+ * 110 Error in one or more sub-actions.
  * 200 Error on sending {{ fail }} from {{ total }} mails.
  */
 class ActionService
@@ -118,8 +118,8 @@ class ActionService
 
     // overall errors in actions
     if ($subActionFailed) {
-      $errno->set(100);
-      DebugHelper::logActionError($action, 'Error in one or more actions.', 100); // @errno100
+      $errno->set(110);
+      DebugHelper::logActionError($action, 'Error in one or more actions.', 110); // @errno110
     }
 
     // Delete page if not needed
@@ -156,22 +156,23 @@ class ActionService
   {
     $res = new Collection();
     $errors = $page->errors();
+    $content = $page->content()->data();
     foreach (PostFactory::fields($action) as $key => $type) {
       $field = $res->add($key);
+      $value = isset($content[$key]) ? $content[$key] : null;
       switch ($type) {
         case 'toggle':
-          $field->add('value', $page->$key()->value() === 'true' ? 1 : 0);
+          $field->add('value', $value === 'true' ? 1 : 0);
           break;
         case 'checkboxes':
         case 'multiselect':
-        case 'tags':
-          $field->add('value', TypeHelper::optionsToArray($page->$key()->value()));
+          $field->add('value', TypeHelper::optionsToArray($value));
           break;
         default:
-          $field->add('value', $page->$key()->value());
+          $field->add('value', $value);
       }
       if (isset($errors[$key])) {
-        $field->add('errno', 120);
+        $field->add('errno', 100);
         if (isset($errors[$key]['message']) && count($errors[$key]['message']) > 0) {
           $field->add('errmsg', array_key_first($errors[$key]['message']));
         } else {
