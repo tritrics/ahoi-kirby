@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Services;
 
+use Kirby\Cms\Page;
 use Kirby\Exception\DuplicateException;
 use Kirby\Exception\LogicException;
 use Tritrics\Ahoi\v1\Data\Collection;
@@ -26,6 +27,8 @@ class InfoService
   {
     $expose = kirby()->option('debug', false);
     $isMultilang = ConfigHelper::isMultilang();
+    $homePage = kirby()->site()->homePage();
+    $errorPage = kirby()->site()->errorPage();
     $body = new Collection();
 
     // Type
@@ -34,7 +37,8 @@ class InfoService
     // Meta
     $meta = $body->add('meta');
     $meta->add('multilang', $isMultilang);
-    $meta->add('home', trim(kirby()->option('home', 'home'), '/'));
+    $meta->add('home', $homePage instanceof Page ? $homePage->id() : null);
+    $meta->add('error', $errorPage instanceof Page ? $errorPage->id() : null);
     if ($expose) {
       $meta->add('api', ConfigHelper::getVersion());
       $meta->add('plugin', ConfigHelper::getPluginVersion());
@@ -43,6 +47,8 @@ class InfoService
       $meta->add('slug', ConfigHelper::getconfig('slug', ''));
       $meta->add('field_name_separator',  ConfigHelper::getconfig('field_name_separator', ''));
     }
+
+    // $meta->add('error', $this->model->errorPage($this->lang)->id());
 
     // Interface
     if ($expose) {
