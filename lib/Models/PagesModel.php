@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Kirby\Cms\Page;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 
@@ -14,6 +15,18 @@ class PagesModel extends BaseModel
    * Nodename for pages.
    */
   protected $valueNodeName = 'entries';
+
+  /**
+   * Create a child entry instance
+   */
+  public function createEntry(
+    ?Page $model = null,
+    ?Collection $blueprint = null,
+    ?string $lang = null,
+    array|string $addFields = 'all'
+  ): Collection {
+    return new PageModel($model, $blueprint, $lang, $addFields);
+  }
   
   /**
    * Get additional field data (besides type and value)
@@ -41,7 +54,7 @@ class PagesModel extends BaseModel
         continue;
       }
       $blueprint = BlueprintHelper::get($page);
-      $model = new PageModel($page, $blueprint, $this->lang, $addFields);
+      $model = $this->createEntry($page, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }
 

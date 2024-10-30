@@ -6,7 +6,7 @@ use Kirby\Content\Field;
 use Kirby\Cms\Block;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
-use Tritrics\Ahoi\v1\Helper\TypeHelper;
+use Tritrics\Ahoi\v1\Models\PageModel;
 
 /**
  * Translates Kirby's fields and objects to API data models.
@@ -82,7 +82,11 @@ class ModelFactory
     }
     $instance = new $model($field, $blueprint, $lang);
     if ($instance->isNoneMultipleCollection()) {
-      return $instance->getFirstEntry();
+      $firstEntry = $instance->getFirstEntry();
+      if (!$firstEntry) {
+        $firstEntry = $instance->createEntry();
+      }
+      return $firstEntry;
     }
     return $instance;
   }

@@ -3,7 +3,6 @@
 namespace Tritrics\Ahoi\v1\Models;
 
 use Tritrics\Ahoi\v1\Data\Collection;
-use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
@@ -31,6 +30,13 @@ class FileModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
+    // empty model, for empty none-multiple-collections
+    if (!$this->model) {
+      $res = new Collection();
+      $res->add('meta', []);
+      return $res;
+    }
+
     $parts = UrlHelper::parse($this->model->url());
     $page = $this->model->parent($this->lang);
 

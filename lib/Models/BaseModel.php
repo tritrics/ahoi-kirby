@@ -77,31 +77,38 @@ abstract class BaseModel extends Collection
   /**
    */
   public function __construct (
-    Block|Field|User|File|Page|Site|Language|Languages $model,
+    Block|Field|User|File|Page|Site|Language|Languages|null $model = null,
     ?Collection $blueprint = null,
     ?string $lang = null,
     array|string $addFields = 'all',
     ?bool $addDetails = false
   ) {
     $this->model = $model;
-    $this->addDetails = $addDetails;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
     $this->addFields = is_array($addFields) || $addFields === 'all' ? $addFields : 'all';
+    $this->addDetails = $addDetails;
     $this->setChildFields();
     $this->setModelData();
   }
 
   /**
-   * Get first child of collection, if there is any.
+   * Create a child entry instance, is overwritten by collection classes
    */
-  public function getFirstEntry(): Collection
+  public function createEntry(): Collection {
+    return new Collection();
+  }
+
+  /**
+   * Get first child of collection, if there is any.
+   * Used for collections with setting multiple: false
+   */
+  public function getFirstEntry(): Collection|null
   {
-    if ($this->node($this->valueNodeName)->isCollection()) {
+    if ($this->node($this->valueNodeName)->isCollection() && $this->node($this->valueNodeName)->has(0)) {
       return $this->node($this->valueNodeName)->first();
-    } else {
-      return new Collection();
     }
+    return null;
   }
 
   /**

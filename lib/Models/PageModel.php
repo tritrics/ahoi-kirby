@@ -29,6 +29,13 @@ class PageModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
+    // empty model, for empty none-multiple-collections
+    if (!$this->model) {
+      $res = new Collection();
+      $res->add('meta', []);
+      return $res;
+    }
+    
     $res = new Collection();
     $meta = $res->add('meta');
 

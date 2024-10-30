@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Kirby\Cms\File;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 
@@ -14,6 +15,18 @@ class FilesModel extends BaseModel
    * Nodename for files.
    */
   protected $valueNodeName = 'entries';
+
+  /**
+   * Create a child entry instance
+   */
+  public function createEntry(
+    ?File $model = null,
+    ?Collection $blueprint = null,
+    ?string $lang = null,
+    array|string $addFields = 'all'
+  ): Collection {
+    return new FileModel($model, $blueprint, $lang, $addFields);
+  }
 
   /**
    * Get additional field data (besides type and value)
@@ -38,7 +51,7 @@ class FilesModel extends BaseModel
     $res = new Collection();
     foreach ($this->model->toFiles() as $file) {
       $blueprint = BlueprintHelper::get($file);
-      $model = new FileModel($file, $blueprint, $this->lang, $addFields);
+      $model = $this->createEntry($file, $blueprint, $this->lang, $addFields);
       $res->push($model);
     }
     return $res;
