@@ -30,17 +30,15 @@ class FileModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
+    $res = new Collection();
+    
     // empty model, for empty none-multiple-collections
     if (!$this->model) {
-      $res = new Collection();
-      $res->add('meta', []);
       return $res;
     }
 
     $parts = UrlHelper::parse($this->model->url());
-    $page = $this->model->parent($this->lang);
-
-    $meta = new Collection();
+    $meta = $res->add('meta');
     $meta->add('host', UrlHelper::buildHost($parts));
     $meta->add('dir', $parts['dirname']);
     $meta->add('file', $parts['basename']);
@@ -60,24 +58,15 @@ class FileModel extends BaseModel
       $meta->add('height', $this->model->height());
     }
 
-    // adding translations
-    if (ConfigHelper::isMultilang()) {
-      if ($this->addDetails) {
-        $translations = new Collection();
-        foreach (LanguagesHelper::getCodes() as $code) {
-          $attr = LinkHelper::get($this->model, null, false, $code, 'file');
-          $translations->push([
-            'lang' => $code,
-            'href' => $attr['href'],
-            'node' => '/' . ltrim($code . '/' . $page->uri($code), '/') . '/' . $this->model->filename()
-          ]);
-        }
-        $meta->add('translations', $translations);
+    // adding languages
+    if (ConfigHelper::isMultilang() && $this->addDetails) {
+      $languages = $res->add('languages');
+      foreach (LanguagesHelper::getCodes() as $lang) {
+        $languages->push(
+          new LanguageModel($this->model, null, $lang)
+        );
       }
     }
-
-    $res = new Collection();
-    $res->add('meta', $meta);
     return $res;
   }
 

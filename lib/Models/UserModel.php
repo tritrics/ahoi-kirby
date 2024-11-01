@@ -26,18 +26,15 @@ class UserModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
+    $res = new Collection();
+
     // empty model, for empty none-multiple-collections
     if (!$this->model) {
-      $res = new Collection();
-      $res->add('meta', []);
       return $res;
     }
-    
-    $meta = new Collection();
-    $meta->add('id', md5($this->model->id()));
 
-    $res = new Collection();
-    $res->add('meta', $meta);
+    $meta = $res->add('meta');
+    $meta->add('id', md5($this->model->id()));
     return $res;
   }
 

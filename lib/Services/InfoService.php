@@ -81,8 +81,8 @@ class InfoService
     // add languages
     if ($isMultilang) {
       $languages = new Collection();
-      foreach (LanguagesHelper::getAll() as $model) {
-        $languages->push(new LanguageModel($model));
+      foreach (LanguagesHelper::getCodes() as $lang) {
+        $languages->push(new LanguageModel(null, null, $lang));
       }
       $body->add('languages', $languages);
     }

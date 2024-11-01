@@ -29,12 +29,12 @@ class LanguagesHelper
   }
 
   /**
-   * Get a single language as Kirby object defined by $code.
+   * Get a single language as Kirby object defined by $lang.
    */
-  public static function get(?string $code): ?Language
+  public static function get(?string $lang): ?Language
   {
     try {
-      return kirby()->language($code);
+      return kirby()->language($lang);
     } catch (LogicException $E) {
       return null;
     }
@@ -80,10 +80,10 @@ class LanguagesHelper
    * Link prefix is the path-part of the setting (@see getOrigin()).
    * Default link prefix is the language-code.
    */
-  public static function getLangSlug(string $code): string|null
+  public static function getLangSlug(string $lang): string|null
   {
-    if (self::isValid($code)) {
-      $language = self::get($code);
+    if (self::isValid($lang)) {
+      $language = self::get($lang);
       $url = UrlHelper::parse($language->url());
       $path = UrlHelper::buildPath($url);
       return $path === '/' ? '' : $path;
@@ -94,12 +94,12 @@ class LanguagesHelper
   /**
    * Get the locale for a given language.
    */
-  public static function getLocale(?string $code): string
+  public static function getLocale(?string $lang): string
   {
-    if (!self::isValid($code)) {
+    if (!self::isValid($lang)) {
       return '';
     }
-    $language = self::get($code);
+    $language = self::get($lang);
     $php_locale = $language->locale(LC_ALL);
     return str_replace('_', '-', $php_locale);
   }
@@ -108,10 +108,10 @@ class LanguagesHelper
    * Get the (optional) domain, defined in languages/[lang].php > url.
    * Origin is the domain-part of the setting (@see getLinkPrefix()).
    */
-  public static function getOrigin(string $code): string
+  public static function getOrigin(string $lang): string
   {
-    if (self::isValid($code)) {
-      $language = self::get($code);
+    if (self::isValid($lang)) {
+      $language = self::get($lang);
       $url = UrlHelper::parse($language->url());
       $urlHost = UrlHelper::buildHost($url);
       $self = UrlHelper::getSelfUrl();
@@ -123,16 +123,27 @@ class LanguagesHelper
   }
 
   /**
+   * Check if a given language code is default language.
+   */
+  public static function isDefault(?string $lang): bool
+  {
+    if (!ConfigHelper::isMultilang()) {
+      return false;
+    }
+    return self::get($lang)->isDefault();
+  }
+
+  /**
    * Check if a given language code is valid.
    * empty string or null in non-multilang installation -> true
    * valid language code in multilang installation -> true
    * rest -> false
    */
-  public static function isValid(?string $code): bool
+  public static function isValid(?string $lang): bool
   {
     if (ConfigHelper::isMultilang()) {
-      return self::getAll()->has($code);
+      return self::getAll()->has($lang);
     }
-    return empty($code) || $code === null;
+    return empty($lang) || $lang === null;
   }
 }

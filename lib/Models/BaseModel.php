@@ -2,8 +2,6 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Kirby\Cms\Languages;
-use Kirby\Cms\Language;
 use Kirby\Cms\Site;
 use Kirby\Cms\Page;
 use Kirby\Cms\File;
@@ -77,7 +75,7 @@ abstract class BaseModel extends Collection
   /**
    */
   public function __construct (
-    Block|Field|User|File|Page|Site|Language|Languages|null $model = null,
+    Block|Field|User|File|Page|Site|null $model = null,
     ?Collection $blueprint = null,
     ?string $lang = null,
     array|string $addFields = 'all',

@@ -3,9 +3,8 @@
 namespace Tritrics\Ahoi\v1\Models;
 
 use Tritrics\Ahoi\v1\Data\Collection;
-use Tritrics\Ahoi\v1\Helper\UrlHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
-use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
+use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 
 /**
  * Model for Kirby's site object
@@ -53,6 +52,16 @@ class SiteModel extends BaseModel
       }
       if ($api->count() > 0) {
         $meta->add('api', $api);
+      }
+    }
+
+    // languages
+    if (ConfigHelper::isMultilang()) {
+      $languages = $res->add('languages');
+      foreach (LanguagesHelper::getCodes() as $lang) {
+        $languages->push(
+          new LanguageModel($this->model, null, $lang)
+        );
       }
     }
 

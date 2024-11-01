@@ -5,6 +5,7 @@ namespace Tritrics\Ahoi\v1\Helper;
 use Kirby\Http\Url;
 use Kirby\Cms\File;
 use Kirby\Cms\Page;
+use Kirby\Cms\Site;
 
 class UrlHelper
 {
@@ -63,7 +64,7 @@ class UrlHelper
   /**
    * Get node for a page or file.
    */
-  public static function getNode(Page|File $model, ?string $lang): string
+  public static function getNode(Page|File|Site $model, ?string $lang): string
   {
     if ($model instanceof Page) {
       return '/' . trim($lang . '/' . $model->uri($lang), '/');
@@ -71,6 +72,9 @@ class UrlHelper
     if ($model instanceof File) {
       $page = $model->parent($lang);
       return '/' . ltrim($lang . '/' . $page->uri($lang), '/') . '/' . $model->filename();
+    }
+    if ($model instanceof Site) {
+      return '/' . trim($lang, '/');
     }
   }
 

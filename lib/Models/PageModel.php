@@ -6,6 +6,7 @@ use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
+use Tritrics\Ahoi\v1\Models\LanguageModel;
 
 /**
  * Model for Kirby's page object
@@ -29,17 +30,15 @@ class PageModel extends BaseModel
    */
   protected function getProperties (): Collection
   {
+    $res = new Collection();
+
     // empty model, for empty none-multiple-collections
     if (!$this->model) {
-      $res = new Collection();
-      $res->add('meta', []);
       return $res;
     }
-    
-    $res = new Collection();
-    $meta = $res->add('meta');
 
     // global values
+    $meta = $res->add('meta');
     $meta->add('blueprint', (string) $this->model->intendedTemplate());
     $meta->add('status', $this->model->status());
     if ($this->model->status() === 'listed') {
@@ -68,18 +67,13 @@ class PageModel extends BaseModel
       }
     }
 
-    // translations
+    // languages
     if (ConfigHelper::isMultilang() && $this->addDetails) {
-      $translations = $res->add('translations');
-      foreach (LanguagesHelper::getAll() as $language) {
-        $code = $language->code();
-        $translation = new Collection();
-        $translation->add('lang', $code);
-        $translation->add('slug', $this->model->slug($code));
-        $translation->add('href', UrlHelper::getPath($this->model->url($code)));
-        $translation->add('node', UrlHelper::getNode($this->model, $code));
-        $translation->add('title', $language->name());
-        $translations->push($translation);
+      $languages = $res->add('languages');
+      foreach (LanguagesHelper::getCodes() as $lang) {
+        $languages->push(
+          new LanguageModel($this->model, null, $lang)
+        );
       }
     }
     return $res;
