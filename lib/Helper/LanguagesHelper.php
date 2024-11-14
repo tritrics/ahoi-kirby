@@ -53,9 +53,9 @@ class LanguagesHelper
   }
 
   /**
-   * List availabe languages for intern use.
+   * List availabe langcodes for intern use.
    */
-  public static function getCodes(): array
+  public static function getLang(): array
   {
     $res = [];
     foreach (self::getAll() as $language) {

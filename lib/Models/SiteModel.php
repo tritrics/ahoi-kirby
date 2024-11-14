@@ -58,7 +58,7 @@ class SiteModel extends BaseModel
     // languages
     if (ConfigHelper::isMultilang()) {
       $languages = $res->add('languages');
-      foreach (LanguagesHelper::getCodes() as $lang) {
+      foreach (LanguagesHelper::getLang() as $lang) {
         $languages->push(
           new LanguageModel($this->model, null, $lang)
         );

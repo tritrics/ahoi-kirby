@@ -106,6 +106,16 @@ class UrlHelper
   }
 
   /**
+   * Get slugs / parts of a path or url
+   */
+  public static function getSlugs(string $url): array
+  {
+    $parts = self::parse($url);
+    $slugs = explode('/', $parts['path']);
+    return array_filter($slugs);
+  }
+
+  /**
    * Parsing url in parts.
    */
   public static function parse(string $href): array

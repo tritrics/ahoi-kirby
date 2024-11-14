@@ -1,6 +1,5 @@
 <?php
 
-use Kirby\Exception\Exception;
 use Tritrics\Ahoi\v1\Controllers\ActionController;
 use Tritrics\Ahoi\v1\Controllers\CollectionController;
 use Tritrics\Ahoi\v1\Controllers\InfoController;
@@ -41,15 +40,14 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
     ],
   ],
   'hooks' => [
-    'page.create:before' => function ($page, array $input) {
-      if (ConfigHelper::isProtectedSlug($input['slug'])) {
-        throw new Exception('Slug not allowed');
-      }
+    'page.create:before' => function ($page) {
+      ConfigHelper::checkSlug($page->uri());
     },
-    'page.changeSlug:before' => function ($page, string $slug, ?string $languageCode = null) {
-      if (ConfigHelper::isProtectedSlug($slug)) {
-        throw new Exception('Slug not allowed');
-      }
+    'page.changeSlug:before' => function ($page, $slug) {
+      ConfigHelper::checkSlug($slug);
+    },
+    'page.duplicate:before' => function ($page, $input) {
+      ConfigHelper::checkSlug($input);
     },
     'route:before' => function ($route, $path, $method) {
       $attributes = $route->attributes();

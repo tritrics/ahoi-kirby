@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Helper;
 
+use Kirby\Exception\Exception;
 use Kirby\Exception\DuplicateException;
 
 /**
@@ -162,12 +163,27 @@ class ConfigHelper
   }
 
   /**
-   * Check, if a slug the backend-user enters, has a conflict with the API-Route
+   * Check, if a slug has a conflict with not-allowed slugs.
+   * Because it's not possible to hook a page-move, the not-allowed slugs must be prevented
+   * in every part of the uri, not just at the beginning.
+   * @throws Exception
    */
-  public static function isProtectedSlug(string $slug): bool
+  public static function checkSlug($path): void
   {
-    $path = strtolower(self::getConfig('slug'));
-    $slugs = explode('/', $path);
-    return in_array(strtolower($slug), $slugs);
+    $uri = '/' . trim($path, '/') . '/';
+    $prevent = explode('/', strtolower(self::getConfig('slug')));
+    if (self::isMultilang()) {
+      foreach(LanguagesHelper::getAll() as $language) {
+        $prevent = array_merge($prevent, [ $language->code() ], UrlHelper::getSlugs($language->url()));
+      }
+    }
+    $prevent = array_map(function ($elem) {
+      return '/' . trim($elem, '/') . '/';
+    }, array_unique(array_filter($prevent)));
+    foreach($prevent as $slug) {
+      if (strpos($uri, $slug) !== false) {
+        throw new Exception('Ahoi-Plugin: Slug "' . trim($slug, '/') . '" not allowed');
+      }
+    }
   }
 }
