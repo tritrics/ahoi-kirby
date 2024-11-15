@@ -79,7 +79,7 @@ class LanguageModel extends BaseModel
     // Value for language (=translations) are added if a single language is requested.
     if ($this->addDetails) {
       $fields = new Collection();
-      $separator = ConfigHelper::getconfig('field_name_separator', '');
+      $separator = ConfigHelper::get('field_name_separator', '');
       $language = LanguagesHelper::get($this->lang);
       $languageDefault = LanguagesHelper::getDefault();
       $translations = $language->translations();

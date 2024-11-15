@@ -58,7 +58,7 @@ class ActionService
     $result = $body->add('result');
 
     // read actions config
-    $actions = ConfigHelper::getConfig('actions');
+    $actions = ConfigHelper::get('actions');
 
     // actions.[action] is not existing or is not an array
     if (
@@ -82,7 +82,7 @@ class ActionService
     }
 
     // write post data to result
-    if (ConfigHelper::getConfig('form_security.return_post_values', false)) {
+    if (ConfigHelper::get('form_security.return_post_values', false)) {
       $result->add('saved', true);
       $result->add('id', $page->slug());
       $result->add('data', self::getInputData($action, $page));
@@ -126,8 +126,8 @@ class ActionService
     // Change of status is deactivated due to security reasons. Status is always draft, so
     // it's not possible to get information through API. This is also the standard Kirby behaviour.
     // To activate it, add 'status' => 'unlisted|listed' to action definition in config.php.
-    // $status = ConfigHelper::getConfig('actions.' . $action . '.status', 'draft');
-    if(ConfigHelper::getConfig('actions.' . $action . '.save', true) === false) {
+    // $status = ConfigHelper::get('actions.' . $action . '.status', 'draft');
+    if(ConfigHelper::get('actions.' . $action . '.save', true) === false) {
       KirbyHelper::deletePage($page);
       $result->node('saved')->set(false);
       $result->unset('id');

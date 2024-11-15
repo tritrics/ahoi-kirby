@@ -44,8 +44,8 @@ class InfoService
       $meta->add('plugin', ConfigHelper::getPluginVersion());
       $meta->add('kirby', kirby()->version());
       $meta->add('php', phpversion());
-      $meta->add('slug', ConfigHelper::getconfig('slug', ''));
-      $meta->add('field_name_separator',  ConfigHelper::getconfig('field_name_separator', ''));
+      $meta->add('slug', ConfigHelper::get('slug', ''));
+      $meta->add('field_name_separator',  ConfigHelper::get('field_name_separator', ''));
     }
 
     // $meta->add('error', $this->model->errorPage($this->lang)->id());

@@ -145,6 +145,9 @@ class TypeHelper
    */
   public static function toString(mixed $value, bool $trim = false, bool $lower = false): string
   {
+    if (is_object($value) || is_array($value)) {
+      return '';
+    }
     $value = (string) $value;
     $value = $trim ? trim($value) : $value;
     return $lower ? strtolower($value) : $value;

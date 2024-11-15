@@ -53,7 +53,7 @@ class PostFactory
     $uuid = Str::lower(Str::random(16, 'base32hex'));
 
     // Template
-    $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
+    $template = ConfigHelper::get('actions.' . $action . '.template', '');
     $file = rtrim(kirby()->root('blueprints'), '/') . '/pages/' . $template . '.yml';
     if (!F::exists($file)) {
       throw new Exception('Template configuration is missing or wrong in config.php.', 16); // @errno16
@@ -61,18 +61,18 @@ class PostFactory
 
     // Parent, ignored needed if page is not saved
     $parent = false;
-    if (ConfigHelper::getConfig('actions.' . $action . '.save', true)) {
-      $parent = KirbyHelper::findPage($lang, ConfigHelper::getConfig('actions.' . $action . '.parent', null));
+    if (ConfigHelper::get('actions.' . $action . '.save', true)) {
+      $parent = KirbyHelper::findPage($lang, ConfigHelper::get('actions.' . $action . '.parent', null));
       if (!$parent instanceof Page) {
         throw new Exception('Parent configuration is missing or wrong in config.php.', 17); // @errno17
       }
     }
 
     // get Content
-    $stripTags = ConfigHelper::getConfig('form_security.strip_tags', true);
-    $stripBackslashes = ConfigHelper::getConfig('form_security.strip_backslashes', true);
+    $stripTags = ConfigHelper::get('form_security.strip_tags', true);
+    $stripBackslashes = ConfigHelper::get('form_security.strip_backslashes', true);
     $content = [
-      'title' => ConfigHelper::getConfig('actions.' . $action . '.title', 'Incoming %created (action %action)'),
+      'title' => ConfigHelper::get('actions.' . $action . '.title', 'Incoming %created (action %action)'),
       'uuid' => $uuid,
     ];
     foreach (self::fields($action) as $key => $type) {
@@ -121,7 +121,7 @@ class PostFactory
   public static function fields(string $action): array
   {
     // create a dummy page to get blueprint-fields
-    $template = ConfigHelper::getConfig('actions.' . $action . '.template', '');
+    $template = ConfigHelper::get('actions.' . $action . '.template', '');
     $dummy = new Page(['slug' => 'dummy', 'template' => $template]);
     $res = [];
     foreach ($dummy->blueprint()->fields() as $key => $def) {

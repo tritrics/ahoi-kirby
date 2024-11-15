@@ -22,7 +22,7 @@ class ConfigHelper
    */
   public static function getApiSlug(): string
   {
-    $slug = trim(trim(self::getConfig('slug', ''), '/'));
+    $slug = trim(trim(self::get('slug', ''), '/'));
     if (is_string($slug) && strlen($slug) > 0) {
       $slug = '/' . $slug;
     }
@@ -33,7 +33,7 @@ class ConfigHelper
    * Get setting from plugins config.php
    * example: tritrics.ahoi.v1.slug
    */
-  public static function getConfig(string $node, mixed $default = null): mixed
+  public static function get(string $node, mixed $default = null): mixed
   {
     $val = kirby()->option(str_replace('/', '.', self::$globals['plugin-name']) . '.' . $node, $default);
     if ($default !== null && gettype($val) !== gettype($default)) {
@@ -90,8 +90,8 @@ class ConfigHelper
    */
   private static function isEnabled(string $method): bool
   {
-    $global = self::getConfig('enabled', false);
-    $setting = self::getConfig('enabled.' . $method, false);
+    $global = self::get('enabled', false);
+    $setting = self::get('enabled.' . $method, false);
     return $global === true || $setting === true;
   }
 
@@ -171,7 +171,7 @@ class ConfigHelper
   public static function checkSlug($path): void
   {
     $uri = '/' . trim($path, '/') . '/';
-    $prevent = explode('/', strtolower(self::getConfig('slug')));
+    $prevent = explode('/', strtolower(self::get('slug')));
     if (self::isMultilang()) {
       foreach(LanguagesHelper::getAll() as $language) {
         $prevent = array_merge($prevent, [ $language->code() ], UrlHelper::getSlugs($language->url()));
