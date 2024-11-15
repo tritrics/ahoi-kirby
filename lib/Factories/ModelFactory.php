@@ -68,7 +68,8 @@ class ModelFactory
     string $type,
     Field|Block $field,
     Collection $blueprint,
-    ?string $lang
+    string $lang = null,
+    array $addFields = []
   ): object {
     $key = $type;
 
@@ -80,7 +81,7 @@ class ModelFactory
     } else {
       $model = ConfigHelper::getNamespace() . '\\Models\\' . self::$classMap['text'];
     }
-    $instance = new $model($field, $blueprint, $lang);
+    $instance = new $model($field, $blueprint, $lang, $addFields);
     if ($instance->isNoneMultipleCollection()) {
       $firstEntry = $instance->getFirstEntry();
       if (!$firstEntry) {

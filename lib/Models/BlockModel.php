@@ -19,7 +19,7 @@ class BlockModel extends BaseModel
    * 
    * @var bool
    */
-  protected $hasChildFields = true;
+  protected $hasFields = true;
 
   /**
    * Get additional field data (besides type and value)

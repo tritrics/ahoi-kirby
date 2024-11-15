@@ -14,7 +14,7 @@ class ObjectModel extends BaseModel
    * 
    * @var bool
    */
-  protected $hasChildFields = true;
+  protected $hasFields = true;
 
   /**
    * Nodename for fields.

@@ -22,7 +22,7 @@ class NodeService
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get(Page|Site|File $model, ?string $lang, array|string $fields): Collection
+  public static function get(Page|Site|File $model, ?string $lang, array $fields): Collection
   {
     $blueprint = BlueprintHelper::get($model);
     if ($model instanceof File) {

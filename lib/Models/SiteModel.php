@@ -16,7 +16,7 @@ class SiteModel extends BaseModel
    * 
    * @var bool
    */
-  protected $hasChildFields = true;
+  protected $hasFields = true;
 
   /**
    * Nodename for fields.
@@ -44,17 +44,6 @@ class SiteModel extends BaseModel
       $meta->add('lang', $this->lang);
     }
 
-    // optional api meta values
-    if ($this->blueprint->has('api', 'meta')) {
-      $api = new Collection();
-      foreach ($this->blueprint->node('api', 'meta')->get() as $key => $value) {
-        $api->add($key, $value);
-      }
-      if ($api->count() > 0) {
-        $meta->add('api', $api);
-      }
-    }
-
     // languages
     if (ConfigHelper::isMultilang()) {
       $languages = $res->add('languages');
@@ -64,7 +53,6 @@ class SiteModel extends BaseModel
         );
       }
     }
-
     return $res;
   }
 

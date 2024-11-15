@@ -18,7 +18,7 @@ class PageModel extends BaseModel
    * 
    * @var bool
    */
-  protected $hasChildFields = true;
+  protected $hasFields = true;
 
   /**
    * Nodename for fields.
@@ -54,17 +54,6 @@ class PageModel extends BaseModel
     // language specific
     if (ConfigHelper::isMultilang()) {
       $meta->add('lang', $this->lang);
-    }
-
-    // optional api meta values
-    if ($this->blueprint->has('api', 'meta')) {
-      $api = new Collection();
-      foreach ($this->blueprint->node('api', 'meta')->get() as $key => $value) {
-        $api->add($key, $value);
-      }
-      if ($api->count() > 0) {
-        $meta->add('api', $api);
-      }
     }
 
     // languages

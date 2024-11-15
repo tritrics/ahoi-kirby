@@ -20,10 +20,10 @@ class FilesModel extends BaseModel
    * Create a child entry instance
    */
   public function createEntry(
-    ?File $model = null,
-    ?Collection $blueprint = null,
-    ?string $lang = null,
-    array|string $addFields = 'all'
+    File $model = null,
+    Collection $blueprint = null,
+    string $lang = null,
+    array $addFields = []
   ): Collection {
     return new FileModel($model, $blueprint, $lang, $addFields);
   }
@@ -44,14 +44,10 @@ class FilesModel extends BaseModel
    */
   protected function getValue (): Collection
   {
-    $addFields = []; // no fields added on default, must be explizit set.
-    if ($this->blueprint->node('api')->has('fields')) {
-      $addFields = $this->blueprint->node('api')->node('fields')->get();
-    }
     $res = new Collection();
     foreach ($this->model->toFiles() as $file) {
       $blueprint = BlueprintHelper::get($file);
-      $model = $this->createEntry($file, $blueprint, $this->lang, $addFields);
+      $model = $this->createEntry($file, $blueprint, $this->lang, $this->addFields);
       $res->push($model);
     }
     return $res;

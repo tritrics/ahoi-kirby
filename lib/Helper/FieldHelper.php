@@ -21,13 +21,29 @@ class FieldHelper
     array $allFields,
     Collection $blueprint,
     ?string $lang,
-    string|array $addFields = 'all'
+    ?array $addFields = []
   ): void {
-    $separator = ConfigHelper::getconfig('field_name_separator', '');
+    $separator = ConfigHelper::get('field_name_separator', '');
+
+    // separate regular fields from childfields
+    // $addFields can be: [ '*', 'title', 'pages', 'pages.*', 'pages.title', 'files.foo.*' ]
+    $fields = [];
+    $childFields = [];
+    foreach($addFields as $key) {
+      if (preg_match("/^([a-z0-9-_]+)\.(.+)$/", $key, $matches)) {
+        list($all, $parent, $child) = $matches;
+        if (!isset($childFields[$parent])) {
+          $childFields[$parent] = [];
+        }
+        $childFields[$parent][] = $child;
+      } else {
+        $fields[] = $key;
+      }
+    }
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
-      if ($addFields !== 'all' && !in_array($key, $addFields)) {
+      if (!in_array('*', $fields) && !in_array($key, $fields)) {
         continue;
       }
       $field = isset($allFields[$key]) ? $allFields[$key] : new KirbyField(null, $key, '');
@@ -37,10 +53,17 @@ class FieldHelper
       }
 
       if (ModelFactory::has($type)) {
+        $childAddFields = isset($childFields[$key]) ? $childFields[$key] : [];
         if ($separator) {
           $key = explode($separator, $key);
         }
-        $resultObj->add($key, ModelFactory::create($type, $field, $blueprintField, $lang));
+        $resultObj->add($key, ModelFactory::create(
+          $type,
+          $field,
+          $blueprintField,
+          $lang,
+          $childAddFields
+        ));
       }
     }
   }

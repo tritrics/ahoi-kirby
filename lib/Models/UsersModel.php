@@ -20,10 +20,10 @@ class UsersModel extends BaseModel
    * Create a child entry instance
    */
   public function createEntry(
-    ?User $model = null,
-    ?Collection $blueprint = null,
-    ?string $lang = null,
-    array|string $addFields = 'all'
+    User $model = null,
+    Collection $blueprint = null,
+    string $lang = null,
+    array $addFields = []
   ): Collection {
     return new UserModel($model, $blueprint, $lang, $addFields);
   }
@@ -44,14 +44,10 @@ class UsersModel extends BaseModel
    */
   protected function getValue (): Collection
   {
-    $addFields = []; // no fields added on default, must be explizit set.
-    if ($this->blueprint->node('api')->has('fields')) {
-      $addFields = $this->blueprint->node('api')->node('fields')->get();
-    }
     $res = new Collection();
     foreach ($this->model->toUsers() as $user) {
       $blueprint = BlueprintHelper::get($user);
-      $model = $this->createEntry($user, $blueprint, $this->lang, $addFields);
+      $model = $this->createEntry($user, $blueprint, $this->lang, $this->addFields);
       $res->push($model);
     }
     return $res;

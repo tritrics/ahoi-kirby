@@ -19,18 +19,38 @@ use Tritrics\Ahoi\v1\Helper\TypeHelper;
 abstract class BaseModel extends Collection
 {
   /**
-   * the Kirby model instance
-   * 
-   * @var mixed
-   */
-  protected $model;
-
-  /**
    * the Kirby Blueprint fragment
    * 
    * @var Collection
    */
   protected $blueprint;
+
+  /**
+   * Can be used, if model should output different content in different cases.
+   */
+  protected $addDetails = false;
+
+  /**
+   * Sometimes required for output control of child fields.
+   * 
+   * @var array
+   */
+  protected $addFields = [];
+
+  /**
+   * Fields
+   * 
+   * @var Collection|null
+   */
+  protected $fields = null;
+
+  /**
+   * Marker if this model has child fields.
+   * Can be overwritten by child class.
+   * 
+   * @var bool
+   */
+  protected $hasFields = false;
 
   /**
    * 2-digit Language-code
@@ -40,26 +60,11 @@ abstract class BaseModel extends Collection
   protected $lang;
 
   /**
-   * Optionally child-fields, auto-detected from blueprint
+   * the Kirby model instance
    * 
-   * @var Collection|null
+   * @var mixed
    */
-  protected $fields = null;
-
-  /**
-   * Sometimes required for output control of child fields.
-   * 
-   * @var array|string
-   */
-  protected $addFields = 'all';
-
-  /**
-   * Marker if this model has child fields.
-   * Can be overwritten by child class.
-   * 
-   * @var bool
-   */
-  protected $hasChildFields = false;
+  protected $model;
 
   /**
    * Name of the node with the value/childfields etc.
@@ -68,25 +73,20 @@ abstract class BaseModel extends Collection
   protected $valueNodeName = 'value';
 
   /**
-   * Can be used, if model should output different content in different cases.
-   */
-  protected $addDetails = false;
-
-  /**
    */
   public function __construct (
     Block|Field|User|File|Page|Site|null $model = null,
-    ?Collection $blueprint = null,
-    ?string $lang = null,
-    array|string $addFields = 'all',
-    ?bool $addDetails = false
+    Collection $blueprint = null,
+    string $lang = null,
+    array $addFields = [],
+    bool $addDetails = false
   ) {
     $this->model = $model;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
-    $this->addFields = is_array($addFields) || $addFields === 'all' ? $addFields : 'all';
+    $this->addFields = is_array($addFields) ? $addFields : [];
     $this->addDetails = $addDetails;
-    $this->setChildFields();
+    $this->setFields();
     $this->setModelData();
   }
 
@@ -196,12 +196,12 @@ abstract class BaseModel extends Collection
   }
 
   /**
-   * Check and set possible child fields.
+   * Set fields, if $this->hasFields is set to true.
    */
-  private function setChildFields (): void
+  private function setFields (): void
   {
     $this->fields = new Collection();
-    if ($this->hasChildFields && $this->blueprint->has('fields')) {
+    if ($this->hasFields && $this->blueprint->has('fields')) {
 
       // Inconsistency in Kirby's field definition
       // furthermore $this->lang is not documented and maybe not working for toObject()

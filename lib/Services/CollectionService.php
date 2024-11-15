@@ -81,7 +81,7 @@ class CollectionService
     string $request,
     Pages|Files $children,
     ?string $lang,
-    string|array $fields
+    ?array $fields
   ): Collection {
     $res = new Collection();
     foreach ($children as $child) {

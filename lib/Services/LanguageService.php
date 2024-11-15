@@ -19,6 +19,6 @@ class LanguageService
    */
   public static function get(?string $lang): Collection
   {
-    return new LanguageModel(null, null, $lang, 'all', true);
+    return new LanguageModel(null, null, $lang, [ '*' ], true);
   }
 }

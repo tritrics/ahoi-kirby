@@ -15,26 +15,26 @@ class RequestHelper
   public static function getAction(mixed $val): ?string
   {
     $action = TypeHelper::toString($val, true, true);
-    $valid_actions = ConfigHelper::getConfig('actions');
+    $valid_actions = ConfigHelper::get('actions');
     return strlen($action) && isset($valid_actions[$action]) ? $action : null;
   }
 
   /**
-   * Get fields parameter from Request, can be 'all' or array with field-names.
+   * Get fields parameter from Request.
    */
-  public static function getFields(Request $request): string|array
+  public static function getFields(Request $request): array
   {
-    $val  = $request->get('fields');
-    if (!is_array($val) || count($val) === 0) {
-      return 'all';
+    $fields = $request->get('fields');
+    $res = [];
+    if (is_array($fields)) {
+      $res = array_map(function ($entry) {
+        return TypeHelper::toString($entry, true, true);
+      }, $fields);
+      $res = array_filter($res, function ($entry) {
+        return strlen($entry) > 0;
+      });
     }
-    $val = array_map(function ($entry) {
-      return preg_replace("/[^a-z0-9_-]/", "", TypeHelper::toString($entry, true, true));
-    }, $val);
-    $val = array_filter($val, function ($entry) {
-      return (is_string($entry) && strlen($entry) > 0);
-    });
-    return $val;
+    return array_unique($res);
   }
 
   /**
