@@ -5,6 +5,7 @@ namespace Tritrics\Ahoi\v1\Models;
 use Kirby\Cms\File;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 
 /**
  * Model for Kirby's fields: files
@@ -35,7 +36,7 @@ class FilesModel extends BaseModel
   {
     $res = new Collection();
     $meta = $res->add('collection');
-    $meta->add('count', $this->model->toFiles()->count());
+    $meta->add('count', $this->model->toPages()->count());
     return $res;
   }
 
@@ -45,7 +46,8 @@ class FilesModel extends BaseModel
   protected function getValue (): Collection
   {
     $res = new Collection();
-    foreach ($this->model->toFiles() as $file) {
+    $children = KirbyHelper::filterCollection($this->model->toFiles());
+    foreach ($children as $file) {
       $blueprint = BlueprintHelper::get($file);
       $model = $this->createEntry($file, $blueprint, $this->lang, $this->addFields);
       $res->push($model);

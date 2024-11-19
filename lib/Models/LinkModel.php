@@ -12,18 +12,73 @@ use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 class LinkModel extends BaseModel
 {
   /**
-   * Linktype, intern use
-   * 
-   * @var string [http, https, page, file, email, tel, anchor, custom]
+   * Link meta
    */
-  private $linktype;
+  private $meta = [];
 
   /**
    * Constructor with additional initialization.
    */
   public function __construct(mixed $model, ?Collection $blueprint, ?string $lang)
   {
-    $this->linktype = LinkHelper::getType($model->value());
+    switch (LinkHelper::getType($model->value())) {
+      case 'anchor':
+        $this->meta = LinkHelper::getAnchor(
+          $model->value(),
+          preg_replace('/^(#)/', '', $model->value()),
+          false
+        );
+        break;
+      case 'email':
+        $this->meta = LinkHelper::getEmail(
+          $model->value(),
+          preg_replace('/^(mailto:)/', '', $model->value()),
+          false
+        );
+        break;
+      case 'file':
+        $file = KirbyHelper::findFileByKirbyLink($model->value());
+        if ($file) {
+          $this->meta = LinkHelper::getFile(
+            $model->value(),
+            (string) $file->title()->get(),
+            true
+          );
+        }
+        break;
+      case 'page':
+        $page = KirbyHelper::findPageByKirbyLink($model->value());
+        if ($page) {
+          $this->meta = LinkHelper::getPage(
+            $model->value(),
+            (string) $page->title()->get(),
+            false,
+            $this->lang
+          );
+        }
+        break;
+      case 'tel':
+        $this->meta = LinkHelper::getTel(
+          $model->value(),
+          preg_replace('/^(tel:)/', '', $model->value()),
+          false
+        );
+        break;
+      case 'url':
+        $this->meta = LinkHelper::getUrl(
+          $model->value(),
+          preg_replace('/^(http[s]*:\/\/)[.]*/', '', $model->value()),
+          true
+        );
+        break;
+      default:
+        $this->meta = LinkHelper::getCustom(
+          $model->value(),
+          $model->value(),
+          false
+        );
+        break;
+    }
     parent::__construct($model, $blueprint, $lang);
   }
 
@@ -33,13 +88,7 @@ class LinkModel extends BaseModel
   protected function getProperties(): Collection
   {
     $res = new Collection();
-    $res->add('meta', LinkHelper::get(
-      $this->model->value(),
-      null,
-      false,
-      $this->lang,
-      $this->linktype
-    ));
+    $res->add('meta', $this->meta);
     return $res;
   }
 
@@ -48,24 +97,7 @@ class LinkModel extends BaseModel
    */
   protected function getValue(): string
   {
-    switch ($this->linktype) {
-      case 'anchor':
-        return preg_replace('/^(#)/', '', $this->model->value());
-      case 'email':
-        return preg_replace('/^(mailto:)/', '', $this->model->value());
-      case 'file':
-        $model = KirbyHelper::findFileByKirbyLink($this->model->value());
-        return $model ? (string) $model->title()->get() : '';
-      case 'page':
-        $model = KirbyHelper::findPageByKirbyLink($this->model->value());
-        return $model ? (string) $model->title()->get() : '';
-      case 'tel':
-        return preg_replace('/^(tel:)/', '', $this->model->value());
-      case 'url':
-        return preg_replace('/^(http[s]*:\/\/)[.]*/', '', $this->model->value());
-      default:
-        return $this->model->value();
-    }
+    return $this->meta['title'] ?? '';
   }
 }
 

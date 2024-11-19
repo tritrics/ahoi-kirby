@@ -31,7 +31,7 @@ abstract class BaseModel extends Collection
   protected $addDetails = false;
 
   /**
-   * Sometimes required for output control of child fields.
+   * Output control of child fields.
    * 
    * @var array
    */

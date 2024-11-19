@@ -12,6 +12,8 @@ use Tritrics\Ahoi\v1\Models\PageModel;
 use Tritrics\Ahoi\v1\Models\FileModel;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 use Tritrics\Ahoi\v1\Helper\FieldHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Helper\RouteAccessHelper;
 use Tritrics\Ahoi\v1\Models\SiteModel;
 
 /**
@@ -42,24 +44,12 @@ class CollectionService
 
     // request children of pages or files
     if ($request === 'pages') {
-      $children = $model->children();
+      $children = KirbyHelper::getPages($model, $params);
     } else if ($request === 'files') {
-      $children = $model->files();
+      $children = KirbyHelper::getFiles($model, $params);
     } else {
       return $body;
     }
-
-    // limit result, order important
-    if ($request === 'pages') {
-      $status = $params['status'];
-      $children = $children->$status();
-    }
-    foreach($params['filter'] as $args) {
-      $children = $children->filterBy(...$args);
-    }
-    $children = $children->sortBy(...$params['sort']);
-    $children = $children->offset($params['offset']);
-    $children = $children->limit($params['limit']);
 
     // add collection info
     $collection = $body->add('collection');
@@ -73,9 +63,7 @@ class CollectionService
   }
 
   /**
-   * Get children filtered by status.
-   * 
-   * @throws InvalidArgumentException 
+   * Get children
    */
   private static function getChildren(
     string $request,

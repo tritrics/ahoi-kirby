@@ -7,6 +7,7 @@ use Kirby\Cms\File;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
 use Kirby\Cms\Pages;
+use Kirby\Cms\Files;
 use Throwable;
 
 /**
@@ -57,9 +58,34 @@ class KirbyHelper
   }
 
   /**
+   * Helper to filter Pages or Files
+   */
+  public static function filterCollection(Pages|Files $children, array $options = []): Pages|Files
+  {
+    $children = $children->filter(
+      fn($child) => RouteAccessHelper::isAllowed($child)
+    );
+    if (isset($options['filter']) && is_array($options['filter'])) {
+      foreach ($options['filter'] as $args) {
+        $children = $children->filterBy(...$args);
+      }
+    }
+    if (isset($options['sort']) && is_array($options['sort'])) {
+      $children = $children->sortBy(...$options['sort']);
+    }
+    if (isset($options['offset'])) {
+      $children = $children->offset($options['offset']);
+    }
+    if (isset($options['limit'])) {
+      $children = $children->limit($options['limit']);
+    }
+    return $children;
+  }
+
+  /**
    * Find a Page or a File by slug.
    */
-  public static function findAny(?string $lang = null, ?string $slug = null): null|Page|File
+  public static function findAny(?string $lang = null, ?string $slug = null): null|Site|Page|File
   {
     $node = self::findPage($lang, $slug);
     if ($node) {
@@ -158,5 +184,27 @@ class KirbyHelper
       }
     }
     return null;
+  }
+
+  /**
+   * Getting pages/children of a page, optionally filtered.
+   * It's not possible to return status = draft.
+   */
+  public static function getPages(Page|Site $model, array $options = []): Pages
+  {
+    $status = 'listed';
+    if (isset($options['status']) && in_array($options['status'], ['listed', 'unlisted', 'published'])) {
+      $status = $options['status'];
+    }
+    $children = $model->children()->$status();
+    return self::filterCollection($children, $options);
+  }
+
+  /**
+   * Getting files of a page, optionally filtered.
+   */
+  public static function getFiles(Page|Site $model, array $options = []): Files
+  {
+    return self::filterCollection($model->files(), $options);
   }
 }

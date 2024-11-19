@@ -53,7 +53,7 @@ class LinkHelper
   /**
    * Get attributes for anchor link.
    */
-  private static function getAnchor(?string $href, ?string $title, ?bool $blank): array
+  public static function getAnchor(?string $href, ?string $title, ?bool $blank): array
   {
     if (!str_starts_with($href, '#')) {
       $href = '#' . $href;
@@ -68,7 +68,7 @@ class LinkHelper
   /**
    * Get attributes for custom link.
    */
-  private static function getCustom(?string $href, ?string $title, ?bool $blank): array
+  public static function getCustom(?string $href, ?string $title, ?bool $blank): array
   {
     $res = [
       'type' => 'custom'
@@ -82,7 +82,7 @@ class LinkHelper
   /**
    * Get attributes for email link.
    */
-  private static function getEmail(?string $href, ?string $title, ?bool $blank): array
+  public static function getEmail(?string $href, ?string $title, ?bool $blank): array
   {
     $res = [
       'type' => 'email',
@@ -96,20 +96,21 @@ class LinkHelper
    * - file://Lqjjl2pjBbwOlpc9
    * - /@/file/Lqjjl2pjBbwOlpc9
    */
-  private static function getFile(string|File $mixed, ?string $title, ?bool $blank): array
+  public static function getFile(string|File $mixed, ?string $title, ?bool $blank): array
   {
     if (is_string($mixed)) {
       $mixed = KirbyHelper::findFileByKirbyLink($mixed);
     }
     $res = [];
-    if ($mixed instanceof File) {
+    if ($mixed instanceof File && RouteAccessHelper::isAllowed($mixed)) {
       $href = $mixed->url();
       $res = [
         'type' => 'file',
         'href' => $href
       ];
+      return self::addGlobals($res, $title, $blank);
     }
-    return self::addGlobals($res, $title, $blank);
+    return [];
   }
 
   /**
@@ -119,7 +120,7 @@ class LinkHelper
    * - [/lang]/some/path is NOT interpreted as intern link > custom
    * - an invalid intern link => '/[lang]'
    */
-  private static function getPage(
+  public static function getPage(
     string|Page|null $mixed,
     ?string $title,
     ?bool $blank,
@@ -129,20 +130,21 @@ class LinkHelper
       $mixed = KirbyHelper::findPageByKirbyLink($mixed);
     }
     $res = [];
-    if ($mixed instanceof Page) {
+    if ($mixed instanceof Page && RouteAccessHelper::isAllowed($mixed)) {
       $href = $mixed->url($lang);
       $res = [
         'type' => 'page',
         'href' => UrlHelper::getPath($href)
       ];
+      return self::addGlobals($res, $title, $blank);
     }
-    return self::addGlobals($res, $title, $blank);
+    return [];
   }
 
   /**
    * Get attributes for tel link.
    */
-  private static function getTel(?string $href, ?string $title, ?bool $blank): array
+  public static function getTel(?string $href, ?string $title, ?bool $blank): array
   {
     $tel = preg_replace('/^[+]{1,}/', '00', $href);
     $tel = preg_replace('/[^0-9]/', '', $tel);
@@ -177,7 +179,7 @@ class LinkHelper
   /**
    * Get attributes for url link.
    */
-  private static function getUrl(?string $href, ?string $title, ?bool $blank): array
+  public static function getUrl(?string $href, ?string $title, ?bool $blank): array
   {
     $res = [
       'type' => 'url',

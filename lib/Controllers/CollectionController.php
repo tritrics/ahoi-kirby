@@ -9,6 +9,7 @@ use Tritrics\Ahoi\v1\Factories\ModelFactory;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\RequestHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
+use Tritrics\Ahoi\v1\Helper\RouteAccessHelper;
 use Tritrics\Ahoi\v1\Services\CollectionService;
 
 /**
@@ -57,6 +58,9 @@ class CollectionController
         if (!$node || $node->isDraft()) {
           return $Response->getNotFound();
         }
+      }
+      if ( ! RouteAccessHelper::isAllowed($node, $lang)) {
+        return $Response->getNotAllowed();
       }
       $params = [
         'fields' => RequestHelper::getFields($request),

@@ -27,7 +27,7 @@ class UsersModel extends BaseModel
   ): Collection {
     return new UserModel($model, $blueprint, $lang, $addFields);
   }
-  
+
   /**
    * Get additional field data (besides type and value)
    */
@@ -35,7 +35,7 @@ class UsersModel extends BaseModel
   {
     $res = new Collection();
     $meta = $res->add('collection');
-    $meta->add('count', $this->model->toUsers()->count());
+    $meta->add('count', $this->model->toPages()->count());
     return $res;
   }
 

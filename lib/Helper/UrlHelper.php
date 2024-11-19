@@ -64,7 +64,7 @@ class UrlHelper
   /**
    * Get node for a page or file.
    */
-  public static function getNode(Page|File|Site $model, ?string $lang): string
+  public static function getNode(Page|File|Site $model, ?string $lang = null): string
   {
     if ($model instanceof Page) {
       return '/' . trim($lang . '/' . $model->uri($lang), '/');
@@ -74,7 +74,7 @@ class UrlHelper
       return '/' . ltrim($lang . '/' . $page->uri($lang), '/') . '/' . $model->filename();
     }
     if ($model instanceof Site) {
-      return '/' . trim($lang, '/');
+      return '/' . trim($lang || '', '/');
     }
   }
 

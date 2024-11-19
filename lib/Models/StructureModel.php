@@ -38,7 +38,8 @@ class StructureModel extends BaseModel
         $row,
         $entry->content($this->lang)->fields(),
         $this->blueprint->node('fields'),
-        $this->lang
+        $this->lang,
+        [ '*' ] // the structure-fields makes no sense without the entries, (same in ObjectModel)
       );
       $res->push($row);
     }

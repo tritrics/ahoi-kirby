@@ -62,7 +62,7 @@ class BlueprintHelper
    */
   private static function checkAccess(string $name): bool
   {
-    return isset(self::$access[$name]) ? self::$access[$name] : self::$access['all'];
+    return isset(self::$access[$name]) ? self::$access[$name] : self::$access['*'];
   }
 
   /**
@@ -124,7 +124,6 @@ class BlueprintHelper
   {
     $name = str_replace('/', '_', TypeHelper::toString($path, true, true));
     if (!self::checkAccess($name)) {
-      error_log($name);
       return [];
     }
     if (!isset(self::$files[$name])) {
@@ -345,11 +344,11 @@ class BlueprintHelper
   private static function setAccess(): void
   {
     self::$access = [
-      'all' => false
+      '*' => false
     ];
     $config = ConfigHelper::get('blueprints');
     if (TypeHelper::isTrue($config)) {
-      self::$access['all'] = true;
+      self::$access['*'] = true;
     } else if (is_array($config)) {
       foreach($config as $blueprint => $access) {
         $name = str_replace('/', '_',TypeHelper::toString($blueprint, true, true));

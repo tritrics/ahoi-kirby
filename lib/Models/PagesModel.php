@@ -5,6 +5,7 @@ namespace Tritrics\Ahoi\v1\Models;
 use Kirby\Cms\Page;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
+use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 
 /**
  * Model for Kirby's fields: pages
@@ -27,7 +28,7 @@ class PagesModel extends BaseModel
   ): Collection {
     return new PageModel($model, $blueprint, $lang, $addFields);
   }
-  
+
   /**
    * Get additional field data (besides type and value)
    */
@@ -45,10 +46,8 @@ class PagesModel extends BaseModel
   protected function getValue (): Collection
   {
     $res = new Collection();
-    foreach ($this->model->toPages() as $page) {
-      if ($page->isDraft()) {
-        continue;
-      }
+    $children = KirbyHelper::filterCollection($this->model->toPages(), [ 'status' => 'published ']);
+    foreach ($children as $page) {
       $blueprint = BlueprintHelper::get($page);
       $model = $this->createEntry($page, $blueprint, $this->lang, $this->addFields);
       $res->push($model);

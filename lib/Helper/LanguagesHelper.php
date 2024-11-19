@@ -5,7 +5,6 @@ namespace Tritrics\Ahoi\v1\Helper;
 use Kirby\Cms\Language;
 use Kirby\Cms\Languages;
 use Kirby\Exception\LogicException;
-use Tritrics\Ahoi\v1\Data\Collection;
 
 /**
  * Language related helper functions.

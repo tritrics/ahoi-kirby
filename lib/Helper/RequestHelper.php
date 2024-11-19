@@ -184,10 +184,13 @@ class RequestHelper
    * "/en" -> english version of site
    * "/en/some/page" -> english version of page "/some/path"
    */
-  public static function parsePath(string $path, bool $multilang): array
+  public static function parsePath(string $resource, bool $multilang): array
   {
-    $parts = array_filter(explode('/', $path));
+    $parts = array_filter(explode('/', $resource));
     $lang = $multilang ? array_shift($parts) : null;
+    $parts = array_filter($parts, function ($entry) {
+      return strlen($entry) > 0;
+    });
     $slug = count($parts) > 0 ? implode('/', $parts) : null;
     return [$lang, $slug];
   }
