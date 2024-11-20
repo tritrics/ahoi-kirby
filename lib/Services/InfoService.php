@@ -8,8 +8,6 @@ use Kirby\Exception\LogicException;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
-use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
-use Tritrics\Ahoi\v1\Models\SiteModel;
 use Tritrics\Ahoi\v1\Models\LanguageModel;
 
 /**
@@ -55,27 +53,17 @@ class InfoService
       $interface = $body->add('interface');
       $Request = kirby()->request();
       $url = substr($Request->url()->toString(), 0, -5); // the easy way
-      if (ConfigHelper::isEnabledAction()) {
+      if (ConfigHelper::hasActions()) {
         $interface->add('action', $url . '/action');
       }
-      if (ConfigHelper::isEnabledFile()) {
-        $interface->add('file', $url . '/file');
-      }
-      if (ConfigHelper::isEnabledFiles()) {
-        $interface->add('files', $url . '/files');
-      }
-      if (ConfigHelper::isEnabledInfo()) {
-        $interface->add('info', $url . '/info',);
-      }
-      if (ConfigHelper::isEnabledLanguage()) {
+      $interface->add('file', $url . '/file');
+      $interface->add('files', $url . '/files');
+      $interface->add('info', $url . '/info',);
+      if (ConfigHelper::isMultilang()) {
         $interface->add('language', $url . '/language',);
       }
-      if (ConfigHelper::isEnabledPage()) {
-        $interface->add('page', $url . '/page');
-      }
-      if (ConfigHelper::isEnabledPages()) {
-        $interface->add('pages', $url . '/pages');
-      }
+      $interface->add('page', $url . '/page');
+      $interface->add('pages', $url . '/pages');
     }
 
     // add languages

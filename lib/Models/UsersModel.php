@@ -4,12 +4,13 @@ namespace Tritrics\Ahoi\v1\Models;
 
 use Kirby\Cms\User;
 use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 
 /**
  * Model for Kirby's fields: users
  */
-class UsersModel extends BaseEntriesModel
+class UsersModel extends EntriesModel
 {
   /**
    * Constructor with additional initialization.

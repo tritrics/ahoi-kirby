@@ -4,13 +4,14 @@ namespace Tritrics\Ahoi\v1\Models;
 
 use Kirby\Cms\Page;
 use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 
 /**
  * Model for Kirby's fields: pages
  */
-class PagesModel extends BaseEntriesModel
+class PagesModel extends EntriesModel
 {
   /**
    * Constructor with additional initialization.

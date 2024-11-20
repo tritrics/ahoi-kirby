@@ -8,6 +8,7 @@ use \DOMText;
 use \DOMCdataSection;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
+use Tritrics\Ahoi\v1\Data\BaseModel;
 use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
@@ -94,15 +95,31 @@ class TextModel extends BaseModel
       if ($root->hasChildNodes()) {
         $res['value'] = [];
         $children = $root->childNodes;
-        for ($i = 0; $i < $children->length; $i++) {
-          $child = $this->htmlToArray($children->item($i));
-          if (!empty($child)) {
-            $res['value'][] = $child;
+
+        // <li> has a <p> as child -> remove
+        if ($res['elem'] === 'li' && $children->length === 1 && $children->item(0)->nodeName === 'p') {
+          $child = $this->htmlToArray($children->item(0));
+          $res['value'] = $child['value'];
+        }
+        
+        // all other
+        else {
+          for ($i = 0; $i < $children->length; $i++) {
+            $child = $this->htmlToArray($children->item($i));
+            if (!empty($child)) {
+              $res['value'][] = $child;
+            }
           }
         }
 
         // if it's only a block-element with simple text, then remove children
-        if (count($res['value']) === 1 && count($res['value'][0]) === 1 && isset($res['value'][0]['value'])) {
+        if (
+          is_array($res['value']) &&
+          count($res['value']) === 1 &&
+          is_array($res['value'][0]) &&
+          count($res['value'][0]) === 1 &&
+          isset($res['value'][0]['value'])
+        ) {
           $res['value'] = $res['value'][0]['value'];
         }
       }

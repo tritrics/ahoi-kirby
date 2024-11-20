@@ -2,7 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\FieldsModel;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
@@ -11,7 +11,7 @@ use Tritrics\Ahoi\v1\Models\LanguageModel;
 /**
  * Model for Kirby's page object
  */
-class PageModel extends BaseFieldsModel
+class PageModel extends FieldsModel
 {
   /**
    */

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Ahoi\v1\Models;
+namespace Tritrics\Ahoi\v1\Data;
 
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\FieldHelper;
@@ -8,7 +8,7 @@ use Tritrics\Ahoi\v1\Helper\FieldHelper;
 /**
  * Basic model for Kirby Fields and Models with fields.
  */
-class BaseFieldsModel extends BaseModel
+class FieldsModel extends BaseModel
 {
   /**
    * Fields

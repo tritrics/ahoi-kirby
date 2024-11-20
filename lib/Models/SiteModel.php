@@ -2,14 +2,14 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\FieldsModel;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 
 /**
  * Model for Kirby's site object
  */
-class SiteModel extends BaseFieldsModel
+class SiteModel extends FieldsModel
 {
   /**
    */

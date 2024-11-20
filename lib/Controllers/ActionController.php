@@ -57,9 +57,6 @@ class ActionController
    */
   private function isInvalidRequest(Response $Response, ?string $lang, ?string $action, ?string $token): Response|bool
   {
-    if (!ConfigHelper::isEnabledAction()) {
-      return $Response->getDisabled();
-    }
     $lang = RequestHelper::getLang($lang);
     if ($lang === null) {
       return $Response->getInvalidLang();
@@ -80,9 +77,6 @@ class ActionController
   public function token(?string $action): KirbyResponse
   {
     $Response = new Response('token', null, $action);
-    if (!ConfigHelper::isEnabledAction()) {
-      return $Response->getDisabled();
-    }
     $action = RequestHelper::getAction($action);
     if ($action === null) {
       return $Response->getBadRequest();

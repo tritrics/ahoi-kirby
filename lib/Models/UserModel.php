@@ -2,10 +2,12 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Tritrics\Ahoi\v1\Data\FieldsModel;
+
 /**
  * Model for Kirby's user object
  */
-class UserModel extends BaseFieldsModel
+class UserModel extends FieldsModel
 {
   /**
    */

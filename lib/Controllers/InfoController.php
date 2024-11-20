@@ -32,9 +32,6 @@ class InfoController
   {
     $Response = new Response('info');
     try {
-      if (!ConfigHelper::isEnabledInfo()) {
-        return $Response->getDisabled();
-      }
       return $Response->get(InfoService::get());
     } catch (Exception $e) {
       return $Response->getFatal($e->getMessage());

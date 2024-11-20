@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Tritrics\Ahoi\v1\Data\BaseModel;
 use Tritrics\Ahoi\v1\Helper\LinkHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 

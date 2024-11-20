@@ -21,14 +21,7 @@ ConfigHelper::init([
  */
 kirby()::plugin(ConfigHelper::getPluginName(), [
   'options' => [
-    'enabled' => [
-      'action' => false,
-      'info' => false,
-      'file' => false,
-      'files' => false,
-      'page' => false,
-      'pages' => false,
-    ],
+    'enabled' => false,
     'slug' => 'public-api',
     'field_name_separator' => '_',
     'form_security' => [
@@ -41,30 +34,38 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
   ],
   'hooks' => [
     'page.create:before' => function ($page) {
-      ConfigHelper::checkSlug($page->uri());
+      if (ConfigHelper::isEnabled()) {
+        ConfigHelper::checkSlug($page->uri());
+      }
     },
     'page.changeSlug:before' => function ($page, $slug) {
-      ConfigHelper::checkSlug($slug);
+      if (ConfigHelper::isEnabled()) {
+        ConfigHelper::checkSlug($slug);
+      }
     },
     'page.duplicate:before' => function ($page, $input) {
-      ConfigHelper::checkSlug($input);
+      if (ConfigHelper::isEnabled()) {
+        ConfigHelper::checkSlug($input);
+      }
     },
     'route:before' => function ($route, $path, $method) {
       $attributes = $route->attributes();
       if (
+        ConfigHelper::isEnabled() &&
         $method === 'GET' &&
         isset($attributes['env']) &&
         $attributes['env'] === 'media' &&
         is_string($path) &&
-        !is_file(kirby()->root('index') . '/' . $path)) {
-          ImageService::get($path, $route->arguments(), $route->pattern());
+        !is_file(kirby()->root('index') . '/' . $path)
+      ) {
+        ImageService::get($path, $route->arguments(), $route->pattern());
       }
       return;
     }
   ],
   'routes' => function ($kirby) {
     $slug = ConfigHelper::getApiSlug();
-    if (!$slug) {
+    if (!ConfigHelper::isEnabled() || !$slug) {
       return [];
     }
     $multilang = ConfigHelper::isMultilang();
@@ -95,19 +96,17 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
     ];
 
     // expose
-    if (ConfigHelper::isEnabledInfo()) {
-      $routes[] = [
-        'pattern' => $slug . '/info',
-        'method' => 'GET',
-        'action' => function () {
-          $controller = new InfoController();
-          return $controller->info();
-        }
-      ];
-    }
+    $routes[] = [
+      'pattern' => $slug . '/info',
+      'method' => 'GET',
+      'action' => function () {
+        $controller = new InfoController();
+        return $controller->info();
+      }
+    ];
 
     // a language
-    if ($multilang && ConfigHelper::isEnabledLanguage()) {
+    if ($multilang) {
       $routes[] = [
         'pattern' => $slug . '/language/(:any)',
         'method' => 'GET|POST',
@@ -119,59 +118,51 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
     }
 
     // a page
-    if (ConfigHelper::isEnabledPage()) {
-      $routes[] = [
-        'pattern' => $slug . '/page/(:all?)',
-        'method' => 'GET|POST',
-        'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new NodeController();
-          return $controller->page($lang, $path);
-        }
-      ];
-    }
+    $routes[] = [
+      'pattern' => $slug . '/page/(:all?)',
+      'method' => 'GET|POST',
+      'action' => function ($resource = '') use ($multilang) {
+        list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
+        $controller = new NodeController();
+        return $controller->page($lang, $path);
+      }
+    ];
 
     // a file
-    if (ConfigHelper::isEnabledFile()) {
-      $routes[] = [
-        'pattern' => $slug . '/file/(:all?)',
-        'method' => 'GET|POST',
-        'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new NodeController();
-          return $controller->file($lang, $path);
-        }
-      ];
-    }
+    $routes[] = [
+      'pattern' => $slug . '/file/(:all?)',
+      'method' => 'GET|POST',
+      'action' => function ($resource = '') use ($multilang) {
+        list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
+        $controller = new NodeController();
+        return $controller->file($lang, $path);
+      }
+    ];
 
     // children of a page
-    if (ConfigHelper::isEnabledPages()) {
-      $routes[] = [
-        'pattern' => $slug . '/pages/(:all?)',
-        'method' => 'GET|POST',
-        'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new CollectionController();
-          return $controller->pages($lang, $path);
-        }
-      ];
-    }
+    $routes[] = [
+      'pattern' => $slug . '/pages/(:all?)',
+      'method' => 'GET|POST',
+      'action' => function ($resource = '') use ($multilang) {
+        list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
+        $controller = new CollectionController();
+        return $controller->pages($lang, $path);
+      }
+    ];
 
     // children of a page
-    if (ConfigHelper::isEnabledFiles()) {
-      $routes[] = [
-        'pattern' => $slug . '/files/(:all?)',
-        'method' => 'GET|POST',
-        'action' => function ($resource = '') use ($multilang) {
-          list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
-          $controller = new CollectionController();
-          return $controller->files($lang, $path);
-        }
-      ];
-    }
+    $routes[] = [
+      'pattern' => $slug . '/files/(:all?)',
+      'method' => 'GET|POST',
+      'action' => function ($resource = '') use ($multilang) {
+        list($lang, $path) = RequestHelper::parsePath($resource, $multilang);
+        $controller = new CollectionController();
+        return $controller->files($lang, $path);
+      }
+    ];
 
     // create (update, delete) pages, send emails etc.
-    if (ConfigHelper::isEnabledAction()) {
+    if (ConfigHelper::hasActions()) {
 
       // GET > return a token, needed to submit an action
       $routes[] = [
@@ -217,13 +208,13 @@ kirby()::plugin(ConfigHelper::getPluginName(), [
 
       // DELETE > delete
       $routes[] = [
-          'pattern' => $slug . '/action/(:all?)',
-          'method' => 'DELETE',
-          'action' => function () {
-            $controller = new ActionController();
-            return $controller->delete();
-          }
-        ];
+        'pattern' => $slug . '/action/(:all?)',
+        'method' => 'DELETE',
+        'action' => function () {
+          $controller = new ActionController();
+          return $controller->delete();
+        }
+      ];
     }
     return $routes;
   }

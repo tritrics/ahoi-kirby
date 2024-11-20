@@ -6,6 +6,7 @@ use Kirby\Cms\Site;
 use Kirby\Cms\Page;
 use Kirby\Cms\File;
 use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\FieldsModel;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
@@ -13,7 +14,7 @@ use Tritrics\Ahoi\v1\Helper\UrlHelper;
 /**
  * Model for Kirby's language object
  */
-class LanguageModel extends BaseFieldsModel
+class LanguageModel extends FieldsModel
 {
   /**
    */

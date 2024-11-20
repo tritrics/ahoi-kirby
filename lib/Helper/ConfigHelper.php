@@ -78,6 +78,15 @@ class ConfigHelper
   }
 
   /**
+   * Check, if actions are defined in config.
+   */
+  public static function hasActions(): bool
+  {
+    $actions = self::get('actions');
+    return is_array($actions) && count($actions) > 0;
+  }
+
+  /**
    * Doing some initialization stuff.
    */
   public static function init($globals): void
@@ -88,67 +97,9 @@ class ConfigHelper
   /**
    * Check, if API's functions are enabled.
    */
-  private static function isEnabled(string $method): bool
+  public static function isEnabled(): bool
   {
-    $global = self::get('enabled', false);
-    $setting = self::get('enabled.' . $method, false);
-    return $global === true || $setting === true;
-  }
-
-  /**
-   * Check if "form" action is enabled.
-   */
-  public static function isEnabledAction(): bool
-  {
-    return self::isEnabled('action');
-  }
-
-  /**
-   * Check if "info" action is enabled.
-   */
-  public static function isEnabledInfo(): bool
-  {
-    return self::isEnabled('info');
-  }
-
-  /**
-   * Check if "language" action is enabled.
-   */
-  public static function isEnabledLanguage(): bool
-  {
-    return self::isEnabled('language');
-  }
-
-  /**
-   * Check if "page" action is enabled.
-   */
-  public static function isEnabledFile(): bool
-  {
-    return self::isEnabled('file');
-  }
-
-  /**
-   * Check if "pages" action is enabled.
-   */
-  public static function isEnabledFiles(): bool
-  {
-    return self::isEnabled('files');
-  }
-
-  /**
-   * Check if "page" action is enabled.
-   */
-  public static function isEnabledPage(): bool
-  {
-    return self::isEnabled('page');
-  }
-
-  /**
-   * Check if "pages" action is enabled.
-   */
-  public static function isEnabledPages(): bool
-  {
-    return self::isEnabled('pages');
+    return self::get('enabled', false);
   }
 
   /**

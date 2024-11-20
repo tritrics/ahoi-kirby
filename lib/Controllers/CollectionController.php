@@ -34,9 +34,6 @@ class CollectionController
   public function files(?string $lang, ?string $slug): KirbyResponse
   {
     $Response = new Response('files', $lang, $slug);
-    if (!ConfigHelper::isEnabledFiles()) {
-      return $Response->getDisabled();
-    }
     return $this->get($Response, $lang, $slug);
   }
 
@@ -82,9 +79,6 @@ class CollectionController
   public function pages(?string $lang, ?string $slug): KirbyResponse
   {
     $Response = new Response('pages', $lang, $slug);
-    if (!ConfigHelper::isEnabledPages()) {
-      return $Response->getDisabled();
-    }
     return $this->get($Response, $lang, $slug);
   }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tritrics\Ahoi\v1\Models;
+namespace Tritrics\Ahoi\v1\Data;
 
 use Kirby\Cms\Blocks;
 use Kirby\Cms\Files;
@@ -13,7 +13,7 @@ use Tritrics\Ahoi\v1\Helper\TypeHelper;
 /**
  * Basic model for Kirby Fields and Models with children/entries.
  */
-class BaseEntriesModel extends BaseModel
+class EntriesModel extends BaseModel
 {
   /**
    * The children/entries (models).

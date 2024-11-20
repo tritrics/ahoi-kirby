@@ -2,12 +2,13 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 use Tritrics\Ahoi\v1\Models\BlockModel;
 
 /**
  * Model for Kirby's fields: blocks
  */
-class BlocksModel extends BaseEntriesModel
+class BlocksModel extends EntriesModel
 {
   /**
    * Constructor with additional initialization.

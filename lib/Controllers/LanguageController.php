@@ -33,9 +33,6 @@ class LanguageController
   {
     $Response = new Response('language', $lang);
     try {
-      if (!ConfigHelper::isEnabledLanguage()) {
-        return $Response->getDisabled();
-      }
       $lang = RequestHelper::getLang($lang);
       if ($lang === null) {
         return $Response->getInvalidLang();

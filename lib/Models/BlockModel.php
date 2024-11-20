@@ -2,10 +2,12 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Tritrics\Ahoi\v1\Data\FieldsModel;
+
 /**
  * Default model for Kirby's blocks
  */
-class BlockModel extends BaseFieldsModel
+class BlockModel extends FieldsModel
 {
   /**
    */

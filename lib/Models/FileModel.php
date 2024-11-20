@@ -2,6 +2,7 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Tritrics\Ahoi\v1\Data\FieldsModel;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
@@ -9,7 +10,7 @@ use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 /**
  * Model for Kirby's file object
  */
-class FileModel extends BaseFieldsModel
+class FileModel extends FieldsModel
 {
   /**
    */

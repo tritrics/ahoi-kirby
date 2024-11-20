@@ -3,12 +3,13 @@
 namespace Tritrics\Ahoi\v1\Models;
 
 use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 use Tritrics\Ahoi\v1\Helper\FieldHelper;
 
 /**
  * Model for Kirby's fields: structure
  */
-class StructureModel extends BaseEntriesModel
+class StructureModel extends EntriesModel
 {
   /**
    */

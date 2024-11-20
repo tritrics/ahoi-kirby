@@ -34,9 +34,6 @@ class NodeController
   public function file(?string $lang, ?string $slug): KirbyResponse
   {
     $Response = new Response('site', $lang, $slug);
-    if (!ConfigHelper::isEnabledFile()) {
-      return $Response->getDisabled();
-    }
     return $this->get($Response, $lang, $slug);
   }
 
@@ -76,9 +73,6 @@ class NodeController
   public function page(?string $lang, ?string $slug): KirbyResponse
   {
     $Response = new Response('page', $lang, $slug);
-    if (!ConfigHelper::isEnabledPage()) {
-      return $Response->getDisabled();
-    }
     return $this->get($Response, $lang, $slug);
   }
 }

@@ -4,13 +4,14 @@ namespace Tritrics\Ahoi\v1\Models;
 
 use Kirby\Cms\File;
 use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 
 /**
  * Model for Kirby's fields: files
  */
-class FilesModel extends BaseEntriesModel
+class FilesModel extends EntriesModel
 {
   /**
    */

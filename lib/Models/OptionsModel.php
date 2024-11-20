@@ -3,12 +3,13 @@
 namespace Tritrics\Ahoi\v1\Models;
 
 use Tritrics\Ahoi\v1\Data\Collection;
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
  * Model for Kirby's fields: checkboxes, multiselect, tags
  */
-class OptionsModel extends BaseEntriesModel
+class OptionsModel extends EntriesModel
 {
   /**
    */
@@ -33,14 +34,11 @@ class OptionsModel extends BaseEntriesModel
     // OptionsModel can't be used her, because there is no blueprint
     // representation of a single option. So we create a pseudo-field 
     // with type=option here.
-    $addLabel = $this->blueprint->node('api', 'labels')->is(true);
     $entries = $this->add('entries');
     foreach ($this->entries as $key => $value) {
       $option = new Collection();
       $option->add('type', 'option');
-      if ($addLabel) {
-        $option->add('label', $this->getLabel($value));
-      }
+      // $option->add('label', $this->getLabel($value)); @see OptionModel
       $option->add('value', $value);
       $entries->add($key, $option);
     }

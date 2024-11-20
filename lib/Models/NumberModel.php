@@ -2,6 +2,8 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
+use Tritrics\Ahoi\v1\Data\BaseModel;
+
 /**
  * Model for Kirby's fields: number, range
  */
