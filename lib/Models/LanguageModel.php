@@ -8,29 +8,32 @@ use Kirby\Cms\File;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
-use Tritrics\Ahoi\v1\Helper\LinkHelper;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
 
 /**
  * Model for Kirby's language object
  */
-class LanguageModel extends BaseModel
+class LanguageModel extends BaseFieldsModel
 {
   /**
-   * Nodename for fields.
    */
-  protected $valueNodeName = 'fields';
+  public function __construct()
+  {
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
 
   /**
-   * Get additional field data (besides type and value)
+   * Set model data.
    */
-  protected function getProperties(): Collection
+  private function setData(): void
   {
+    $this->add('type', 'language');
+
+    // meta
     $language = LanguagesHelper::get($this->lang);
     $lang = trim(strtolower($language->code()));
-
-    $res = new Collection();
-    $meta = $res->add('meta');
+    $meta = $this->add('meta');
     $meta->add('lang', $lang);
     $meta->add('title', $language->name());
     $meta->add('default', $language->isDefault());
@@ -45,7 +48,7 @@ class LanguageModel extends BaseModel
       // different urls to distinguish the languages.
       $meta->add('href', UrlHelper::getPath($this->model->url($lang)));
     }
-    
+
     // File
     else if ($this->model instanceof File) {
       $page = $this->model->parent($this->lang);
@@ -58,9 +61,9 @@ class LanguageModel extends BaseModel
 
     // Site
     else if ($this->model instanceof Site) {
-      $meta->add('node',LanguagesHelper::getLangSlug($lang));
+      $meta->add('node', LanguagesHelper::getLangSlug($lang));
     }
-    
+
     // Language
     else {
       $meta->add('node', LanguagesHelper::getLangSlug($lang));
@@ -68,33 +71,38 @@ class LanguageModel extends BaseModel
       $meta->add('locale', LanguagesHelper::getLocale($lang));
       $meta->add('direction', $language->direction());
     }
-    return $res;
+
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 
   /**
-   * Get the value of model.
+   * Overwrite setFields() function, because here fields are the terms.
    */
-  protected function getValue(): Collection|null
+  protected function setFields(): void
   {
+    $this->fields = new Collection();
+
     // Value for language (=translations) are added if a single language is requested.
-    if ($this->addDetails) {
-      $fields = new Collection();
-      $separator = ConfigHelper::get('field_name_separator', '');
-      $language = LanguagesHelper::get($this->lang);
-      $languageDefault = LanguagesHelper::getDefault();
-      $translations = $language->translations();
-      foreach ($languageDefault->translations() as $key => $foo) {
-        $value = isset($translations[$key]) ? $translations[$key] : '';
-        if ($separator) {
-          $key = explode($separator, $key);
-        }
-        $fields->add($key, [
-          'type' => 'string',
-          'value' => $value
-        ]);
-      }
-      return $fields;
+    if (!$this->addDetails) {
+      return;
     }
-    return null;
+    
+    $separator = ConfigHelper::get('field_name_separator', '');
+    $language = LanguagesHelper::get($this->lang);
+    $languageDefault = LanguagesHelper::getDefault();
+    $translations = $language->translations();
+    foreach ($languageDefault->translations() as $key => $foo) {
+      $value = isset($translations[$key]) ? $translations[$key] : '';
+      if ($separator) {
+        $key = explode($separator, $key);
+      }
+      $this->fields->add($key, [
+        'type' => 'string',
+        'value' => (string) $value
+      ]);
+    }
   }
 }

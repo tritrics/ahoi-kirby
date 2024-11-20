@@ -10,12 +10,15 @@ use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 /**
  * Model for Kirby's fields: files
  */
-class FilesModel extends BaseModel
+class FilesModel extends BaseEntriesModel
 {
   /**
-   * Nodename for files.
    */
-  protected $valueNodeName = 'entries';
+  public function __construct() {
+    parent::__construct(...func_get_args());
+    $this->setEntries(KirbyHelper::filterCollection($this->model->toFiles()));
+    $this->setData();
+  }
 
   /**
    * Create a child entry instance
@@ -30,28 +33,22 @@ class FilesModel extends BaseModel
   }
 
   /**
-   * Get additional field data (besides type and value)
+   * Set model data.
    */
-  protected function getProperties(): Collection
+  private function setData(): void
   {
-    $res = new Collection();
-    $meta = $res->add('collection');
-    $meta->add('count', $this->model->toPages()->count());
-    return $res;
-  }
+    $this->add('type', 'files');
+    
+    // meta
+    $meta = $this->add('collection');
+    $meta->add('count', $this->entries->count());
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue (): Collection
-  {
-    $res = new Collection();
-    $children = KirbyHelper::filterCollection($this->model->toFiles());
-    foreach ($children as $file) {
+    // entries
+    $entries = $this->add('entries');
+    foreach ($this->entries as $file) {
       $blueprint = BlueprintHelper::get($file);
       $model = $this->createEntry($file, $blueprint, $this->lang, $this->addFields);
-      $res->push($model);
+      $entries->push($model);
     }
-    return $res;
   }
 }

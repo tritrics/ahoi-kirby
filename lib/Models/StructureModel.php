@@ -8,41 +8,39 @@ use Tritrics\Ahoi\v1\Helper\FieldHelper;
 /**
  * Model for Kirby's fields: structure
  */
-class StructureModel extends BaseModel
+class StructureModel extends BaseEntriesModel
 {
   /**
-   * Nodename for rows.
    */
-  protected $valueNodeName = 'entries';
-
-  /**
-   * Get additional field data (besides type and value)
-   */
-  protected function getProperties(): Collection
-  {
-    $res = new Collection();
-    $meta = $res->add('collection');
-    $meta->add('count', $this->model->toStructure()->count());
-    return $res;
+  public function __construct() {
+    parent::__construct(...func_get_args());
+    $this->setEntries($this->model->toStructure());
+    $this->setData();
   }
 
   /**
-   * Get the value of model.
+   * Set model data.
    */
-  protected function getValue (): Collection
+  private function setData(): void
   {
-    $res = new Collection();
-    foreach ($this->model->toStructure() as $entry) {
+    $this->add('type', 'structure');
+
+    // meta
+    $meta = $this->add('collection');
+    $meta->add('count', $this->entries->count());
+
+    // entries
+    $entries = $this->add('entries');
+    foreach ($this->entries as $entry) {
       $row = new Collection();
       FieldHelper::addFields(
         $row,
         $entry->content($this->lang)->fields(),
         $this->blueprint->node('fields'),
         $this->lang,
-        [ '*' ] // the structure-fields makes no sense without the entries, (same in ObjectModel)
+        ['*'] // the structure-fields makes no sense without the entries, (same in ObjectModel)
       );
-      $res->push($row);
+      $entries->push($row);
     }
-    return $res;
   }
 }

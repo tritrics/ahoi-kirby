@@ -2,48 +2,30 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
-
 /**
  * Default model for Kirby's blocks
  */
-class BlockModel extends BaseModel
+class BlockModel extends BaseFieldsModel
 {
   /**
-   * Nodename for fields.
    */
-  protected $valueNodeName = 'fields';
-
-  /**
-   * Marker if this model has child fields.
-   * 
-   * @var bool
-   */
-  protected $hasFields = true;
-
-  /**
-   * Get additional field data (besides type and value)
-   */
-  protected function getProperties(): Collection
+  public function __construct()
   {
-    $res = new Collection();
-    $res->add('block', $this->model->type());
-    return $res;
+    parent::__construct(...func_get_args());
+    $this->setData();
   }
 
   /**
-   * Get type of this model.
+   * Set model data.
    */
-  protected function getType(): string
+  private function setData(): void
   {
-    return 'block';
-  }
-
-  /**
-   * Get the value of model.
-   */
-  protected function getValue (): Collection|null
-  {
-    return $this->fields;
+    $this->add('type', 'block');
+    $this->add('block', $this->model->type());
+    
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 }

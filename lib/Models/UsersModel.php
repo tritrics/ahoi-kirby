@@ -9,12 +9,16 @@ use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 /**
  * Model for Kirby's fields: users
  */
-class UsersModel extends BaseModel
+class UsersModel extends BaseEntriesModel
 {
   /**
-   * Nodename for users.
+   * Constructor with additional initialization.
    */
-  protected $valueNodeName = 'entries';
+  public function __construct() {
+    parent::__construct(...func_get_args());
+    $this->setEntries($this->model->toUsers());
+    $this->setData();
+  }
 
   /**
    * Create a child entry instance
@@ -29,27 +33,22 @@ class UsersModel extends BaseModel
   }
 
   /**
-   * Get additional field data (besides type and value)
+   * Set model data.
    */
-  protected function getProperties(): Collection
+  private function setData(): void
   {
-    $res = new Collection();
-    $meta = $res->add('collection');
-    $meta->add('count', $this->model->toPages()->count());
-    return $res;
-  }
+    $this->add('type', 'users');
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue (): Collection
-  {
-    $res = new Collection();
-    foreach ($this->model->toUsers() as $user) {
+    // meta
+    $meta = $this->add('collection');
+    $meta->add('count', $this->entries->count());
+
+    // entries
+    $entries = $this->add('entries');
+    foreach ($this->entries as $user) {
       $blueprint = BlueprintHelper::get($user);
       $model = $this->createEntry($user, $blueprint, $this->lang, $this->addFields);
-      $res->push($model);
+      $entries->push($model);
     }
-    return $res;
   }
 }

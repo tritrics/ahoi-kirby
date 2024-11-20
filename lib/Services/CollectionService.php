@@ -13,7 +13,7 @@ use Tritrics\Ahoi\v1\Models\FileModel;
 use Tritrics\Ahoi\v1\Helper\BlueprintHelper;
 use Tritrics\Ahoi\v1\Helper\FieldHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
-use Tritrics\Ahoi\v1\Helper\RouteAccessHelper;
+use Tritrics\Ahoi\v1\Helper\AccessHelper;
 use Tritrics\Ahoi\v1\Models\SiteModel;
 
 /**

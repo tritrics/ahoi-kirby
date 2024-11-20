@@ -8,10 +8,19 @@ namespace Tritrics\Ahoi\v1\Models;
 class BooleanModel extends BaseModel
 {
   /**
-   * Get the value of model.
    */
-  protected function getValue (): int
+  public function __construct()
   {
-    return (float) $this->model->isTrue(); // return 0 or 1 as number
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
+
+  /**
+   * Set model data.
+   */
+  private function setData(): void
+  {
+    $this->add('type', 'boolean');
+    $this->add('value', (float) $this->model->isTrue());
   }
 }

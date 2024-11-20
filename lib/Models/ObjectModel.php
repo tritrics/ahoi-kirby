@@ -8,20 +8,8 @@ use Tritrics\Ahoi\v1\Data\Collection;
 /**
  * Model for Kirby's fields: object
  */
-class ObjectModel extends BaseModel
+class ObjectModel extends BaseFieldsModel
 {
-  /**
-   * Marker if this model has child fields.
-   * 
-   * @var bool
-   */
-  protected $hasFields = true;
-
-  /**
-   * Nodename for fields.
-   */
-  protected $valueNodeName = 'fields';
-
   /**
    */
   public function __construct(
@@ -29,17 +17,25 @@ class ObjectModel extends BaseModel
     Collection $blueprint,
     string $lang = null,
     array $addFields = [],
+    bool $addDetails = false
   ) {
-    // the object-fields makes no sense without the entries (same in StructureModel)
-    $addFieldsObject = !is_array($addFields) || count($addFields) === 0 ? [ '*' ] : $addFields;
-    parent::__construct($model, $blueprint, $lang, $addFieldsObject, false);
+    if (!is_array($addFields) || count($addFields) === 0) {
+      $addFields = ['*'];
+    }
+    parent::__construct($model, $blueprint, $lang, $addFields, $addDetails);
+    $this->setData();
   }
 
   /**
-   * Get the value of model.
+   * Set model data.
    */
-  protected function getValue(): Collection|null
+  private function setData(): void
   {
-    return $this->fields;
+    $this->add('type', 'object');
+
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 }

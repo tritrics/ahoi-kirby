@@ -8,7 +8,6 @@ use \DOMText;
 use \DOMCdataSection;
 use Kirby\Exception\InvalidArgumentException;
 use Kirby\Exception\LogicException;
-use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
@@ -44,40 +43,40 @@ use Tritrics\Ahoi\v1\Helper\LinkHelper;
 class TextModel extends BaseModel
 {
   /**
-   * Type retured in response.
-   * 
-   * @var string [html, text, markdown, string]
    */
-  private $type;
+  public function __construct()
+  {
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
 
   /**
-   * Constructor with additional initialization.
+   * Set model data.
    */
-  public function __construct(
-    mixed $model,
-    ?Collection $blueprint = null,
-    ?string $lang = null
-  ) {
-    switch ($blueprint->node('type')->get()) {
+  private function setData(): void
+  {
+    // [html, text, markdown, string]
+    switch ($this->blueprint->node('type')->get()) {
       case 'textarea':
-        if ($blueprint->node('api', 'html')->is(true)) {
-          $this->type = 'html';
-        } elseif ($blueprint->node('buttons')->is(false)) {
-          $this->type = 'text';
+        if ($this->blueprint->node('api', 'html')->is(true)) {
+          $type = 'html';
+        } elseif ($this->blueprint->node('buttons')->is(false)) {
+          $type = 'text';
         } else {
-          $this->type = 'markdown';
+          $type = 'markdown';
         }
         break;
       case 'list':
-        $this->type = 'html';
+        $type = 'html';
         break;
       case 'writer':
-        $this->type = 'html';
+        $type = 'html';
         break;
       default: // text, slug
-        $this->type = 'string';
+        $type = 'string';
     }
-    parent::__construct($model, $blueprint, $lang);
+    $this->add('type', $type);
+    $this->add('value', $this->getValue($type));
   }
 
   /**
@@ -154,14 +153,6 @@ class TextModel extends BaseModel
   }
 
   /**
-   * Get type of this model.
-   */
-  protected function getType (): string
-  {
-    return $this->type;
-  }
-
-  /**
    * Get the value of model.
    * 
    * return value can be:
@@ -178,9 +169,9 @@ class TextModel extends BaseModel
    * possible sub-element is in node children.
    * [ { elem: 'h1', text: 'the text' }, { elem: 'p', children: [] }]
    */
-  protected function getValue (): string|array
+  private function getValue (string $type): string|array
   {
-    if ($this->type !== 'html') {
+    if ($type !== 'html') {
       return (string) $this->model->value();
     }
 

@@ -11,34 +11,30 @@ use Tritrics\Ahoi\v1\Models\LanguageModel;
 /**
  * Model for Kirby's page object
  */
-class PageModel extends BaseModel
+class PageModel extends BaseFieldsModel
 {
   /**
-   * Marker if this model has child fields.
-   * 
-   * @var bool
    */
-  protected $hasFields = true;
-
-  /**
-   * Nodename for fields.
-   */
-  protected $valueNodeName = 'fields';
-
-  /**
-   * Get additional field data (besides type and value)
-   */
-  protected function getProperties (): Collection
+  public function __construct()
   {
-    $res = new Collection();
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
+
+  /**
+   * Set model data.
+   */
+  private function setData(): void
+  {
+    $this->add('type', 'page');
 
     // empty model, for empty none-multiple-collections
     if (!$this->model) {
-      return $res;
+      return;
     }
 
     // global values
-    $meta = $res->add('meta');
+    $meta = $this->add('meta');
     $meta->add('blueprint', (string) $this->model->intendedTemplate());
     $meta->add('status', $this->model->status());
     if ($this->model->status() === 'listed') {
@@ -58,21 +54,17 @@ class PageModel extends BaseModel
 
     // languages
     if (ConfigHelper::isMultilang() && $this->addDetails) {
-      $languages = $res->add('languages');
+      $languages = $this->add('languages');
       foreach (LanguagesHelper::getLang() as $lang) {
         $languages->push(
           new LanguageModel($this->model, null, $lang)
         );
       }
     }
-    return $res;
-  }
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue(): Collection|null
-  {
-    return $this->fields;
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 }

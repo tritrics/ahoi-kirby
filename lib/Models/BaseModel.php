@@ -9,14 +9,12 @@ use Kirby\Cms\User;
 use Kirby\Content\Field;
 use Kirby\Cms\Block;
 use Tritrics\Ahoi\v1\Data\Collection;
-use Tritrics\Ahoi\v1\Helper\FieldHelper;
-use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
  * Basic model for Kirby Fields and Models.
  * Inherits from Collection and adds some model functions.
  */
-abstract class BaseModel extends Collection
+class BaseModel extends Collection
 {
   /**
    * the Kirby Blueprint fragment
@@ -38,21 +36,6 @@ abstract class BaseModel extends Collection
   protected $addFields = [];
 
   /**
-   * Fields
-   * 
-   * @var Collection|null
-   */
-  protected $fields = null;
-
-  /**
-   * Marker if this model has child fields.
-   * Can be overwritten by child class.
-   * 
-   * @var bool
-   */
-  protected $hasFields = false;
-
-  /**
    * 2-digit Language-code
    * 
    * @var ?string
@@ -65,12 +48,6 @@ abstract class BaseModel extends Collection
    * @var mixed
    */
   protected $model;
-
-  /**
-   * Name of the node with the value/childfields etc.
-   * Can be overwritten by child class.
-   */
-  protected $valueNodeName = 'value';
 
   /**
    */
@@ -86,27 +63,6 @@ abstract class BaseModel extends Collection
     $this->lang = $lang;
     $this->addFields = is_array($addFields) ? $addFields : [];
     $this->addDetails = $addDetails;
-    $this->setFields();
-    $this->setModelData();
-  }
-
-  /**
-   * Create a child entry instance, is overwritten by collection classes
-   */
-  public function createEntry(): Collection {
-    return new Collection();
-  }
-
-  /**
-   * Get first child of collection, if there is any.
-   * Used for collections with setting multiple: false
-   */
-  public function getFirstEntry(): Collection|null
-  {
-    if ($this->node($this->valueNodeName)->isCollection() && $this->node($this->valueNodeName)->has(0)) {
-      return $this->node($this->valueNodeName)->first();
-    }
-    return null;
   }
 
   /**
@@ -161,88 +117,5 @@ abstract class BaseModel extends Collection
       }
     }
     return null;
-  }
-
-  /**
-   * Get field type.
-   * Optionally overwritten by child class.
-   */
-  protected function getType(): string
-  {
-    $path = explode('\\', get_class($this));
-    $class = array_pop($path);
-    $name = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $class));
-    return preg_replace('/(-model$)/', '', $name);
-  }
-
-  /**
-   * Get the data/value/childfields etc.
-   * Overwritten by child class.
-   */
-  protected function getValue(): mixed
-  {
-    return null;
-  }
-
-  /**
-   * Check if this model is a collection with only one child allowed
-   * due to blueprint definition multiple: false.
-   */
-  public function isNoneMultipleCollection(): bool {
-    return
-      $this->node($this->valueNodeName)->isCollection() &&
-      $this->blueprint->has('multiple') &&
-      TypeHelper::isFalse($this->blueprint->node('multiple')->get());
-  }
-
-  /**
-   * Set fields, if $this->hasFields is set to true.
-   */
-  private function setFields (): void
-  {
-    $this->fields = new Collection();
-    if ($this->hasFields && $this->blueprint->has('fields')) {
-
-      // Inconsistency in Kirby's field definition
-      // furthermore $this->lang is not documented and maybe not working for toObject()
-      if ($this->blueprint->node('type')->is('object')) { 
-        $fields = $this->model->toObject($this->lang)->fields();
-      } else {
-        $fields = $this->model->content($this->lang)->fields();
-      }
-      FieldHelper::addFields(
-        $this->fields,
-        $fields,
-        $this->blueprint->node('fields'),
-        $this->lang,
-        $this->addFields
-      );
-    }
-  }
-
-  /**
-   * Set the model properties.
-   */
-  private function setModelData (): void
-  {
-    $this->add('type', $this->getType());
-
-    // properties, any kind of nodes
-    if (method_exists($this, 'getProperties')) {
-      $add = $this->getProperties();
-      if ($add->count() > 0) {
-        $this->merge($add);
-      }
-    }
-
-    // value
-    $value = $this->getValue();
-    if ($value instanceof Collection) {
-      if ($value->count() > 0) {
-        $this->add($this->valueNodeName, $value);
-      }
-    } else if ($value !== null) {
-      $this->add($this->valueNodeName, $value);
-    }
   }
 }

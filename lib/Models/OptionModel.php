@@ -2,7 +2,6 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\TypeHelper;
 
 /**
@@ -11,22 +10,22 @@ use Tritrics\Ahoi\v1\Helper\TypeHelper;
 class OptionModel extends BaseModel
 {
   /**
-   * Get additional field data (besides type and value)
    */
-  protected function getProperties (): Collection
+  public function __construct()
   {
-    $res = new Collection();
-    if ($this->blueprint->node('api', 'labels')->is(true)) {
-      $res->add('label', $this->getLabel($this->model->value()));
-    }
-    return $res;
+    parent::__construct(...func_get_args());
+    $this->setData();
   }
 
   /**
-   * Get the value of model.
+   * Set model data.
    */
-  protected function getValue (): string|int|float
+  private function setData(): void
   {
-    return TypeHelper::toChar($this->model->value());
+    $this->add('type', 'option');
+    if ($this->blueprint->node('api', 'labels')->is(true)) {
+      $this->add('label', $this->getLabel($this->model->value()));
+    }
+    $this->add('value', TypeHelper::toChar($this->model->value()));
   }
 }

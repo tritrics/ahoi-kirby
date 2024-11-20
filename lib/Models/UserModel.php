@@ -2,47 +2,36 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
-
 /**
  * Model for Kirby's user object
  */
-class UserModel extends BaseModel
+class UserModel extends BaseFieldsModel
 {
   /**
-   * Marker if this model has child fields.
-   * 
-   * @var bool
    */
-  protected $hasFields = true;
-
-  /**
-   * Nodename for fields.
-   */
-  protected $valueNodeName = 'fields';
-
-  /**
-   * Get additional field data (besides type and value)
-   */
-  protected function getProperties (): Collection
+  public function __construct()
   {
-    $res = new Collection();
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
+  
+  /**
+   * Set model data.
+   */
+  private function setData(): void
+  {
+    $this->add('type', 'user');
 
     // empty model, for empty none-multiple-collections
     if (!$this->model) {
-      return $res;
+      return;
     }
-
-    $meta = $res->add('meta');
+    $meta = $this->add('meta');
     $meta->add('id', md5($this->model->id()));
-    return $res;
-  }
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue(): Collection|null
-  {
-    return $this->fields;
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 }

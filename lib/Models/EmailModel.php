@@ -2,37 +2,28 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's fields: email
  */
 class EmailModel extends BaseModel
-{  
+{
   /**
-   * Get additional field data (besides type and value)
    */
-  protected function getProperties (): Collection
+  public function __construct()
   {
-    $res = new Collection();
-    $res->add('meta', LinkHelper::get($this->model->value(), null, false, null, 'email'));
-    return $res;
+    parent::__construct(...func_get_args());
+    $this->setData();
   }
 
   /**
-   * Get type of this model.
+   * Set model data.
    */
-  protected function getType(): string
+  private function setData(): void
   {
-    return 'link';
-  }
-
-  /**
-   * Get the value of model.
-   */
-  protected function getValue (): string
-  {
-    return (string) $this->model->value();
+    $this->add('type', 'link');
+    $this->add('meta', LinkHelper::get($this->model->value(), null, false, null, 'email'));
+    $this->add('value', (string) $this->model->value());
   }
 }

@@ -2,43 +2,37 @@
 
 namespace Tritrics\Ahoi\v1\Models;
 
-use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
-use Tritrics\Ahoi\v1\Helper\LinkHelper;
 
 /**
  * Model for Kirby's file object
  */
-class FileModel extends BaseModel
+class FileModel extends BaseFieldsModel
 {
   /**
-   * Marker if this model has child fields.
-   * 
-   * @var bool
    */
-  protected $hasFields = true;
-  
-  /**
-   * Nodename for fields.
-   */
-  protected $valueNodeName = 'fields';
+  public function __construct()
+  {
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
 
   /**
-   * Get additional field data (besides type and value)
+   * Set model data.
    */
-  protected function getProperties (): Collection
+  private function setData(): void
   {
-    $res = new Collection();
-    
+    $this->add('type', 'file');
+
     // empty model, for empty none-multiple-collections
     if (!$this->model) {
-      return $res;
+      return;
     }
 
     $parts = UrlHelper::parse($this->model->url());
-    $meta = $res->add('meta');
+    $meta = $this->add('meta');
     $meta->add('host', UrlHelper::buildHost($parts));
     $meta->add('dir', $parts['dirname']);
     $meta->add('file', $parts['basename']);
@@ -60,21 +54,17 @@ class FileModel extends BaseModel
 
     // adding languages
     if (ConfigHelper::isMultilang() && $this->addDetails) {
-      $languages = $res->add('languages');
+      $languages = $this->add('languages');
       foreach (LanguagesHelper::getLang() as $lang) {
         $languages->push(
           new LanguageModel($this->model, null, $lang)
         );
       }
     }
-    return $res;
-  }
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue(): Collection|null
-  {
-    return $this->fields;
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 }

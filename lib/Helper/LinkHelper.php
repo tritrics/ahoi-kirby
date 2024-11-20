@@ -102,7 +102,7 @@ class LinkHelper
       $mixed = KirbyHelper::findFileByKirbyLink($mixed);
     }
     $res = [];
-    if ($mixed instanceof File && RouteAccessHelper::isAllowed($mixed)) {
+    if ($mixed instanceof File && AccessHelper::isAllowedModel($mixed)) {
       $href = $mixed->url();
       $res = [
         'type' => 'file',
@@ -130,7 +130,7 @@ class LinkHelper
       $mixed = KirbyHelper::findPageByKirbyLink($mixed);
     }
     $res = [];
-    if ($mixed instanceof Page && RouteAccessHelper::isAllowed($mixed)) {
+    if ($mixed instanceof Page && AccessHelper::isAllowedModel($mixed)) {
       $href = $mixed->url($lang);
       $res = [
         'type' => 'page',

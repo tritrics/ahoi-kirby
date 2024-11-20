@@ -51,53 +51,18 @@ class BlueprintHelper
   ];
 
   /**
-   * allow listed blueprints or
-   * true = allow all, false = allow none
-   * @see config.php
-   */
-  private static $access = null;
-
-  /**
-   * Check blueprint access settings.
-   */
-  private static function checkAccess(string $name): bool
-  {
-    return isset(self::$access[$name]) ? self::$access[$name] : self::$access['*'];
-  }
-
-  /**
    * Get the blueprint either from intern map or compute.
    * Map is used to avoid repetition, which may occour for files, users and pages.
    */
   public static function get(object $model): Collection
   {
-    if (!is_array(self::$access)) {
-      self::setAccess();
-    }
-    if ($model instanceof Page) {
-      $folder = 'pages';
-      $template = $model->intendedTemplate();
-      $add_title_field = true;
-    } elseif ($model instanceof Site) {
-      $folder = '';
-      $template = 'site';
-      $add_title_field = true;
-    } elseif ($model instanceof File) {
-      $folder = 'files';
-      $template = $model->template();
-      $add_title_field = false;
-    } elseif ($model instanceof User) {
-      $folder = 'users';
-      $template = $model->role();
-      $add_title_field = false;
-    }
-    if (!$template) {
+    $path = KirbyHelper::getBlueprintPath($model);
+    if (!$path) {
       return new Collection();
     }
-    $path = trim($folder . '/' . $template, '/');
-    $name = str_replace('/', '_', $path);
 
     // getting the blueprint
+    $name = str_replace('/', '_', $path);
     if (!isset(self::$map[$name])) {
       self::$map[$name] = new Collection();
       self::$map[$name]->add('name', $path);
@@ -105,7 +70,7 @@ class BlueprintHelper
       // find blueprint-file by path
       $blueprint = self::getFile($path);
       $fields = [];
-      if ($add_title_field) {
+      if ($model instanceof Page || $model instanceof Site) {
         $fields['title'] = [
           'type' => 'text',
           'required' => true,
@@ -122,10 +87,10 @@ class BlueprintHelper
    */
   private static function getFile(string $path): array
   {
-    $name = str_replace('/', '_', TypeHelper::toString($path, true, true));
-    if (!self::checkAccess($name)) {
+    if ( ! AccessHelper::isAllowedBlueprint($path)) {
       return [];
     }
+    $name = str_replace('/', '_', TypeHelper::toString($path, true, true));
     if (!isset(self::$files[$name])) {
       try {
         $blueprint = Blueprint::find($path);
@@ -336,26 +301,5 @@ class BlueprintHelper
       }
     }
     return $nodes;
-  }
-
-  /**
-   * Set access settings from config.php
-   */
-  private static function setAccess(): void
-  {
-    self::$access = [
-      '*' => false
-    ];
-    $config = ConfigHelper::get('blueprints');
-    if (TypeHelper::isTrue($config)) {
-      self::$access['*'] = true;
-    } else if (is_array($config)) {
-      foreach($config as $blueprint => $access) {
-        $name = str_replace('/', '_',TypeHelper::toString($blueprint, true, true));
-        if (strlen($name) > 0) {
-          self::$access[$name] = TypeHelper::toBool($access);
-        }
-      }
-    }
   }
 }

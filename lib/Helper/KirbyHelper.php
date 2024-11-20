@@ -6,8 +6,10 @@ use Exception;
 use Kirby\Cms\File;
 use Kirby\Cms\Page;
 use Kirby\Cms\Site;
+use Kirby\Cms\User;
 use Kirby\Cms\Pages;
 use Kirby\Cms\Files;
+use Kirby\Exception\InvalidArgumentException;
 use Throwable;
 
 /**
@@ -63,7 +65,7 @@ class KirbyHelper
   public static function filterCollection(Pages|Files $children, array $options = []): Pages|Files
   {
     $children = $children->filter(
-      fn($child) => RouteAccessHelper::isAllowed($child)
+      fn($child) => AccessHelper::isAllowedModel($child)
     );
     if (isset($options['filter']) && is_array($options['filter'])) {
       foreach ($options['filter'] as $args) {
@@ -182,6 +184,23 @@ class KirbyHelper
           return $page;
         }
       }
+    }
+    return null;
+  }
+
+  /**
+   * Getting the blueprint of a model.
+   */
+  public static function getBlueprintPath(Page|Site|File|User $model): string|null
+  {
+    if ($model instanceof Page) {
+      return 'pages/' . $model->intendedTemplate();
+    } else if ($model instanceof Site) {
+      return 'site';
+    } else if ($model instanceof File) {
+      return 'files/' . $model->template();
+    } else if ($model instanceof User) {
+      return 'users/' . $model->role();
     }
     return null;
   }

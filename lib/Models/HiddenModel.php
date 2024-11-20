@@ -10,24 +10,27 @@ use Tritrics\Ahoi\v1\Helper\TypeHelper;
 class HiddenModel extends BaseModel
 {
   /**
-   * Get type of this model as it's returned in response.
    */
-  protected function getType (): string
+  public function __construct()
   {
-    $value = $this->getValue();
-    if (is_numeric($value)) {
-      return 'number';
-    } else if (is_bool($value)) {
-      return 'toggle';
-    }
-    return 'string';
+    parent::__construct(...func_get_args());
+    $this->setData();
   }
 
   /**
-   * Get the value of model.
+   * Set model data.
    */
-  protected function getValue (): mixed
+  private function setData(): void
   {
-    return TypeHelper::toChar($this->model->value());
+    $value = $this->model->value();
+    if (is_numeric($value)) {
+      $type = 'number';
+    } else if (is_bool($value)) {
+      $type = 'toggle';
+    } else {
+      $type = 'string';
+    }
+    $this->add('type', $type);
+    $this->add('value', TypeHelper::toChar($value));
   }
 }

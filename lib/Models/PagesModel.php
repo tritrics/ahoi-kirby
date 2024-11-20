@@ -10,12 +10,16 @@ use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 /**
  * Model for Kirby's fields: pages
  */
-class PagesModel extends BaseModel
+class PagesModel extends BaseEntriesModel
 {
   /**
-   * Nodename for pages.
+   * Constructor with additional initialization.
    */
-  protected $valueNodeName = 'entries';
+  public function __construct() {
+    parent::__construct(...func_get_args());
+    $this->setEntries(KirbyHelper::filterCollection($this->model->toPages(), ['status' => 'published ']));
+    $this->setData();
+  }
 
   /**
    * Create a child entry instance
@@ -30,30 +34,22 @@ class PagesModel extends BaseModel
   }
 
   /**
-   * Get additional field data (besides type and value)
+   * Set model data.
    */
-  protected function getProperties(): Collection
+  private function setData(): void
   {
-    $res = new Collection();
-    $meta = $res->add('collection');
-    $meta->add('count', $this->model->toPages()->count());
-    return $res;
-  }
+    $this->add('type', 'pages');
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue (): Collection
-  {
-    $res = new Collection();
-    $children = KirbyHelper::filterCollection($this->model->toPages(), [ 'status' => 'published ']);
-    foreach ($children as $page) {
+    // meta
+    $meta = $this->add('collection');
+    $meta->add('count', $this->entries->count());
+
+    // entries
+    $entries = $this->add('entries');
+    foreach ($this->entries as $page) {
       $blueprint = BlueprintHelper::get($page);
       $model = $this->createEntry($page, $blueprint, $this->lang, $this->addFields);
-      $res->push($model);
+      $entries->push($model);
     }
-
-    // return only one element (no collection) if multiple is false
-    return $res;
   }
 }

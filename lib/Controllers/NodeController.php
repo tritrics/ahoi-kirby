@@ -9,7 +9,7 @@ use Tritrics\Ahoi\v1\Factories\ModelFactory;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\RequestHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
-use Tritrics\Ahoi\v1\Helper\RouteAccessHelper;
+use Tritrics\Ahoi\v1\Helper\AccessHelper;
 use Tritrics\Ahoi\v1\Services\NodeService;
 
 /**
@@ -59,7 +59,7 @@ class NodeController
           return $Response->getNotFound();
         }
       }
-      if ( ! RouteAccessHelper::isAllowed($node)) {
+      if ( ! AccessHelper::isAllowedModel($node)) {
         return $Response->getNotAllowed();
       }
       return $Response->get(

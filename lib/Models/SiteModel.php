@@ -9,27 +9,24 @@ use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 /**
  * Model for Kirby's site object
  */
-class SiteModel extends BaseModel
+class SiteModel extends BaseFieldsModel
 {
   /**
-   * Marker if this model has child fields.
-   * 
-   * @var bool
    */
-  protected $hasFields = true;
-
-  /**
-   * Nodename for fields.
-   */
-  protected $valueNodeName = 'fields';
-
-  /**
-   * Get additional field data (besides type and value)
-   */
-  protected function getProperties(): Collection
+  public function __construct()
   {
-    $res = new Collection();
-    $meta = $res->add('meta');
+    parent::__construct(...func_get_args());
+    $this->setData();
+  }
+
+  /**
+   * Set model data.
+   */
+  private function setData(): void
+  {
+    $this->add('type', 'site');
+
+    $meta = $this->add('meta');
 
     // global values
     $meta->add('blueprint', 'site');
@@ -46,21 +43,17 @@ class SiteModel extends BaseModel
 
     // languages
     if (ConfigHelper::isMultilang()) {
-      $languages = $res->add('languages');
+      $languages = $this->add('languages');
       foreach (LanguagesHelper::getLang() as $lang) {
         $languages->push(
           new LanguageModel($this->model, null, $lang)
         );
       }
     }
-    return $res;
-  }
 
-  /**
-   * Get the value of model.
-   */
-  protected function getValue(): Collection|null
-  {
-    return $this->fields;
+    // fields
+    if ($this->fields->count() > 0) {
+      $this->add('fields', $this->fields);
+    }
   }
 }

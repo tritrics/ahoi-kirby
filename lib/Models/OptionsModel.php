@@ -8,45 +8,41 @@ use Tritrics\Ahoi\v1\Helper\TypeHelper;
 /**
  * Model for Kirby's fields: checkboxes, multiselect, tags
  */
-class OptionsModel extends BaseModel
+class OptionsModel extends BaseEntriesModel
 {
   /**
-   * Nodename for options.
    */
-  protected $valueNodeName = 'entries';
-
-  /**
-   * Get additional field data (besides type and value)
-   */
-  protected function getProperties(): Collection
-  {
-    $options = TypeHelper::optionsToArray($this->model->value());
-    $res = new Collection();
-    $meta = $res->add('collection');
-    $meta->add('count', count($options));
-    return $res;
+  public function __construct() {
+    parent::__construct(...func_get_args());
+    $this->setEntries(TypeHelper::optionsToArray($this->model->value()));
+    $this->setData();
   }
 
   /**
-   * Get the value of model.
+   * Set model data.
    */
-  protected function getValue () : Collection
+  private function setData(): void
   {
-    $addLabel = $this->blueprint->node('api', 'labels')->is(true);
+    $this->add('type', 'options');
 
+    // meta
+    $meta = $this->add('collection');
+    $meta->add('count', count($this->entries));
+
+    // entries
     // OptionsModel can't be used her, because there is no blueprint
     // representation of a single option. So we create a pseudo-field 
     // with type=option here.
-    $res = new Collection();
-    foreach(TypeHelper::optionsToArray($this->model->value()) as $key => $value) {
+    $addLabel = $this->blueprint->node('api', 'labels')->is(true);
+    $entries = $this->add('entries');
+    foreach ($this->entries as $key => $value) {
       $option = new Collection();
       $option->add('type', 'option');
       if ($addLabel) {
         $option->add('label', $this->getLabel($value));
       }
       $option->add('value', $value);
-      $res->add($key, $option);
+      $entries->add($key, $option);
     }
-    return $res;
   }
 }
