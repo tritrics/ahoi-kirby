@@ -36,7 +36,7 @@ class AccessHelper
       '*' => false
     ];
     $config = ConfigHelper::get('blueprints');
-    if (TypeHelper::isTrue($config)) {
+    if (TypeHelper::isTrue($config) || $config === '*') {
       self::$blueprints['*'] = true;
     } else if (is_array($config)) {
       foreach ($config as $path => $access) {
@@ -56,7 +56,7 @@ class AccessHelper
     $config = ConfigHelper::get('routes');
     $default = false;
     $patterns = [];
-    if (TypeHelper::isTrue($config)) {
+    if (TypeHelper::isTrue($config) || $config === '*') {
       $default = true;
     } else if (is_array($config)) {
       foreach($config as $pattern => $access) {
