@@ -18,12 +18,12 @@ class ObjectModel extends FieldsModel
     Collection $blueprint,
     string $lang = null,
     array $addFields = [],
-    bool $addDetails = false
+    bool $addLanguages = false
   ) {
     if (!is_array($addFields) || count($addFields) === 0) {
       $addFields = ['*'];
     }
-    parent::__construct($model, $blueprint, $lang, $addFields, $addDetails);
+    parent::__construct($model, $blueprint, $lang, $addFields, $addLanguages);
     $this->setData();
   }
 

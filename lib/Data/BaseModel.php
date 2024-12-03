@@ -24,9 +24,9 @@ class BaseModel extends Collection
   protected $blueprint;
 
   /**
-   * Can be used, if model should output different content in different cases.
+   * Add language information, if relevant.
    */
-  protected $addDetails = false;
+  protected $addLanguages = false;
 
   /**
    * Output control of child fields.
@@ -56,12 +56,12 @@ class BaseModel extends Collection
     Collection $blueprint = null,
     string $lang = null,
     array $addFields = [],
-    bool $addDetails = false
+    bool $addLanguages = false
   ) {
     $this->model = $model;
     $this->blueprint = $blueprint instanceof Collection ? $blueprint : new Collection();
     $this->lang = $lang;
     $this->addFields = is_array($addFields) ? $addFields : [];
-    $this->addDetails = $addDetails;
+    $this->addLanguages = $addLanguages;
   }
 }

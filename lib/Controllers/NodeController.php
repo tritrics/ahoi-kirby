@@ -6,7 +6,6 @@ use Kirby\Exception\Exception;
 use Kirby\Http\Response as KirbyResponse;
 use Tritrics\Ahoi\v1\Data\Response;
 use Tritrics\Ahoi\v1\Factories\ModelFactory;
-use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\RequestHelper;
 use Tritrics\Ahoi\v1\Helper\KirbyHelper;
 use Tritrics\Ahoi\v1\Helper\AccessHelper;
@@ -33,7 +32,7 @@ class NodeController
    */
   public function file(?string $lang, ?string $slug): KirbyResponse
   {
-    $Response = new Response('site', $lang, $slug);
+    $Response = new Response('file', $lang, $slug);
     return $this->get($Response, $lang, $slug);
   }
 
@@ -60,7 +59,12 @@ class NodeController
         return $Response->getNotAllowed();
       }
       return $Response->get(
-        NodeService::get($node, $lang, RequestHelper::getFields($request))
+        NodeService::get(
+          $node,
+          $lang,
+          RequestHelper::getFields($request),
+          RequestHelper::getLanguages($request)
+        )
       );
     } catch (Exception $e) {
       return $Response->getFatal($e->getMessage());

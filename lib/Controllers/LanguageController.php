@@ -6,7 +6,6 @@ use Kirby\Exception\Exception;
 use Kirby\Http\Response as KirbyResponse;
 use Tritrics\Ahoi\v1\Data\Response;
 use Tritrics\Ahoi\v1\Factories\ModelFactory;
-use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Services\LanguageService;
 use Tritrics\Ahoi\v1\Helper\RequestHelper;
 
@@ -31,13 +30,14 @@ class LanguageController
    */
   public function language(?string $lang): KirbyResponse
   {
+    $request = kirby()->request();
     $Response = new Response('language', $lang);
     try {
       $lang = RequestHelper::getLang($lang);
       if ($lang === null) {
         return $Response->getInvalidLang();
       }
-      return $Response->get(LanguageService::get($lang));
+      return $Response->get(LanguageService::get($lang, RequestHelper::getFields($request)));
     } catch (Exception $e) {
       return $Response->getFatal($e->getMessage());
     }

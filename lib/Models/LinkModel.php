@@ -44,24 +44,22 @@ class LinkModel extends BaseModel
         break;
       case 'file':
         $file = KirbyHelper::findFileByKirbyLink($this->model->value());
-        if ($file) {
-          $this->add('meta', LinkHelper::getFile(
-            $this->model->value(),
-            (string) $file->title()->get(),
-            true
-          ));
-        }
+        $title = $file ? (string) $file->title()->get() : '';
+        $this->add('meta', LinkHelper::getFile(
+           $this->model->value(),
+          $title,
+          true
+        ));
         break;
       case 'page':
         $page = KirbyHelper::findPageByKirbyLink($this->model->value());
-        if ($page) {
-          $this->add('meta', LinkHelper::getPage(
-            $this->model->value(),
-            (string) $page->title()->get(),
-            false,
-            $this->lang
-          ));
-        }
+        $title = $page ? (string) $page->title()->get() : '';
+        $this->add('meta', LinkHelper::getPage(
+          $this->model->value(),
+          $title,
+          false,
+          $this->lang
+        ));
         break;
       case 'tel':
         $this->add('meta', LinkHelper::getTel(
@@ -85,7 +83,8 @@ class LinkModel extends BaseModel
         ));
         break;
     }
-    $this->add('value', $this->meta['title'] ?? '');
+    $value = $this->node('meta', 'title')->get();
+    $this->add('value', is_string($value) ? $value : '');
   }
 }
 

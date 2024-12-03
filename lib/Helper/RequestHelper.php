@@ -99,6 +99,15 @@ class RequestHelper
   }
 
   /**
+   * Get fields parameter from Request.
+   */
+  public static function getLanguages(Request $request): bool
+  {
+    $val = $request->get('languages');
+    return TypeHelper::isTrue($val);
+  }
+
+  /**
    * Get limit parameter from Request, any number > 0, default 10.
    */
   public static function getLimit(Request $request): int

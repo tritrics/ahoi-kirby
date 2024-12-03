@@ -6,8 +6,7 @@ use Kirby\Content\Field;
 use Kirby\Cms\Block;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
-use Tritrics\Ahoi\v1\Models\PageModel;
-use Tritrics\Ahoi\v1\Models\BaseEntriesModel;
+use Tritrics\Ahoi\v1\Data\EntriesModel;
 
 /**
  * Translates Kirby's fields and objects to API data models.
@@ -83,7 +82,7 @@ class ModelFactory
       $model = ConfigHelper::getNamespace() . '\\Models\\' . self::$classMap['text'];
     }
     $instance = new $model($field, $blueprint, $lang, $addFields);
-    if ($instance instanceof BaseEntriesModel && $instance->isSingleEntry()) {
+    if ($instance instanceof EntriesModel && $instance->isSingleEntry()) {
       $firstEntry = $instance->getFirstEntry();
       if (!$firstEntry) {
         $firstEntry = $instance->createEntry();

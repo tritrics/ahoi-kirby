@@ -86,24 +86,26 @@ class LanguageModel extends FieldsModel
   {
     $this->fields = new Collection();
 
-    // Value for language (=translations) are added if a single language is requested.
-    if (!$this->addDetails) {
-      return;
-    }
-    
-    $separator = ConfigHelper::get('field_name_separator', '');
-    $language = LanguagesHelper::get($this->lang);
-    $languageDefault = LanguagesHelper::getDefault();
-    $translations = $language->translations();
-    foreach ($languageDefault->translations() as $key => $foo) {
-      $value = isset($translations[$key]) ? $translations[$key] : '';
-      if ($separator) {
-        $key = explode($separator, $key);
+    if (count($this->addFields) > 0) {
+      $separator = ConfigHelper::get('field_name_separator', '');
+      $language = LanguagesHelper::get($this->lang);
+      $languageDefault = LanguagesHelper::getDefault();
+      $translations = $language->translations();
+      foreach ($languageDefault->translations() as $key => $foo) {
+
+        // $addFields can be: [ '*', 'foo', 'foo_bar', 'foo_*', 'foo_bar_*' ]
+        if (!in_array('*', $this->addFields) && !in_array($key, $this->addFields)) {
+          continue;
+        }
+        $value = isset($translations[$key]) ? $translations[$key] : '';
+        if ($separator) {
+          $key = explode($separator, $key);
+        }
+        $this->fields->add($key, [
+          'type' => 'string',
+          'value' => (string) $value
+        ]);
       }
-      $this->fields->add($key, [
-        'type' => 'string',
-        'value' => (string) $value
-      ]);
     }
   }
 }

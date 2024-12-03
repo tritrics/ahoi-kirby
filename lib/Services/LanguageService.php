@@ -17,8 +17,8 @@ class LanguageService
    * @throws DuplicateException 
    * @throws LogicException 
    */
-  public static function get(?string $lang): Collection
+  public static function get(?string $lang, array $fields): Collection
   {
-    return new LanguageModel(null, null, $lang, [ '*' ], true);
+    return new LanguageModel(null, null, $lang, $fields, true);
   }
 }

@@ -53,7 +53,7 @@ class PageModel extends FieldsModel
     }
 
     // languages
-    if (ConfigHelper::isMultilang() && $this->addDetails) {
+    if (ConfigHelper::isMultilang() && $this->addLanguages) {
       $languages = $this->add('languages');
       foreach (LanguagesHelper::getLang() as $lang) {
         $languages->push(
