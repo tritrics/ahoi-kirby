@@ -7,6 +7,7 @@ use Kirby\Cms\Page;
 use Kirby\Cms\File;
 use Tritrics\Ahoi\v1\Data\Collection;
 use Tritrics\Ahoi\v1\Data\FieldsModel;
+use Tritrics\Ahoi\v1\Helper\AccessHelper;
 use Tritrics\Ahoi\v1\Helper\LanguagesHelper;
 use Tritrics\Ahoi\v1\Helper\ConfigHelper;
 use Tritrics\Ahoi\v1\Helper\UrlHelper;
@@ -94,7 +95,7 @@ class LanguageModel extends FieldsModel
       foreach ($languageDefault->translations() as $key => $foo) {
 
         // $addFields can be: [ '*', 'foo', 'foo_bar', 'foo_*', 'foo_bar_*' ]
-        if (!in_array('*', $this->addFields) && !in_array($key, $this->addFields)) {
+        if (!AccessHelper::isAllowedField($key, $this->addFields)) {
           continue;
         }
         $value = isset($translations[$key]) ? $translations[$key] : '';

@@ -92,6 +92,26 @@ class AccessHelper
   }
 
   /**
+   * Checks a fieldname against a list of allowed fields as they are defined in config.php:
+   * [ '*', 'title', 'pages', 'pages*', 'pages_foo*' ]
+   * 
+   * Attention: Dot-separated childfield defintions like [ 'foo.bar', 'foo.*'] must not be in the list!
+   */
+  public static function isAllowedField(string $fieldname, array $fieldDefs): bool
+  {
+    // all fields allowed
+    if (in_array('*', $fieldDefs)) {
+      return true;
+    }
+    foreach ($fieldDefs as $fieldDef) {
+      if (preg_match('/^' . str_replace('*', '.+', $fieldDef) . '$/ui', $fieldname)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Check a model for both blueprint and route.
    */
   public static function isAllowedModel(Page|Site|File $model): bool

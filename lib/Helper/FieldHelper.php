@@ -25,25 +25,25 @@ class FieldHelper
   ): void {
     $separator = ConfigHelper::get('field_name_separator', '');
 
-    // separate regular fields from childfields
+    // separate parentFields from childfields
     // $addFields can be: [ '*', 'title', 'pages', 'pages.*', 'pages.title', 'files.foo.*' ]
-    $fields = [];
+    $parentFields = [];
     $childFields = [];
     foreach($addFields as $key) {
-      if (preg_match("/^([a-z0-9-_]+)\.(.+)$/", $key, $matches)) {
+      if (preg_match("/^([a-z0-9-_]+)\.(.+)$/ui", $key, $matches)) {
         list($all, $parent, $child) = $matches;
         if (!isset($childFields[$parent])) {
           $childFields[$parent] = [];
         }
         $childFields[$parent][] = $child;
       } else {
-        $fields[] = $key;
+        $parentFields[] = $key;
       }
     }
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
-      if (!in_array('*', $fields) && !in_array($key, $fields)) {
+      if (!AccessHelper::isAllowedField($key, $parentFields)) {
         continue;
       }
       $field = isset($allFields[$key]) ? $allFields[$key] : new KirbyField(null, $key, '');
