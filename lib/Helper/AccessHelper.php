@@ -59,7 +59,7 @@ class AccessHelper
     if (TypeHelper::isTrue($config) || $config === '*') {
       $default = true;
     } else if (is_array($config)) {
-      foreach($config as $pattern => $access) {
+      foreach ($config as $pattern => $access) {
         if (TypeHelper::isBool($access)) {
           if ($pattern === '*') {
             $default = TypeHelper::toBool($access);
@@ -75,7 +75,7 @@ class AccessHelper
       'patterns' => []
     ];
     foreach ($patterns as $pattern => $access) {
-      self::$routes['patterns'][] = new Route($pattern, 'ALL', function () {}, [ 'access' => $access ]);
+      self::$routes['patterns'][] = new Route($pattern, 'ALL', function () {}, ['access' => $access]);
     }
   }
 
@@ -145,5 +145,28 @@ class AccessHelper
       }
     }
     return $res;
+  }
+
+  /**
+   * Separate parentFields from childfields.
+   * $fields can be: [ '*', 'title', 'pages', 'pages.*', 'pages.title', 'files.foo.*' ]
+   * for blocks: [ 'blocksfield.*.files.title', 'blocksfield.[blockname].files.title' ]
+   */
+  public static function splitFields($fields): array
+  {
+    $parent = [];
+    $childs = [];
+    foreach ($fields as $key) {
+      if (preg_match("/^([a-z0-9-_*]+)\.(.+)$/ui", $key, $matches)) {
+        list($all, $name, $child) = $matches;
+        if (!isset($childs[$name])) {
+          $childs[$name] = [];
+        }
+        $childs[$name][] = $child;
+      } else {
+        $parent[] = $key;
+      }
+    }
+    return [$parent, $childs];
   }
 }

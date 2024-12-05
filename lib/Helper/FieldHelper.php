@@ -16,7 +16,7 @@ class FieldHelper
    * Recoursive function to add field data to the given $resultObj object
    * includeFields only work for top-level fields, not for nested fields in structure or objects
    */
-  public static function addFields (
+  public static function addFields(
     Collection $resultObj, //  Collection of the result data
     array $allFields,
     Collection $blueprint,
@@ -24,26 +24,11 @@ class FieldHelper
     ?array $addFields = []
   ): void {
     $separator = ConfigHelper::get('field_name_separator', '');
-
-    // separate parentFields from childfields
-    // $addFields can be: [ '*', 'title', 'pages', 'pages.*', 'pages.title', 'files.foo.*' ]
-    $parentFields = [];
-    $childFields = [];
-    foreach($addFields as $key) {
-      if (preg_match("/^([a-z0-9-_]+)\.(.+)$/ui", $key, $matches)) {
-        list($all, $parent, $child) = $matches;
-        if (!isset($childFields[$parent])) {
-          $childFields[$parent] = [];
-        }
-        $childFields[$parent][] = $child;
-      } else {
-        $parentFields[] = $key;
-      }
-    }
+    list($parent, $childs) = AccessHelper::splitFields($addFields);
 
     // loop blueprint definition
     foreach ($blueprint as $key => $blueprintField) {
-      if (!AccessHelper::isAllowedField($key, $parentFields)) {
+      if (!AccessHelper::isAllowedField($key, $parent)) {
         continue;
       }
       $field = isset($allFields[$key]) ? $allFields[$key] : new KirbyField(null, $key, '');
@@ -53,7 +38,7 @@ class FieldHelper
       }
 
       if (ModelFactory::has($type)) {
-        $childAddFields = isset($childFields[$key]) ? $childFields[$key] : [];
+        $childAddFields = isset($childs[$key]) ? $childs[$key] : [];
         if ($separator) {
           $key = explode($separator, $key);
         }
@@ -84,13 +69,13 @@ class FieldHelper
           $condField = $fields[$key];
           $condValue =
             TypeHelper::isBool($condField->value())
-              ? TypeHelper::toBool($condField->value())
-              : null;
+            ? TypeHelper::toBool($condField->value())
+            : null;
           if (is_bool($condValue)) {
             $value =
               TypeHelper::isBool($value)
-                ? TypeHelper::toBool($value)
-                : null;
+              ? TypeHelper::toBool($value)
+              : null;
           } else {
             $value = TypeHelper::toChar($value, true, true);
             $condValue = TypeHelper::toChar($condField->value(), true, true);

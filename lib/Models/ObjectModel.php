@@ -20,9 +20,7 @@ class ObjectModel extends FieldsModel
     array $addFields = [],
     bool $addLanguages = false
   ) {
-    if (!is_array($addFields) || count($addFields) === 0) {
-      $addFields = ['*'];
-    }
+    $addFields = array_merge(['*'], is_array($addFields) ? $addFields : []);
     parent::__construct($model, $blueprint, $lang, $addFields, $addLanguages);
     $this->setData();
   }

@@ -15,6 +15,7 @@ class StructureModel extends EntriesModel
    */
   public function __construct() {
     parent::__construct(...func_get_args());
+    $this->addFields = array_merge(['*'], $this->addFields);
     $this->setEntries($this->model->toStructure());
     $this->setData();
   }
@@ -39,7 +40,7 @@ class StructureModel extends EntriesModel
         $entry->content($this->lang)->fields(),
         $this->blueprint->node('fields'),
         $this->lang,
-        ['*'] // the structure-fields makes no sense without the entries, (same in ObjectModel)
+        $this->addFields
       );
       $entries->push($row);
     }
