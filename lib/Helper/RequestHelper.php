@@ -26,7 +26,9 @@ class RequestHelper
   {
     $fields = $request->get('fields');
     $res = [];
-    if (is_array($fields)) {
+    if ($fields === '*') {
+      $res[] = '*';
+    } else if (is_array($fields)) {
       $res = array_map(function ($entry) {
         return TypeHelper::toString($entry, true, true);
       }, $fields);
