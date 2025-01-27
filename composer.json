@@ -1,7 +1,7 @@
 {
     "name": "tritrics\/ahoi-kirby",
     "description": "Plugin to use Kirby as content backend for Vue.js or any other webservice.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "authors": [
         {
             "name": "Michael Adams",
